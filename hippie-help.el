@@ -3,33 +3,28 @@
 ;;; History:
 ;; 
 ;; Released under the GPL. No implied warranties, etc. Use at your own risk.
-;; Copyright 2008 Arthur Danskin <arthurdanskin@gmail.com>
+;; Copyright 2008-2013 Arthur Danskin <arthurdanskin@gmail.com>
 ;; April 2008 - initial version 
-;; May 2008 - ebrowse support, fix man support, cleanups
-;;
-;; Latest version available from http://arthur.acm.jhu.edu
+;; May   2008 - ebrowse support, fix man support, cleanups
+;; July  2013 - hippie-eldoc mode
 ;; 
 ;;; Commentary:
 ;; 
-;; This package provides a unified interface for context sensitive
-;; help and navigation, analogous to `hippie-expand'. `hippie-goto' is
-;; a generalized `find-tag' / `imenu' / `find-function' / etc. and
-;; `hippie-help' is a generalized `describe-function' /
-;; `describe-variable' / `python-describe-symbol' / etc.
+;; This package provides a unified interface for context sensitive help and navigation, analogous
+;; to `hippie-expand'. `hippie-goto' is a generalized `find-tag' / `imenu' / `find-function' /
+;; etc. and `hippie-help' is a generalized `describe-function' / `describe-variable' /
+;; `python-describe-symbol' / etc. `hippie-eldoc' uses the machinery of `hippie-goto' to show the
+;; definition of the function at point in the minibuffer.
 ;;
-;; The implementation of this is really messy because we need to be
-;; able to tell if we should ask a function for help before we
-;; actually call it. This generally requires dipping into internal
-;; functions and/or overriding `completing-read' to prevent the user
-;; from being annoyed.
+;; The implementation of this is really messy because we need to be able to tell if we should ask
+;; a function for help before we actually call it. This generally requires dipping into internal
+;; functions and/or overriding `completing-read' to prevent the user from being annoyed. The
+;; macro `with-no-interactivity' encapsulates most of this.
 ;;
-;; This package uses my packages `opengl.el' and `octave-hlp2.el',
-;; which are available on my website above.
-;; 
-;; 
 ;;; Installation:
 ;; (autoload 'hippie-help "hippie-help" "Display help for the thing at point." t)
 ;; (autoload 'hippie-goto "hippie-help" "Goto the thing at point." t)
+;; put (hippie-eldoc 1) in your favorite programming language hook. It works best with C and C++.
 
 ;; suggested key bindings:
 ;; (define-key global-map (kbd "M-?") 'hippie-help)

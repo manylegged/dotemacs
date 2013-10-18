@@ -380,32 +380,7 @@
 
     (setq compile-makefile (concat outlaws-platform "Makefile"))
     (add-hook 'compilation-finish-functions 'outlaws-compilation-finish)
-
-
-    ;; (setq company-clang-arguments
-    ;;       (list "-std=gnu++11"
-    ;;     	"-stdlib=libc++"
-    ;;     	"-I" (concat outlaws-base "core/")
-    ;;     	"-I" (concat outlaws-base "game/")
-    ;;     	"-I" outlaws-platform-inc
-    ;;     	;; "-include" "All.h"
-    ;;     	))
-
-    ;(global-ede-mode t)
-    ;(ede-enable-generic-projects)
-    ;; (if (file-exists-p tot-file)
-    ;;     (ede-cpp-root-project "outlaws"
-    ;;                           :name "Outlaws Config"
-    ;;                           :file tot-file
-    ;;                           :include-path (list "/game"
-    ;;                                               "/core"
-    ;;                                               "/FMOD/inc"
-    ;;                                               "/chipmunk/include/chipmunk"
-    ;;                                               "/glm/core"
-    ;;                                               outlaws-platform-inc)
-    ;;                           :spp-table '(("DEBUG" . "1"))))
     ))
-(defalias 'polyspace 'outlaws)
 
 
 ;;; language / major modes

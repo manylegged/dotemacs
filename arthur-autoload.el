@@ -5,11 +5,6 @@
 (eval-when-compile
   (require 'cl))
 
-(autoload 'w3m "w3m" "web browser" t)
-(autoload 'w3m-browse-url "w3m" "open url in w3m")
-
-(autoload 'doxymacs-mode "doxymacs" "doxygen minor mode" t)
-
 (autoload 'hexcolor-mode "hexcolor" "fontify color names in their color" t)
 (autoload 'facecolor-mode "hexcolor" "fontify face names in their color" t)
 
@@ -38,9 +33,6 @@
 
 (autoload 'flymake-extra-enable "flymake-extra" "Turn on flymake" t)
 
-(autoload 'dissociate-markov "dadadodo" "generate nonsense" t)
-(autoload 'dadadodo "dadadodo" "generate nonsense" t)
-
 (autoload 'visible-lines-mode "visible-lines" "line oriented movements" t)
 
 (autoload 'rfc2047-decode-string "rfc2047")
@@ -55,7 +47,6 @@
 (autoload 'hippie-goto "hippie-help" "Intelligently goto the thing at point." t)
 (autoload 'hippie-eldoc "hippie-help" "Eldoc using hippie help keybindings" t)
 (autoload 'hippie-help-mode "hippie-help" "keybindings for hippie help" t)
-(autoload 'octave-help2 "octave-hlp2" "help for octave symbol at point")
 
 (autoload 'js2-mode "js2" nil t)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
@@ -69,14 +60,5 @@
 
 (autoload 'u-mandelbrot "u-mandelbrot" "A simple fractal browser" t)
 (autoload 'mandelbrot "u-mandelbrot" "A simple fractal browser" t)
-
-(add-to-list 'load-path "/opt/local/share/gtags/")
-(autoload 'gtags-mode "gtags" "" t)
-(setq gtags-global-command "/opt/local/bin/global")
-
-;(autoload 'pretty-mode "pretty-mode" "Toggle Pretty minor mode" t)
-;(add-to-list 'load-path (concat user-emacs-directory "pretty-mode-plus"))
-;(autoload 'pretty-mode "pretty-mode-plus" "Toggle Pretty minor mode" t)
-;(require 'pretty-mode-plus)
 
 (provide 'arthur-autoload)
