@@ -140,7 +140,8 @@ functions to avoid scrambling everything."
                   (visit-tags-table-buffer)
                   (find-tag-in-order (concat "\\<" sym "\\>")
                                      find-tag-regexp-search-function
-                                     find-tag-tag-order
+                                     ;find-tag-tag-order
+                                     '(tag-symbol-match-p)
                                      find-tag-next-line-after-failure-p
                                      nil
                                      t)))))))))
@@ -485,8 +486,9 @@ then it calls the second function."
           (bufpoint (hap-get-all-buffers-point))
           quit? errorMsg mapresult)
       (dolist (el list)
+        (setq errorMsg nil)
         (when hap-debug-enabled
-          (setq mapresult (cons (point-marker) mapresult)))
+          (setq mapresult (cons (list "starting-from" (point-marker)) mapresult)))
         (when (hap-filter-symbol (ignore-errors (funcall (car el))))
           (setq hap-current-element el)
           (condition-case e
@@ -498,8 +500,11 @@ then it calls the second function."
             (error (setq errorMsg (nth 1 e))  ; error / exception
                    (hap-set-all-buffers-point bufpoint)
                    (set-window-configuration window-config)))
-          (when (and hap-debug-enabled errorMsg)
-            (setq mapresult (cons (cons el errorMsg) mapresult)))
+          (when hap-debug-enabled
+            (when errorMsg
+              (setq mapresult (cons (list "error" el errorMsg) mapresult)))
+            (when quit?
+              (setq mapresult (cons (list "quit" el) mapresult))))
           (unless (or quit? errorMsg)
             (if mapfun
                 (let ((res (funcall mapfun el)))

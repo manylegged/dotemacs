@@ -75,6 +75,8 @@
 ;(ac-set-trigger-key (kbd "TAB"))
 (ac-set-trigger-key nil)
 (global-auto-complete-mode t)
+(global-auto-revert-mode 1)
+(desktop-save-mode 1)
 ;(ac-config-default)
 ;(yas-global-mode 1)
 
@@ -300,6 +302,7 @@
 (defun align-dwim ()
   "Align region, or current block if region is not active"
   (interactive)
+  (require 'align)
   (if (use-region-p)
       (let ((align-region-separate 'entire))
         (align (region-beginning) (region-end)))
@@ -368,6 +371,8 @@
       (setq outlaws-platform-inc (concat outlaws-platform "src")))
     (setq tot-file (concat outlaws-base "TOT"))
 
+    (add-to-list 'desktop-path outlaws-base)
+
     (save-window-excursion
       (find-file (concat outlaws-platform "Makefile"))
       (find-file (concat outlaws-platform "BROWSE"))
@@ -380,6 +385,7 @@
 
     (setq compile-makefile (concat outlaws-platform "Makefile"))
     (add-hook 'compilation-finish-functions 'outlaws-compilation-finish)
+    (desktop-read outlaws-base)
     ))
 
 
@@ -503,6 +509,14 @@
 ;; (defun my-gdb-hook ()
   ;; (set (make-local-variable 'truncate-partial-width-windows) nil))
 ;; (add-hook 'gud-mode-hook 'my-gdb-hook)
+
+(defun my-lua-hook ()
+  (local-set-key (kbd "C-c C-l") 'align-dwim)
+  (local-set-key (kbd "C-{") 'my-c-insert-braces)
+  (hexcolor-mode 1)
+  (subword-mode 1)
+  (setq tab-width 4))
+(add-hook 'lua-mode-hook 'my-lua-hook)
 
 ;; c / c++
 

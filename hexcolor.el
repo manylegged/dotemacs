@@ -15,17 +15,8 @@
       "white" "black"))
 
 (defvar hexcolor-keywords
-  `((,(concat "\\(#[0-9a-fA-F]\\{6\\}"
-               "\\|" (regexp-opt (defined-colors) 'words)
-              "\\)")
-     (0 (let ((color (match-string-no-properties 1)))
-          `(face (:foreground ,(hexcolor-fgcolor color) :background ,color)))
-        prepend)))
-  "keywords passed to `font-lock-add-keywords' for `hexcolor-mode'")
-
-(defvar hexcolor-keywords-c++
-  `(("0x[0-9a-fA-F]\\{2\\}?\\([0-9a-fA-F]\\{6\\}\\)\\>" 
-     (0 (let ((color (concat "#" (match-string-no-properties 1))))
+  `(("\\(0x\\|[#]\\)[0-9a-fA-F]\\{2\\}?\\([0-9a-fA-F]\\{6\\}\\)\\>" 
+     (0 (let ((color (concat "#" (match-string-no-properties 2))))
           `(face (:foreground ,(hexcolor-fgcolor color) :background ,color)))
         prepend)
      ))
@@ -41,9 +32,7 @@ color they specify."
   ;:lighter " 0xRGB"
   :lighter ""
   :group 'hexcolor
-  (let ((keywords (if (eq major-mode 'c++-mode)
-                      hexcolor-keywords-c++
-                    hexcolor-keywords)))
+  (let ((keywords hexcolor-keywords))
     (if hexcolor-mode
       (font-lock-add-keywords nil keywords)
       (font-lock-remove-keywords nil keywords))

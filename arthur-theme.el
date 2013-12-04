@@ -108,6 +108,9 @@
      '(color-theme-arthur-mild
        () ()
        (minibuffer-prompt ((t (:foreground "grey90"))))
+       (mode-line ((t (:background "#ffffff" :foreground "black"))))
+       (fringe ((t (:background "#101010"))))
+       (mode-line-inactive ((t (:background "#101010" :foreground "#808080"))))
 
        (font-lock-doc-face ((t (:foreground "grey50"))))
        (font-lock-string-face ((t (:foreground "grey60"))))
@@ -120,8 +123,10 @@
        (font-lock-function-name-face ((t (:weight unspecified :underline t :foreground "grey75"))))
        (font-lock-builtin-face ((t (:foreground "grey60"))))
        (font-lock-preprocessor-face ((t (:foreground "DeepPink3"))))
-       (font-lock-negation-char-face ((t (:foreground "tomato"))))
+       (font-lock-negation-char-face ((t (:foreground "#ffffff"))))
        (font-lock-warning-face ((t (:bold t :foreground "OrangeRed3"))))
+       (font-lock-comment-face ((t (:foreground "#404040" :background unspecified))))
+       (font-lock-comment-delimiter-face ((t (:foreground "#606060" :background unspecified))))
        
        (font-latex-bold-face ((t (:foreground "grey75" :bold t))))
        (font-latex-warning-face ((t (:foreground "coral4"))))
