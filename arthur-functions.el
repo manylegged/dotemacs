@@ -61,6 +61,7 @@
  new line. Generalized version of `newline-and-indent'"
   (interactive "P")
   (save-excursion
+    (indent-according-to-mode)
     (end-of-line)
     (if (or (equal arg "-") (consp arg))
         (let ((beg (line-beginning-position))
@@ -149,6 +150,7 @@
  one is found, `compile' the program with it."
   (interactive "P") 
   ;; mark "In file included from" clang output as info instead of warning
+  (require 'compile)
   (setcar (nthcdr 5 (assoc 'gcc-include compilation-error-regexp-alist-alist)) 0)
   (let ((makefile (or (get-closest-pathname "Makefile") compile-makefile)))
     (if (null makefile)

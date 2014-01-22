@@ -44,7 +44,7 @@
 (require 'package)
 (package-initialize)
 (add-to-list 'package-archives
-             '("marmalade" . "http://marmalade-repo.org/packages/") t)
+             '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
 
 (require 'auto-complete)
@@ -76,6 +76,8 @@
 (ac-set-trigger-key nil)
 (global-auto-complete-mode t)
 (global-auto-revert-mode 1)
+(add-to-list 'global-auto-revert-ignore-modes 'ebrowse-tree-mode)
+(add-to-list 'global-auto-revert-ignore-modes 'tags-table-mode)
 (desktop-save-mode 1)
 ;(ac-config-default)
 ;(yas-global-mode 1)
@@ -88,7 +90,8 @@
     (when (require 'color-theme nil t)
       (require 'arthur-theme)
       (require 'parenface)
-      (color-theme-arthur-dark)
+      ;(color-theme-arthur-dark)
+      (color-theme-arthur-light)
       ;; (let ((color-theme-legal-variables "\\(color\\|face\\)")
       ;;       (hour (string-to-number (format-time-string "%H"))))
       ;;   (if (and (< 8 hour ) (< hour 21))
@@ -377,10 +380,12 @@
       (find-file (concat outlaws-platform "Makefile"))
       (find-file (concat outlaws-platform "BROWSE"))
       (visit-tags-table (concat outlaws-platform "TAGS"))
-      (message "Loading source files... ")
-      (find-file (concat outlaws-base "core/*.h") t)
-      (find-file (concat outlaws-base "game/*.h") t)
-      (find-file (concat outlaws-base "game/*.cpp") t))
+      ;; (progn
+      ;;   (message "Loading source files... ")
+      ;;   (find-file (concat outlaws-base "core/*.h") t)
+      ;;   (find-file (concat outlaws-base "game/*.h") t)
+      ;;   (find-file (concat outlaws-base "game/*.cpp") t))
+      )
     (message "Outlaws loaded")
 
     (setq compile-makefile (concat outlaws-platform "Makefile"))
