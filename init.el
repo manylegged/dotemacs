@@ -26,9 +26,12 @@
       (progn
         ;; macports directory
         (add-to-list 'exec-path "/opt/local/bin")
-        (setq-default ispell-program-name "/opt/local/bin/aspell"
+        (setenv "PATH" (concat (getenv "PATH") ":" "/opt/local/bin"))
+        (setq-default explicit-bash-args '("--login" "-i")
+                      ispell-program-name "/opt/local/bin/aspell"
                       vc-hg-program "/opt/local/bin/hg"
-                      find-function-C-source-directory (expand-file-name "~/Documents/emacs-24.3/src")))
+                      find-function-C-source-directory (expand-file-name "~/Documents/emacs-24.3/src")
+                      latex-run-command (executable-find "latex")))
 
     ; linux
     (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/")
@@ -82,7 +85,8 @@
 ;(ac-config-default)
 ;(yas-global-mode 1)
 
-(global-set-key (kbd "C-M-i") 'company-complete)
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'forward)
 
 ;; window system
 (when window-system
@@ -390,7 +394,7 @@
 
     (setq compile-makefile (concat outlaws-platform "Makefile"))
     (add-hook 'compilation-finish-functions 'outlaws-compilation-finish)
-    (desktop-read outlaws-base)
+    ;(desktop-read outlaws-base)
     ))
 
 
@@ -558,6 +562,8 @@
   (local-set-key (kbd "C-{") 'my-c-insert-braces)
   (local-set-key (kbd "C-<") 'insert-pair)
   (local-set-key (kbd "C->") 'my-c-insert-arrow)
+  (abbrev-mode -1)
+  (local-set-key (kbd "C-j") 'newline)
   )
 (add-hook 'c-mode-common-hook 'my-c-common-hook)
 
@@ -601,6 +607,11 @@
 (add-hook 'c++-mode-hook 'my-c++-hook)
 
 
+(defun my-objc-hook ()
+  (font-lock-add-keywords
+   nil '(("@property" . font-lock-keyword-face))))
+(add-hook 'objc-mode-hook 'my-objc-hook)
+
 ;; cedet
 ;; (progn
 ;;   (require 'semantic)
@@ -634,4 +645,10 @@
 ;;;          ("\\_<print\\_>" . font-lock-builtin-face)
          )))
 (add-hook 'python-mode-hook 'python-better-highlighting)
+
+
+(defun my-tex-hook ()
+  (TeX-global-PDF-mode 1))
+(add-to-list 'TeX-mode-hook 'my-tex-hook)
+
 

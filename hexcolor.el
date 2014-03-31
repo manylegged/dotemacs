@@ -9,16 +9,17 @@
     (floor (+ (* .3 r) (* .59 g) (* .11 b)) 256)))
 
 (defun hexcolor-fgcolor (color)
-  (if (> (if (< 128 (hexcolor-luminance (background-color-at-point)))
-             200 20)
-         (hexcolor-luminance color))
+  (if (< (hexcolor-luminance color) 128)
       "white" "black"))
 
+(defun hexcolor-fontify ()
+  (let ((color (concat "#" (match-string-no-properties 2))))
+    `(face (:foreground ,(hexcolor-fgcolor color) :background ,color)))
+  )
+
 (defvar hexcolor-keywords
-  `(("\\(0x\\|[#]\\)[0-9a-fA-F]\\{2\\}?\\([0-9a-fA-F]\\{6\\}\\)\\>" 
-     (0 (let ((color (concat "#" (match-string-no-properties 2))))
-          `(face (:foreground ,(hexcolor-fgcolor color) :background ,color)))
-        prepend)
+  '(("\\(0x\\|[#]\\)[0-9a-fA-F]\\{2\\}?\\([0-9a-fA-F]\\{6\\}\\)\\>" 
+     (0 (hexcolor-fontify) prepend)
      ))
   "keywords passed to `font-lock-add-keywords' for `hexcolor-mode'")
 
@@ -36,7 +37,7 @@ color they specify."
     (if hexcolor-mode
       (font-lock-add-keywords nil keywords)
       (font-lock-remove-keywords nil keywords))
-    (font-lock-fontify-buffer)))
+    (ignore-errors (font-lock-fontify-buffer))))
 
 
 (defvar facecolor-keywords
