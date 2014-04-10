@@ -95,7 +95,8 @@
       (require 'arthur-theme)
       (require 'parenface)
       ;(color-theme-arthur-dark)
-      (color-theme-arthur-light)
+      (unless arthur-current-theme
+        (color-theme-arthur-light))
       ;; (let ((color-theme-legal-variables "\\(color\\|face\\)")
       ;;       (hour (string-to-number (format-time-string "%H"))))
       ;;   (if (and (< 8 hour ) (< hour 21))
@@ -637,14 +638,14 @@
 ;; python
 (add-to-list 'auto-mode-alist '("SCons\\(truct\\|script\\)\\'" . python-mode))
 
-(defun python-better-highlighting ()
-  "highlight string escapes and keywords in the proper face for python"
+(defun my-python-hook ()
   (font-lock-add-keywords
    nil '(("\\_<\\(True\\|False\\)\\_>" . font-lock-constant-face)
          ("\\_<self\\_>" . font-lock-variable-name-face)
 ;;;          ("\\_<print\\_>" . font-lock-builtin-face)
-         )))
-(add-hook 'python-mode-hook 'python-better-highlighting)
+         ))
+  (local-set-key (kbd "C-j") 'newline))
+(add-hook 'python-mode-hook 'my-python-hook)
 
 
 (defun my-tex-hook ()

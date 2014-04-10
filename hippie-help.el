@@ -122,29 +122,17 @@ functions run as part of BODY will not change globals state"
           (with-no-warnings (woman-file-name nil))))))
 
 (defun hap-tag-at-point-p ()
-  "Return non-nil if point is contained in an etags tag.
-You would think that this would be a simple, built in operation,
-but noooo we have to save tons of state and override built in
-functions to avoid scrambling everything."
-  (let ((sym (thing-at-point 'symbol))
+  "Return non-nil if point is contained in an etags tag."
+  (let ((sym (hap-filter-symbol (thing-at-point 'symbol)))
         message-log-max                 ; inhibit messages going to log
         case-fold-search)               ; case sensitive
     (and sym tags-file-name
-         (hap-filter-symbol sym)
-         (ignore-errors
-           (save-current-buffer
-             (save-etags-state
-              (catch 'hap-found-the-tag
-                ;; override function which would find the file - we already know we have a tag
-                (flet ((tag-find-file-of-tag-noselect (file) (throw 'hap-found-the-tag sym)))
-                  (visit-tags-table-buffer)
-                  (find-tag-in-order (concat "\\<" sym "\\>")
-                                     find-tag-regexp-search-function
-                                     ;find-tag-tag-order
-                                     '(tag-symbol-match-p)
-                                     find-tag-next-line-after-failure-p
-                                     nil
-                                     t)))))))))
+         (save-current-buffer
+           (visit-tags-table-buffer)
+           (save-excursion
+             (goto-char (point-min))
+             (search-forward (concat "" sym "") (point-max) t)))
+         sym)))
     
 (defun hap-octave-help2-at-point-p ()
   (and (memq major-mode '(octave-mode inferior-octave-mode))
@@ -450,7 +438,7 @@ Particularly useful for c/c++, where it can use ebrowse, imenu, and or tag data"
           (and (numberp arg) (> arg 0)))
       (progn
         (setq eldoc-documentation-function 'hippie-eldoc-function)
-        (turn-on-eldoc-mode))
+        (eldoc-mode 1))
     (eldoc-mode -1)))
 
 (defun hap-get-all-buffers-point ()

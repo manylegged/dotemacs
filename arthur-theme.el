@@ -1,8 +1,11 @@
 ;;  -*- mode: emacs-lisp; -*-
 
+(defvar arthur-current-theme 'nil)
+
 (defun color-theme-arthur-dark ()
-"Color theme by Arthur Danskin."
+  "Color theme by Arthur Danskin."
   (interactive)
+  (setq arthur-current-theme 'dark)
   (color-theme-install
    '(color-theme-arthur-dark
      ((background-color . "black")
@@ -14,7 +17,7 @@
      ((ansi-color-names-vector . ["grey30" "firebrick3" "green3" "goldenrod2"
                                   "RoyalBlue2" "VioletRed4" "cyan4" "white"])
       (ansi-term-color-vector . [unspecified "grey30" "firebrick3" "green3" "goldenrod2"
-                                  "RoyalBlue2" "VioletRed4" "cyan4" "white"])
+                                             "RoyalBlue2" "VioletRed4" "cyan4" "white"])
       (term-default-fg-color . "grey75")
       (term-default-bg-color . "black"))
      
@@ -37,9 +40,9 @@
      (font-lock-regexp-grouping-backslash ((t (:foreground "OliveDrab3"))))
      (font-lock-keyword-face ((t (:bold t :foreground "#e90e3a"))))
      (font-lock-constant-face ((t (:foreground "#a090c0"))))
-;     (font-lock-type-face ((t (:foreground "#0F7889"))))
+                                        ;     (font-lock-type-face ((t (:foreground "#0F7889"))))
      (font-lock-type-face ((t (:foreground "#3f1935"))))
-;     (font-lock-variable-name-face ((t (:slant unspecified :foreground "aquamarine4"))))
+                                        ;     (font-lock-variable-name-face ((t (:slant unspecified :foreground "aquamarine4"))))
      (font-lock-variable-name-face ((t (:italic t :foreground "#482b49"))))
      (font-lock-function-name-face ((t (:bold t :foreground "#aa0825"))))
      (font-lock-builtin-face ((t (:foreground "#740624"))))
@@ -53,7 +56,7 @@
      (setnu-line-number-face ((t (:background "grey15" :foreground "white" :bold t))))
      (show-paren-match ((t (:foreground "black" :background "#04bbff" :bold t))))
      (show-paren-mismatch-face ((t (:bold t :foreground "red"))))
-;     (paren-face ((t (:foreground "DarkGoldenrod4"))))
+                                        ;     (paren-face ((t (:foreground "DarkGoldenrod4"))))
      (paren-face ((t (:foreground "grey40"))))
      (region ((t (:foreground "black" :background "#bbff04"))))
      (highlight ((t (:background "midnight blue"))))
@@ -96,12 +99,13 @@
      (custom-button ((t (:background "grey20" :foreground "grey70" :box "grey50"))))
      (custom-button-pressed ((t (:background "grey30" :foreground "grey70" :box "grey50"))))
      (custom-button-mouse ((t (:background "grey95" :foreground "black" :box "grey50"))))
-                                     
+     
      )))
 
 (defun color-theme-arthur-mild ()
   "grayscale"
   (interactive)
+  (setq arthur-current-theme 'mild)
   (let ((color-theme-is-cumulative t))
     (color-theme-arthur-dark)
     (color-theme-install
@@ -134,14 +138,15 @@
        (show-paren-match-face ((t (:bold t :foreground "gray75"))))
        (help-argument-name ((t (:foreground "grey70" :bold t))))
 
-     ))))
+       ))))
 
 
 (defun color-theme-arthur-light ()
-"Color theme by Arthur Danskin, created 2007-11-16."
+  "Color theme by Arthur Danskin, created 2007-11-16."
   (interactive)
+  (setq arthur-current-theme 'light)
   (let ((color-theme-is-cumulative t))
-    ;(color-theme-arthur-dark)
+                                        ;(color-theme-arthur-dark)
     (color-theme-install
      '(color-theme-arthur-light
        ((background-color . "white")
