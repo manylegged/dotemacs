@@ -434,7 +434,7 @@ Particularly useful for c/c++, where it can use ebrowse, imenu, and or tag data"
   (interactive)
   (with-no-warnings
     (make-variable-buffer-local 'eldoc-documentation-function))
-  (if (or (and (not eldoc-mode) (null arg))
+  (if (or (and (not (or (boundp 'eldoc-mode) eldoc-mode)) (null arg))
           (and (numberp arg) (> arg 0)))
       (progn
         (setq eldoc-documentation-function 'hippie-eldoc-function)

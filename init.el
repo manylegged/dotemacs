@@ -21,7 +21,7 @@
       (setq myfont "Dejavu Sans Mono-10")
       )
   (setq myfont "Dejavu Sans Mono-9")
-  (add-to-list 'load-path "~/.emacs.d/")
+  ;(add-to-list 'load-path "~/.emacs.d/")
   (if (eq system-type 'darwin)
       (progn
         ;; macports directory
@@ -646,10 +646,5 @@
          ))
   (local-set-key (kbd "C-j") 'newline))
 (add-hook 'python-mode-hook 'my-python-hook)
-
-
-(defun my-tex-hook ()
-  (TeX-global-PDF-mode 1))
-(add-to-list 'TeX-mode-hook 'my-tex-hook)
 
 
