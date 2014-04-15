@@ -18,7 +18,7 @@
       (add-to-list 'Info-default-directory-list "c:/cygwin/usr/info/")
       (setenv "SHELL" shell-file-name)
       (setenv "PATH" (concat (getenv "PATH") ";C:\\cygwin\\bin"))    
-      (setq myfont "Dejavu Sans Mono-10")
+      (setq myfont "Consolas-11")
       )
   (setq myfont "Dejavu Sans Mono-9")
   ;(add-to-list 'load-path "~/.emacs.d/")
@@ -111,8 +111,9 @@
   (if (featurep 'tooltip) (tooltip-mode -1))
 
   (when (not (eq system-type 'darwin))
-    (set-frame-font myfont)
-    (add-to-list 'default-frame-alist (cons 'font myfont))
+    (ignore-errors
+      (set-frame-font myfont)
+      (add-to-list 'default-frame-alist (cons 'font myfont)))
     (if (featurep 'menu-bar) (menu-bar-mode -1))
     )
 
