@@ -81,7 +81,7 @@
 (global-auto-revert-mode 1)
 (add-to-list 'global-auto-revert-ignore-modes 'ebrowse-tree-mode)
 (add-to-list 'global-auto-revert-ignore-modes 'tags-table-mode)
-(desktop-save-mode 1)
+;(desktop-save-mode 1)
 ;(ac-config-default)
 ;(yas-global-mode 1)
 
@@ -91,10 +91,8 @@
 ;; window system
 (when window-system
   (ignore-errors
-    (when (require 'color-theme nil t)
-      (require 'arthur-theme)
-      (require 'parenface)
-      ;(color-theme-arthur-dark)
+    (when (and (require 'color-theme nil t)
+               (require 'arthur-theme))
       (unless arthur-current-theme
         (color-theme-arthur-light))
       ;; (let ((color-theme-legal-variables "\\(color\\|face\\)")
@@ -240,7 +238,7 @@
 (global-set-key (kbd "C-,") 'imenu)
 (global-set-key (kbd "<C-M-backspace>") 'my-delete-indentation)
 (global-set-key (kbd "<f12>") 'hippie-help)
-(define-key read-expression-map (kbd "TAB") 'lisp-complete-symbol)
+(define-key read-expression-map (kbd "TAB") 'completion-at-point)
 (global-set-key (kbd "C-z") 'undo)
 (global-set-key (kbd "C-x E") 'find-user-init-file)
 (global-set-key (kbd "C-x D") 'toggle-debug)
@@ -379,8 +377,6 @@
       (setq outlaws-platform "/home/arthur/outlaws/linux/")
       (setq outlaws-platform-inc (concat outlaws-platform "src")))
     (setq tot-file (concat outlaws-base "TOT"))
-
-    (add-to-list 'desktop-path outlaws-base)
 
     (save-window-excursion
       (find-file (concat outlaws-platform "Makefile"))
