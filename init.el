@@ -83,7 +83,7 @@
 (global-auto-complete-mode t)
 (global-auto-revert-mode 1)
 (add-to-list 'global-auto-revert-ignore-modes 'ebrowse-tree-mode)
-(add-to-list 'global-auto-revert-ignore-modes 'tags-table-mode)
+;(add-to-list 'global-auto-revert-ignore-modes 'tags-table-mode)
 ;(desktop-save-mode 1)
 ;(ac-config-default)
 ;(yas-global-mode 1)
