@@ -1,6 +1,6 @@
 ;; -*- mode: emacs-lisp -*-
 ;; Arthur Danskin <arthurdanskin@gmail.com>
-;; .emacs for GNU emacs 23
+;; .emacs for GNU emacs 24.3
 
 (eval-when-compile
   (require 'shell)
@@ -34,7 +34,10 @@
                       ispell-program-name "/opt/local/bin/aspell"
                       vc-hg-program "/opt/local/bin/hg"
                       find-function-C-source-directory (expand-file-name "~/Documents/emacs-24.3/src")
-                      latex-run-command (executable-find "latex")))
+                      latex-run-command (executable-find "latex"))
+        ;; work around system-name bug in nightly emacs
+        (if (string-match-p "knology.net" system-name)
+            (setq system-name "Chlorophyll.local")))
 
     ; linux
     (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/")
@@ -83,21 +86,23 @@
 (global-auto-complete-mode t)
 (global-auto-revert-mode 1)
 (add-to-list 'global-auto-revert-ignore-modes 'ebrowse-tree-mode)
-(add-to-list 'global-auto-revert-ignore-modes 'tags-table-mode)
-(desktop-save-mode 1)
+;(add-to-list 'global-auto-revert-ignore-modes 'tags-table-mode)
+;(desktop-save-mode 1)
 ;(ac-config-default)
 ;(yas-global-mode 1)
 
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
 
+(defun my-really-kill-emacs ()
+  (yes-or-no-p "Really kill Emacs? "))
+
 ;; window system
 (when window-system
+  (add-to-list 'kill-emacs-query-functions 'my-really-kill-emacs)
   (ignore-errors
-    (when (require 'color-theme nil t)
-      (require 'arthur-theme)
-      (require 'parenface)
-      ;(color-theme-arthur-dark)
+    (when (and (require 'color-theme nil t)
+               (require 'arthur-theme))
       (unless arthur-current-theme
         (color-theme-arthur-light))
       ;; (let ((color-theme-legal-variables "\\(color\\|face\\)")
@@ -133,8 +138,7 @@
 ;;;                                  "\n")
  require-final-newline t
  search-highlight t
- frame-title-format '(multiply-frames
-                      "%b" ("%b - " invocation-name "@" system-name))
+ frame-title-format '(multiply-frames "%b" ("%b - Emacs"))
 
  indent-tabs-mode nil                    ; no tabs!
  vc-follow-symlinks t
@@ -178,6 +182,9 @@
  imenu-auto-rescan-maxout 120000
  )
 
+;(add-to-list 'warning-suppress-types '(undo discard-info))
+;(add-to-list 'warning-suppress-types 'frameset)
+
 (fset 'yes-or-no-p 'y-or-n-p)
 
 (require 'saveplace)
@@ -216,6 +223,7 @@
 
 ;;  keybindings
 
+(windmove-default-keybindings 'super)
 (global-set-key [(Mouse-2)] 'mouse-yank-primary)
 (global-set-key (kbd "<Scroll_Lock>") 'scroll-lock-mode)
 (global-set-key (kbd "C-x C-/") 'winner-undo)
@@ -243,17 +251,14 @@
 (global-set-key (kbd "C-,") 'imenu)
 (global-set-key (kbd "<C-M-backspace>") 'my-delete-indentation)
 (global-set-key (kbd "<f12>") 'hippie-help)
-(define-key read-expression-map (kbd "TAB") 'lisp-complete-symbol)
+(define-key read-expression-map (kbd "TAB") 'completion-at-point)
 (global-set-key (kbd "C-z") 'undo)
 (global-set-key (kbd "C-x E") 'find-user-init-file)
 (global-set-key (kbd "C-x D") 'toggle-debug)
 (global-set-key (kbd "C-x N") 'print-buffer-file)
 (global-set-key (kbd "C-x S") 'shell)
 (global-set-key (kbd "C-x g") 'browse-url)
-(global-set-key (kbd "C-x G") 'browse-toggle-w3m/firefox)
 (global-set-key (kbd "C-x B") 'quit-window)
-(global-set-key (kbd "C-x M") 'retchmail)
-(global-set-key (kbd "C-x M-m") 'mew)
 (global-set-key (kbd "C-.") 'repeat)
 (require 'misc)
 (define-key global-map [remap zap-to-char] 'zap-up-to-char)
@@ -285,6 +290,7 @@
     ))
 (add-hook 'compilation-finish-functions 'my-compilation-finish-function)
 
+;; this controls default file pattern for rgrep
 (setq grep-files-aliases
   '(("all" .   "* .*")
     ("el" .    "*.el")
@@ -297,16 +303,14 @@
 (setq grep-find-ignored-files nil)
 
 
-(global-set-key (kbd "<f8>") 'next-error)
-(global-set-key (kbd "s-'") 'next-error)
+(global-set-key (kbd "<f8>") 'next-error) ; visual studio
+(global-set-key (kbd "s-'") 'next-error)  ; xcode 
 (global-set-key (kbd "M-'") 'next-error)
 (global-set-key (kbd "M-\"") 'previous-error)
 (defun my-compile-keys ()
   (local-set-key (kbd "s-b") 'compile-with-makefile)
   (local-set-key (kbd "C-c C-c") 'compile-with-makefile))
-(add-hooks '(sh-mode-hook makefile-mode-hook python-mode-hook
-             ruby-mode-hook scheme-mode-hook haskell-mode-hook
-             asm-mode-hook c-mode-common-hook)
+(add-hooks '(sh-mode-hook makefile-mode-hook c-mode-common-hook)
            'my-compile-keys)
 
 
@@ -342,9 +346,6 @@
            try-complete-file-name
            try-expand-whole-kill)))
     (hippie-expand nil)))
-
-(when window-system
-  (add-to-list 'kill-emacs-query-functions (lambda () (yes-or-no-p "Really kill Emacs? "))))
 
 (defvar outlaws-base)
 (defvar outlaws-platform)
@@ -408,23 +409,8 @@
 
 ;;; language / major modes
 
-(defalias 'run-caml 'tuareg-run-caml)
-(add-hook 'haskell-mode-hook 'turn-on-haskell-decl-scan)
 (add-to-list 'magic-mode-alist '("^ELF" . hexl-mode))
 (add-to-list 'auto-mode-alist '("\.o\\'" . hexl-mode))
-
-;; mode specific variables
-(setq-default
- inferior-lisp-program "clisp"
- haskell-program-name "ghci"
- prolog-system 'swi
- graphviz-dot-indent-width 2
- graphviz-dot-view-command "firefox %s"
- ;; gdb-many-windows t
- nethack-use-tiles nil
- nethack-program "/usr/bin/nethack"
- doxymacs-use-external-xml-parser nil
- )
 
 ;; minor modes
 
@@ -440,12 +426,6 @@
   (local-set-key (kbd "k") 'kill-this-buffer))
 (add-hooks '(compilation-mode-hook completion-list-mode-hook)
            'my-temp-buffer-hook)
-
-(add-hooks '(ruby-mode-hook javascript-mode-hook)
-           'flymake-extra-enable)
-
-(add-hooks '(emacs-lisp-mode-hook lisp-interaction-mode-hook
-            ruby-mode-hook) 'turn-on-eldoc-mode)
 
 ;; diary and calendar
 (add-hook 'today-visible-calendar-hook 'calendar-mark-today)
@@ -492,13 +472,11 @@
 
 ;; elisp
 
-(defun fontify-elisp-better ()
+(defun my-elisp-hook ()
   (font-lock-add-keywords
    nil `((,(concat "(" (regexp-opt '("and" "or" "setq" "setq-default") 'words))
-          (1 font-lock-keyword-face))) t))
-(add-hook 'emacs-lisp-mode-hook 'fontify-elisp-better)
-
-(defun my-elisp-hook ()
+          (1 font-lock-keyword-face))) t)
+  (eldoc-mode 1)
   (local-set-key (kbd "C-c C-c") 'byte-compile-this-file)
   (local-set-key (kbd "C-c C-e") 'eval-this-buffer)
   (local-set-key (kbd "C-c p p") 'elp-instrument-function)

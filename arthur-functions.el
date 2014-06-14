@@ -185,40 +185,6 @@
       (load (concat settings ".emacs")))))
 
 
-;; retchmail
-
-(defun retchmail-sentinel (proc stat)
-  (with-current-buffer (process-buffer proc)
-    (goto-char (point-min))
-    (if (re-search-forward "\\([0-9]+\\) message" nil t)
-        (let ((messages (string-to-number (match-string 1))))
-          (if (zerop messages)
-              (message "Checking for mail... no mail")
-            (message
-             (substitute-command-keys
-              "Checking for mail... downloaded %d messages (\\[mew] to view)")
-             messages)
-            ))
-      (message "Checking for mail... error")))
-  (kill-buffer (process-buffer proc)))
-
-(defun retchmail ()
-  "Run retchmail to check for new mail"
-  (interactive)
-  (let ((proc (start-process "retchmail" "*Retchmail*" "retchmail")))
-    (set-process-sentinel proc 'retchmail-sentinel)
-    (message "Checking for mail...")))
-
-
-(defun browse-toggle-w3m/firefox ()
-  (interactive)
-  (setq browse-url-browser-function
-        (if (eq browse-url-browser-function 'w3m-display-url)
-            'browse-url-default-browser
-          'w3m-display-url))
-  (message "Browsing urls with: %s" browse-url-browser-function))
-
-
 ;; elisp
 
 (defun byte-compile-this-file (arg)
