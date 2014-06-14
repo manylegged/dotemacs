@@ -9,17 +9,20 @@
 ;; os
 (if (eq system-type 'windows-nt)
     (progn
-      (setq shell-file-name "C:/cygwin/bin/bash.exe"
-            ispell-program-name "c:/cygwin/bin/aspell.exe"
-            explicit-shell-file-name shell-file-name
-            explicit-bash-args '("--login" "-i"))
-      (add-to-list 'exec-path "c:/cygwin/bin")
-      (add-to-list 'load-path "d:/Arthur/life/configs/emacs.d")
-      (add-to-list 'Info-default-directory-list "c:/cygwin/usr/info/")
-      (setenv "SHELL" shell-file-name)
-      (setenv "PATH" (concat (getenv "PATH") ";C:\\cygwin\\bin"))    
-      (setq myfont "Consolas-11")
-      )
+      (let* ((cygroot (if (file-directory-p "C:/cygwin64") 
+			  "C:/cygwin64/" "C:/cygwin/"))
+	     (cygbin (concat cygroot "bin")))
+        (setq shell-file-name (concat cygbin "/bash.exe")
+              vc-hg-program (concat cygbin "/hg") 
+	      ispell-program-name (concat cygbin "/aspell.exe")
+              explicit-shell-file-name shell-file-name
+              explicit-bash-args '("--login" "-i"))
+        (add-to-list 'exec-path cygbin)
+        (add-to-list 'Info-default-directory-list (concat cygroot "usr/info/"))
+        (setenv "SHELL" shell-file-name)
+        (setenv "PATH" (concat (getenv "PATH") ";" (replace-regexp-in-string "/" "\\\\" cygbin)))
+        (setq myfont "Consolas-11")
+        ))
   (setq myfont "Dejavu Sans Mono-9")
   ;(add-to-list 'load-path "~/.emacs.d/")
   (if (eq system-type 'darwin)
@@ -345,7 +348,18 @@
 
 (defvar outlaws-base)
 (defvar outlaws-platform)
-(defvar outlaws-platform-inc)
+
+(defun outlaws-reload-tags ()
+  (interactive)
+  (save-window-excursion
+    (if (get-buffer "*Tree*")
+        (with-current-buffer "*Tree*"
+          (find-alternate-file (concat outlaws-platform "BROWSE"))
+          (setq c++-ebrowse-source-table nil)
+          (bury-buffer))
+      (find-file (concat outlaws-platform "BROWSE"))
+      (bury-buffer))
+    (visit-tags-table (concat outlaws-platform "TAGS"))))
 
 (defun outlaws-compilation-finish (buffer status)
   (when (and (equal status "finished\n")
@@ -355,32 +369,24 @@
       (goto-char (point-max))
       (insert "\nNow Reloading BROWSE and TAGS..."))
     (redisplay)
-    (save-window-excursion
-      (if (get-buffer "*Tree*")
-          (with-current-buffer "*Tree*"
-            (find-alternate-file (concat outlaws-platform "BROWSE"))
-            (setq c++-ebrowse-source-table nil)
-            (bury-buffer))
-        (find-file (concat outlaws-platform "BROWSE"))
-        (bury-buffer))
-      (visit-tags-table (concat outlaws-platform "TAGS")))
+    (outlaws-reload-tags)
     (quit-window t (get-buffer-window buffer))
     (message "Compilation and tags reload complete")))
 
 (defun outlaws ()
   (interactive)
-  (let (tot-file)
-    (when (eq system-type 'darwin)
-      (setq outlaws-base "/Users/arthur/Documents/outlaws/")
-      (setq outlaws-platform "/Users/arthur/Documents/outlaws/osx/")
-      (setq outlaws-platform-inc (concat outlaws-platform "Outlaws")))
-    (when (eq system-type 'gnu/linux)
-      (setq outlaws-base "/home/arthur/outlaws/")
-      (setq outlaws-platform "/home/arthur/outlaws/linux/")
-      (setq outlaws-platform-inc (concat outlaws-platform "src")))
-    (setq tot-file (concat outlaws-base "TOT"))
-
-    (add-to-list 'desktop-path outlaws-base)
+  (cond 
+   ((eq system-type 'darwin)
+    (setq outlaws-base "/Users/arthur/Documents/outlaws/")
+    (setq outlaws-platform "/Users/arthur/Documents/outlaws/osx/"))
+   ((eq system-type 'gnu/linux)
+    (setq outlaws-base "/home/arthur/outlaws/")
+    (setq outlaws-platform "/home/arthur/outlaws/linux/"))
+   ((eq system-type 'windows-nt)
+    (setq outlaws-base "C:/Users/Arthur/Documents/outlaws/")
+    (setq outlaws-platform "C:/Users/Arthur/Documents/outlaws/win32/"))
+   (t
+    (error "unsupported system")))
 
     (save-window-excursion
       (find-file (concat outlaws-platform "Makefile"))
@@ -397,7 +403,7 @@
     (setq compile-makefile (concat outlaws-platform "Makefile"))
     (add-hook 'compilation-finish-functions 'outlaws-compilation-finish)
     ;(desktop-read outlaws-base)
-    ))
+    )
 
 
 ;;; language / major modes
