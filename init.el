@@ -9,19 +9,22 @@
 ;; os
 (if (eq system-type 'windows-nt)
     (progn
-      (setq shell-file-name "C:/cygwin/bin/bash.exe"
-            ispell-program-name "c:/cygwin/bin/aspell.exe"
-            explicit-shell-file-name shell-file-name
-            explicit-bash-args '("--login" "-i"))
-      (add-to-list 'exec-path "c:/cygwin/bin")
-      (add-to-list 'load-path "d:/Arthur/life/configs/emacs.d")
-      (add-to-list 'Info-default-directory-list "c:/cygwin/usr/info/")
-      (setenv "SHELL" shell-file-name)
-      (setenv "PATH" (concat (getenv "PATH") ";C:\\cygwin\\bin"))    
-      (setq myfont "Consolas-11")
-      )
+      (let* ((cygroot (if (file-directory-p "C:/cygwin64") 
+			  "C:/cygwin64/" "C:/cygwin/"))
+	     (cygbin (concat cygroot "bin")))
+        (setq shell-file-name (concat cygbin "/bash.exe")
+              vc-hg-program (concat cygbin "/hg") 
+	      ispell-program-name (concat cygbin "/aspell.exe")
+              explicit-shell-file-name shell-file-name
+              explicit-bash-args '("--login" "-i"))
+        (add-to-list 'exec-path cygbin)
+        (add-to-list 'Info-default-directory-list (concat cygroot "usr/info/"))
+        (setenv "SHELL" shell-file-name)
+        (setenv "PATH" (concat (getenv "PATH") ";" (replace-regexp-in-string "/" "\\\\" cygbin)))
+        (setq myfont "Consolas-11")
+        ))
   (setq myfont "Dejavu Sans Mono-9")
-  ;(add-to-list 'load-path "~/.emacs.d/")
+                                        ;(add-to-list 'load-path "~/.emacs.d/")
   (if (eq system-type 'darwin)
       (progn
         ;; macports directory
@@ -33,7 +36,7 @@
                       find-function-C-source-directory (expand-file-name "~/Documents/emacs/emacs-24.3.91/src")
                       latex-run-command (executable-find "latex")))
 
-    ; linux
+                                        ; linux
     (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/")
     (setq ispell-program-name "/usr/bin/aspell")
     )
@@ -366,35 +369,37 @@ compilation-scroll-output nil
 
 (defun outlaws (arg)
   (interactive "P")
-  (let (tot-file)
-    (when (eq system-type 'darwin)
-      (setq outlaws-base "/Users/arthur/Documents/outlaws/")
-      (setq outlaws-platform "/Users/arthur/Documents/outlaws/osx/")
-      (setq outlaws-platform-inc (concat outlaws-platform "Outlaws")))
-    (when (eq system-type 'gnu/linux)
-      (setq outlaws-base "/home/arthur/outlaws/")
-      (setq outlaws-platform "/home/arthur/outlaws/linux/")
-      (setq outlaws-platform-inc (concat outlaws-platform "src")))
-    (setq tot-file (concat outlaws-base "TOT"))
+  (cond 
+   ((eq system-type 'darwin)
+    (setq outlaws-base "/Users/arthur/Documents/outlaws/")
+    (setq outlaws-platform "/Users/arthur/Documents/outlaws/osx/"))
+   ((eq system-type 'gnu/linux)
+    (setq outlaws-base "/home/arthur/outlaws/")
+    (setq outlaws-platform "/home/arthur/outlaws/linux/"))
+   ((eq system-type 'windows-nt)
+    (setq outlaws-base "C:/Users/Arthur/Documents/outlaws/")
+    (setq outlaws-platform "C:/Users/Arthur/Documents/outlaws/win32/"))
+   (t
+    (error "unsupported system")))
+  
+  (save-window-excursion
+    (find-file-noselect (concat outlaws-platform "Makefile"))
+    (find-file-noselect (concat outlaws-platform "BROWSE"))
+    (visit-tags-table (concat outlaws-platform "TAGS"))
+    ;; (progn
+    ;;   (message "Loading source files... ")
+    ;;   (find-file (concat outlaws-base "core/*.h") t)
+    ;;   (find-file (concat outlaws-base "game/*.h") t)
+    ;;   (find-file (concat outlaws-base "game/*.cpp") t))
+    )
 
-    (save-window-excursion
-      (find-file-noselect (concat outlaws-platform "Makefile"))
-      (find-file-noselect (concat outlaws-platform "BROWSE"))
-      (visit-tags-table (concat outlaws-platform "TAGS"))
-      ;; (progn
-      ;;   (message "Loading source files... ")
-      ;;   (find-file (concat outlaws-base "core/*.h") t)
-      ;;   (find-file (concat outlaws-base "game/*.h") t)
-      ;;   (find-file (concat outlaws-base "game/*.cpp") t))
-      )
-
-    (setq compile-makefile (concat outlaws-platform "Makefile"))
-    (add-hook 'compilation-finish-functions 'outlaws-compilation-finish)
-    (when arg
-      (desktop-read))
-    (bury-buffer "*Warnings*")
-    (message "Outlaws loaded")
-    ))
+  (setq compile-makefile (concat outlaws-platform "Makefile"))
+  (add-hook 'compilation-finish-functions 'outlaws-compilation-finish)
+  (when arg
+    (desktop-read))
+  (bury-buffer "*Warnings*")
+  (message "Outlaws loaded")
+  ))
 
 
 ;;; language / major modes
