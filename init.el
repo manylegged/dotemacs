@@ -399,7 +399,7 @@ compilation-scroll-output nil
     (desktop-read))
   (bury-buffer "*Warnings*")
   (message "Outlaws loaded")
-  ))
+  )
 
 
 ;;; language / major modes
