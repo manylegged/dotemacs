@@ -228,24 +228,24 @@ unless BEGIN is greather than END, in which case it defaults to
     (nreverse list)))
 
 
-(defmacro let-alias (varlist &rest body)
-  "Make temporary function aliases.
-Neither SYMBOL nor DEFINITION need to be quoted, but they both
-need to exist.
- See also `fset', `flet', 'defalias'. \(fn ((SYMBOL
-DEFINITION) ..) BODY...)"
-  (declare (indent 1))
-  (let ((saved-names (mapcar (lambda (a) `(,(cl-gensym) ',(car a) ',(cadr a)))
-                             varlist)))
-    `(let ,(mapcar (lambda (a) `(,(car a) (symbol-function ,(cadr a))))
-                   saved-names)
-       (unwind-protect
-           (progn
-             ,@(mapcar (lambda (a) `(fset ,(cadr a) ,(caddr a)))
-                       saved-names)
-             ,@body)
-         ,@(mapcar (lambda (a) `(fset ,(cadr a) ,(car a)))
-                   saved-names)))))
+;; (defmacro let-alias (varlist &rest body)
+;;   "Make temporary function aliases.
+;; Neither SYMBOL nor DEFINITION need to be quoted, but they both
+;; need to exist.
+;;  See also `fset', `flet', 'defalias'. \(fn ((SYMBOL
+;; DEFINITION) ..) BODY...)"
+;;   (declare (indent 1))
+;;   (let ((saved-names (mapcar (lambda (a) `(,(cl-gensym) ',(car a) ',(cadr a)))
+;;                              varlist)))
+;;     `(let ,(mapcar (lambda (a) `(,(car a) (symbol-function ,(cadr a))))
+;;                    saved-names)
+;;        (unwind-protect
+;;            (progn
+;;              ,@(mapcar (lambda (a) `(fset ,(cadr a) ,(caddr a)))
+;;                        saved-names)
+;;              ,@body)
+;;          ,@(mapcar (lambda (a) `(fset ,(cadr a) ,(car a)))
+;;                    saved-names)))))
 
 
 (defun window-mapc (fun frame &optional window-split)
@@ -387,6 +387,35 @@ DEFINITION) ..) BODY...)"
       (if (< count 0)
           (backward-prefix-chars)
         (skip-syntax-backward ".")))))
+
+
+;; alignment
+(defun align-dwim ()
+  "Align region, or current block if region is not active"
+  (interactive)
+  (require 'align)
+  (if (use-region-p)
+      (let ((align-region-separate 'entire))
+        (align (region-beginning) (region-end)))
+    (let ((align-region-separate 'group))
+      (align-current))))
+
+
+(defun rgrep-defaults ()
+  "Call `rgrep', using all the default prompt values"
+  (interactive)
+  (require 'grep)
+  (require 'hippie-help)                ; with-no-interactivity
+  (grep-compute-defaults)
+  (let ((sym (if (use-region-p)
+                 (buffer-substring (point) (mark))
+               (grep-tag-default))))
+    (when (eq (length sym) 0)
+      (error "No current symbol"))
+    (rgrep sym
+           (with-no-interactivity (grep-read-files sym))
+           default-directory
+           nil)))
 
 
 (provide 'arthur-functions)

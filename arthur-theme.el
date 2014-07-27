@@ -112,15 +112,15 @@
      '(color-theme-arthur-mild
        () ()
        (minibuffer-prompt ((t (:foreground "grey90"))))
-       (mode-line ((t (:background "#ffffff" :foreground "black"))))
+       (mode-line ((t (:background "grey70" :foreground "black"))))
        (fringe ((t (:background "#101010"))))
        (mode-line-inactive ((t (:background "#101010" :foreground "#808080"))))
 
        (font-lock-doc-face ((t (:foreground "grey50"))))
-       (font-lock-string-face ((t (:foreground "grey60"))))
+       (font-lock-string-face ((t (:foreground "grey75"))))
        (font-lock-regexp-grouping-construct ((t (:foreground "grey80" :bold t))))
        (font-lock-regexp-grouping-backslash ((t (:foreground "grey40"))))
-       (font-lock-keyword-face ((t (:bold t :foreground "grey60"))))
+       (font-lock-keyword-face ((t (:bold t :foreground "grey85"))))
        (font-lock-constant-face ((t (:foreground "grey60"))))
        (font-lock-type-face ((t (:foreground "grey90"))))
        (font-lock-variable-name-face ((t (:italic t :foreground "grey75"))))

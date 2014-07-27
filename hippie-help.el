@@ -3,10 +3,11 @@
 ;;; History:
 ;; 
 ;; Released under the GPL. No implied warranties, etc. Use at your own risk.
-;; Copyright 2008-2013 Arthur Danskin <arthurdanskin@gmail.com>
+;; Copyright 2008-2014 Arthur Danskin <arthurdanskin@gmail.com>
 ;; April 2008 - initial version 
 ;; May   2008 - ebrowse support, fix man support, cleanups
 ;; July  2013 - hippie-eldoc mode
+;; June  2014 - hippie-eldoc-view, cycle through multiple definitions in eldoc
 ;; 
 ;;; Commentary:
 ;; 
@@ -76,6 +77,11 @@ If BODY calls prompting functions, pick the default automatically"
           (find-file-noselect (name &rest args) (set-buffer (find-buffer-visiting name))))
      ,@body))
 
+(defun call-interactively-no-prompt (func)
+  "Like `call-interactively', but automatically use default for any prompts"
+  (with-no-interactivity
+   (call-interactively func)))
+
 (defmacro save-etags-state (&rest body)
   "Save the etags mark ring, last tag, etc so that etags
 functions run as part of BODY will not change globals state"
@@ -127,18 +133,19 @@ functions run as part of BODY will not change globals state"
 
 (defun hap-tag-at-point ()
   "Return non-nil if point is contained in an etags tag."
-  (if hap-eldoc-in-progress
-      (hap-search-tags)
-    (let ((sym (hap-filter-symbol (thing-at-point 'symbol)))
-          message-log-max                 ; inhibit messages going to log
-          case-fold-search)               ; case sensitive
-      (and sym tags-file-name
-           (save-current-buffer
-             (visit-tags-table-buffer)
-             (save-excursion
-               (goto-char (point-min))
-               (search-forward (concat "" sym "") (point-max) t)))
-           sym))))
+  (cond 
+   ((not (memq major-mode '(c-mode c++-mode objc-mode))) nil)
+   (hap-eldoc-in-progress (hap-search-tags))
+   (t (let ((sym (hap-filter-symbol (thing-at-point 'symbol)))
+            message-log-max                 ; inhibit messages going to log
+            case-fold-search)               ; case sensitive
+        (and sym tags-file-name
+             (save-current-buffer
+               (visit-tags-table-buffer)
+               (save-excursion
+                 (goto-char (point-min))
+                 (search-forward (concat "" sym "") (point-max) t)))
+             sym)))))
 
 (defun hap-update-prototype-pos (prototype buffer pos)
   "Return updated position"
@@ -199,8 +206,9 @@ Return in same format as `hap-find-prototype'."
 
 (defun hap-find-tag ()
   (interactive)
-  (let ((tags-case-fold-search nil))
-    (call-interactively 'find-tag)))
+  (save-etags-state
+   (let ((tags-case-fold-search nil))
+     (call-interactively 'find-tag))))
 
 (defun hap-octave-help2-at-point ()
   (and (memq major-mode '(octave-mode inferior-octave-mode))
@@ -222,20 +230,17 @@ Return in same format as `hap-find-prototype'."
   '((c++-mode . hap-imenu-c++-comparator)
     (python-mode . hap-imenu-python-comparator)))
 
-(defun hap-imenu-at-point (&optional sym &optional method)
+(defun hap-imenu-at-point (&optional method)
   "return (SYMBOL . MARKER) for SYM or the symbol at point with `imenu', else nil"
-  (setq sym (or sym (thing-at-point 'symbol)))
-  (setq method (or method 'imenu))
-  (and sym
-       (let ((imenu-auto-rescan t)
-             (imenu-name-lookup-function
-              (assoc major-mode hap-imenu-comparator-alist)))
-         (when imenu-name-lookup-function
-           (setq imenu-name-lookup-function
-                 (cdr imenu-name-lookup-function)))
-         (let ((val (ignore-errors (imenu--in-alist sym (imenu--make-index-alist t)))))
+  (let ((sym (thing-at-point 'symbol)))
+    (and sym
+         (let* ((imenu-auto-rescan t)
+                (imenu-name-lookup-function (cdr-safe (assoc major-mode hap-imenu-comparator-alist)))
+                (val (ignore-errors (imenu--in-alist sym (imenu--make-index-alist t)))))
            (if (and hap-eldoc-in-progress (markerp (cdr-safe val)))
-               (hap-find-prototype method (marker-buffer (cdr val)) (marker-position (cdr val)))
+               (list (hap-find-prototype (or method 'imenu)
+                                         (marker-buffer (cdr val))
+                                         (marker-position (cdr val))))
              (car val))))))
 
 (defun hap-imenu-read (str item)
@@ -265,7 +270,7 @@ in the file returned by `ff-find-other-file'"
                    (ff-find-other-file))
                  nil)
          (unless (eq buf (current-buffer))
-           (hap-imenu-at-point sym 'imenu-other-file)))))))
+           (hap-imenu-at-point 'imenu-other-file)))))))
 
 (defun hap-imenu-other-file (sym marker)
   "Interactively prompt for confirmation, then go to the
@@ -452,83 +457,86 @@ The rest are strings"
     (save-excursion
       (when pos
         (goto-char pos))
-      (when (save-excursion (back-to-indentation) (looking-at-p "{"))
-        (forward-line -1))
       (let ((start (point-marker))
             (start-line (line-number-at-pos))
             (line-str (buffer-substring (line-beginning-position) (line-end-position)))
             (proto-is-statement t) struct-mid struct comment proto (first-struct t))
-        ;; enclosing context (i.e. "struct foo {" or "enum foo {" (recursive)
-        (while (setq struct-mid 
-                     (save-excursion
-                       (when struct-mid (goto-char struct-mid))
-                       (ignore-errors (let (forward-sexp-function) (up-list -1)) (point))))
-          (save-excursion
-            (goto-char struct-mid)
-            (let ((last-struct struct)
-                  (struct-beg (or (save-excursion 
-                                    (ignore-errors (c-beginning-of-statement 1 nil t) (point)))
-                                  (line-beginning-position)))
-                  (struct-end (line-end-position)))
-              (when struct-beg ;; (and struct-beg (< struct-beg beg))
-                (font-lock-fontify-region struct-beg struct-end)
-                (setq struct (concat (hap-collapse-spaces (buffer-substring struct-beg struct-end))
-                                     (and struct (concat "...\n" struct))))
-                (cond
-                 ((string-match-p "extern \"C\"" struct) ; not an interesting context
-                  (setq struct last-struct))
-                 ((and first-struct (string-match-p "enum" struct))
-                  (setq proto-is-statement nil))))
-              (setq first-struct nil))))
-        ;; inside macro definition, where each line of macro defines a symbol
-        (let ((count 0))
-          (save-excursion
-            (while (eq (char-before (line-end-position)) ?\\)
-              (setq count (1+ count))
-              (forward-line -1))
-            (when (> count 1)             ; skip normal multi-line macros
-              (forward-line 1)
-              (setq struct (replace-regexp-in-string
-                            "[ \n\t]+$" ""
-                            (buffer-substring (line-beginning-position) (- (line-end-position) 2))))
-              (setq proto-is-statement nil))))
-        (let* ((proto-beg (save-excursion
-                            (back-to-indentation)
-                            (forward-char 1)
-                            (or (and proto-is-statement
-                                     (ignore-errors (c-beginning-of-statement 1 nil t) (point)))
-                                (line-beginning-position))))
-               (beg (save-excursion (goto-char proto-beg)
-                                    (forward-comment (- (buffer-size)))
-                                    (end-of-line)
-                                    (point)))
-               (end (max (or (and proto-is-statement
-                                  (save-excursion (re-search-forward "[{};#/\\]" (point-max) t)))
-                             0)
-                         (line-end-position))))
-          ;; make sure extracted substrings are fontified
-          (save-excursion
-            (font-lock-fontify-region beg end))
-          ;; comment preceding the prototype (i.e. "// foo the thing")
-          (when (> proto-beg beg)
-            (setq comment (replace-regexp-in-string "^\\([/* \t]*\n\\)?[ \n\t]+" "" 
-                                                    (buffer-substring beg proto-beg))))
-          ;; proto is the function prototype itself (i.e "void foo(bar, bat)")
-          (setq proto (hap-collapse-spaces (buffer-substring proto-beg end)))
-
-          (list start
-                (if struct (concat struct "...") nil)
-                (if comment (hap-trim-to-max-lines comment hap-max-comment-lines "...\n") nil)
-                proto
-                (cons line-str start-line)
-                elt)
-          )))))
+        (cond
+         ((memq major-mode '(c-mode c++-mode objc-mode))
+          (when (save-excursion (back-to-indentation) (looking-at-p "{"))
+            (forward-line -1))
+          ;; enclosing context (i.e. "struct foo {" or "enum foo {" (recursive)
+          (while (setq struct-mid 
+                       (save-excursion
+                         (when struct-mid (goto-char struct-mid))
+                         (ignore-errors (let (forward-sexp-function) (up-list -1)) (point))))
+            (save-excursion
+              (goto-char struct-mid)
+              (let ((last-struct struct)
+                    (struct-beg (or (save-excursion 
+                                      (ignore-errors (c-beginning-of-statement 1 nil t) (point)))
+                                    (line-beginning-position)))
+                    (struct-end (line-end-position)))
+                (when struct-beg ;; (and struct-beg (< struct-beg beg))
+                  (font-lock-fontify-region struct-beg struct-end)
+                  (setq struct (concat (hap-collapse-spaces (buffer-substring struct-beg struct-end))
+                                       (and struct (concat "...\n" struct))))
+                  (cond
+                   ((string-match-p "extern \"C\"" struct) ; not an interesting context
+                    (setq struct last-struct))
+                   ((and first-struct (string-match-p "enum" struct))
+                    (setq proto-is-statement nil))))
+                (setq first-struct nil))))
+          ;; inside macro definition, where each line of macro defines a symbol
+          (let ((count 0))
+            (save-excursion
+              (while (eq (char-before (line-end-position)) ?\\)
+                (setq count (1+ count))
+                (forward-line -1))
+              (when (> count 1)             ; skip normal multi-line macros
+                (forward-line 1)
+                (setq struct (replace-regexp-in-string
+                              "[ \n\t]+$" ""
+                              (buffer-substring (line-beginning-position) (- (line-end-position) 2))))
+                (setq proto-is-statement nil))))
+          (let* ((proto-beg (save-excursion
+                              (back-to-indentation)
+                              (forward-char 1)
+                              (or (and proto-is-statement
+                                       (ignore-errors (c-beginning-of-statement 1 nil t) (point)))
+                                  (line-beginning-position))))
+                 (beg (save-excursion (goto-char proto-beg)
+                                      (forward-comment (- (buffer-size)))
+                                      (end-of-line)
+                                      (point)))
+                 (end (max (or (and proto-is-statement
+                                    (save-excursion (re-search-forward "[{};#/\\]" (point-max) t)))
+                               0)
+                           (line-end-position))))
+            ;; make sure extracted substrings are fontified
+            (save-excursion
+              (font-lock-fontify-region beg end))
+            ;; comment preceding the prototype (i.e. "// foo the thing")
+            (when (> proto-beg beg)
+              (setq comment (replace-regexp-in-string "^\\([/* \t]*\n\\)?[ \n\t]+" "" 
+                                                      (buffer-substring beg proto-beg))))
+            ;; proto is the function prototype itself (i.e "void foo(bar, bat)")
+            (setq proto (hap-collapse-spaces (buffer-substring proto-beg end)))
+            )))
+        ;; return prototype
+        (list start
+              (if struct (concat struct "...") nil)
+              (if comment (hap-trim-to-max-lines comment hap-max-comment-lines "...\n") nil)
+              proto
+              (cons line-str start-line)
+              elt)))))
 
 (defun hap-silent-completing-read (prompt collect &optional pred req init hist def)
   "Same arguments and return as `completing-read', but just pick
 the default and don't actually prompt user"
   (setq unread-command-events nil)      ; ebrowse inserts a '?' with this!
   (or (and init (try-completion init collect pred) init)
+      (car-safe def)
       def
       (car-safe (all-completions "" collect pred))
       ""))
@@ -643,10 +651,11 @@ the default and don't actually prompt user"
   (let ((file (hap-marker-filename (car entry)))
         (buffer (hap-marker-buffer (car entry) 'find-buffer-visiting)))
     (+
-     ;; current match last
-     (if (and (eq (current-buffer) buffer)
-              (< (abs (- (line-number-at-pos) (cdr (nth 4 entry)))) 4))
-         5 0)
+     ;; current match last, current file forward
+     (if (eq (current-buffer) buffer)
+         (if (< (abs (- (line-number-at-pos) (cdr (nth 4 entry)))) 4)
+             5 -1)
+       0)
      ;; push definitions forward
      (if (string-match-p "{" (nth 3 entry)) -1 0)
      ;; push loaded files forward
@@ -662,7 +671,8 @@ the default and don't actually prompt user"
 (defun hippie-eldoc-function ()
   "`hippie-eldoc' function for `eldoc-documentation-function'.
 return a string representing the prototype for the function under point"
-  (unless (or ac-completing                 ; suppress while autocomplete is enabled
+  (unless (or (not (eq eldoc-documentation-function 'hippie-eldoc-function))
+              ac-completing                 ; suppress while autocomplete is enabled
               (minibuffer-selected-window)) ; suppress while minibuffer is in use
     (when (or hap-debug-enabled
               (not hap-eldoc-current-prototypes)
@@ -677,11 +687,10 @@ return a string representing the prototype for the function under point"
             prototypes (scanok t)
             (hap-eldoc-in-progress t))
         (save-excursion 
-          (save-etags-state
-           (while (and (not prototypes) scanok (> (point) search-start))
-             (setq prototypes (hap-do-it hippie-goto-try-functions-list 'hap-find-prototype))
-             (unless prototypes
-               (setq scanok (ignore-errors (up-list -1) (backward-char 1) t))))))
+          (while (and (not prototypes) scanok (> (point) search-start))
+            (setq prototypes (hap-do-it hippie-goto-try-functions-list 'hap-find-prototype))
+            (unless prototypes
+              (setq scanok (ignore-errors (up-list -1) (backward-char 1) t)))))
         (setq prototypes (hap-sort-filter-entries prototypes))
         (unless (equal prototypes hap-eldoc-current-prototypes)
           (setq hap-eldoc-current-prototypes prototypes)
@@ -746,8 +755,7 @@ then it calls the second function."
           (condition-case e
               ;; call second function to operate on symbol (i.e. change buffer)
               (if mapfun
-                  (with-no-interactivity
-                   (call-interactively (cdr el)))
+                  (call-interactively-no-prompt (cdr el))
                 (call-interactively (cdr el)))
             (quit (setq quit? t))             ; keyboard quit
             (error (setq errorMsg (nth 1 e))  ; error / exception

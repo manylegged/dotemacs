@@ -24,7 +24,7 @@
         (setq myfont "Consolas-11")
         ))
   (setq myfont "Dejavu Sans Mono-9")
-  ;(add-to-list 'load-path "~/.emacs.d/")
+                                        ;(add-to-list 'load-path "~/.emacs.d/")
   (if (eq system-type 'darwin)
       (progn
         ;; macports directory
@@ -33,13 +33,10 @@
         (setq-default explicit-bash-args '("--login" "-i")
                       ispell-program-name "/opt/local/bin/aspell"
                       vc-hg-program "/opt/local/bin/hg"
-                      find-function-C-source-directory (expand-file-name "~/Documents/emacs-24.3/src")
-                      latex-run-command (executable-find "latex"))
-        ;; work around system-name bug in nightly emacs
-        (if (string-match-p "knology.net" system-name)
-            (setq system-name "Chlorophyll.local")))
+                      find-function-C-source-directory (expand-file-name "~/Documents/emacs/emacs-24.3.91/src")
+                      latex-run-command (executable-find "latex")))
 
-    ; linux
+                                        ; linux
     (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/")
     (setq ispell-program-name "/usr/bin/aspell")
     )
@@ -56,34 +53,36 @@
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
 
-(require 'auto-complete)
-(add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
-(require 'auto-complete-config)
+(when (require 'auto-complete nil t)
 
-(defvar c++-ebrowse-source-table nil "Cached ebrowsed completion table")
-(ac-define-source c++-ebrowse
-  '((candidates
-     . (lambda ()
-         (unless c++-ebrowse-source-table
-           (setq c++-ebrowse-source-table (ebrowse-some-member-table)))
-         (all-completions ac-prefix c++-ebrowse-source-table)))
-    (requires . 0)
-    (symbol . "c++")))
+  (add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
+  (require 'auto-complete-config)
 
-(ac-define-source words-in-buffer
-  '((init . ac-update-word-index)
-    (candidates . (ac-word-candidates
-                   (lambda (buffer)
-                     (eq buffer (current-buffer)))))))
+  (defvar c++-ebrowse-source-table nil "Cached ebrowsed completion table")
+  (ac-define-source c++-ebrowse
+		    '((candidates
+		       . (lambda ()
+			   (unless c++-ebrowse-source-table
+			     (setq c++-ebrowse-source-table (ebrowse-some-member-table)))
+			   (all-completions ac-prefix c++-ebrowse-source-table)))
+		      (requires . 0)
+		      (symbol . "c++")))
 
-(setq-default ac-sources '(ac-source-imenu
-                           ac-source-abbrev
-                           ;;ac-source-words-in-buffer
-                           ac-source-words-in-same-mode-buffers
-                           ))
-;(ac-set-trigger-key (kbd "TAB"))
-(ac-set-trigger-key nil)
-(global-auto-complete-mode t)
+  (ac-define-source words-in-buffer
+		    '((init . ac-update-word-index)
+		      (candidates . (ac-word-candidates
+				     (lambda (buffer)
+				       (eq buffer (current-buffer)))))))
+
+  (setq-default ac-sources '(ac-source-imenu
+			     ac-source-abbrev
+			     ;;ac-source-words-in-buffer
+			     ac-source-words-in-same-mode-buffers
+			     ))
+					;(ac-set-trigger-key (kbd "TAB"))
+  (ac-set-trigger-key nil)
+  (global-auto-complete-mode t))
+
 (global-auto-revert-mode 1)
 (add-to-list 'global-auto-revert-ignore-modes 'ebrowse-tree-mode)
 ;(add-to-list 'global-auto-revert-ignore-modes 'tags-table-mode)
@@ -163,7 +162,8 @@
  tags-revert-without-query t
  use-dialog-box nil                       ; no gui
  compilation-read-command t
- compilation-scroll-output 'first-error
+ ;; compilation-scroll-output 'first-error
+compilation-scroll-output nil
  undo-limit 20000000                     ; I have a lot of memory
  find-file-confirm-nonexistent-file t
  find-file-visit-truename t             ; follow symlinks
@@ -237,6 +237,7 @@
 (global-set-key (kbd "C-/") 'undo)
 (global-set-key (kbd "C-S-s") 'rgrep)
 (global-set-key (kbd "s-F") 'rgrep)
+(global-set-key (kbd "s-?") 'rgrep-defaults)
 (define-key isearch-mode-map (kbd "M-w") 'isearch-toggle-word)
 (define-key isearch-mode-map (kbd "C-M-w") 'isearch-yank-symbol)
 
@@ -305,6 +306,7 @@
 
 (global-set-key (kbd "<f8>") 'next-error) ; visual studio
 (global-set-key (kbd "s-'") 'next-error)  ; xcode 
+(global-set-key (kbd "s-\"") 'previous-error)  ; xcode 
 (global-set-key (kbd "M-'") 'next-error)
 (global-set-key (kbd "M-\"") 'previous-error)
 (defun my-compile-keys ()
@@ -313,17 +315,6 @@
 (add-hooks '(sh-mode-hook makefile-mode-hook c-mode-common-hook)
            'my-compile-keys)
 
-
-;; alignment
-(defun align-dwim ()
-  "Align region, or current block if region is not active"
-  (interactive)
-  (require 'align)
-  (if (use-region-p)
-      (let ((align-region-separate 'entire))
-        (align (region-beginning) (region-end)))
-    (let ((align-region-separate 'group))
-      (align-current))))
 
 ;; hippie-expand
 ;; TODO tags? 
@@ -349,33 +340,35 @@
 
 (defvar outlaws-base)
 (defvar outlaws-platform)
-
-(defun outlaws-reload-tags ()
-  (interactive)
-  (save-window-excursion
-    (if (get-buffer "*Tree*")
-        (with-current-buffer "*Tree*"
-          (find-alternate-file (concat outlaws-platform "BROWSE"))
-          (setq c++-ebrowse-source-table nil)
-          (bury-buffer))
-      (find-file (concat outlaws-platform "BROWSE"))
-      (bury-buffer))
-    (visit-tags-table (concat outlaws-platform "TAGS"))))
+(defvar outlaws-platform-inc)
 
 (defun outlaws-compilation-finish (buffer status)
   (when (and (equal status "finished\n")
              (equal (buffer-name buffer) "*compilation*")
              (not (string-match-p "run" compile-command)))
     (with-current-buffer buffer
-      (goto-char (point-max))
-      (insert "\nNow Reloading BROWSE and TAGS..."))
-    (redisplay)
-    (outlaws-reload-tags)
-    (quit-window t (get-buffer-window buffer))
-    (message "Compilation and tags reload complete")))
+      (if (not (save-excursion
+                   (goto-char (point-min))
+                   (re-search-forward "Nothing to be done" (point-max) t)))
+          (progn
+            (goto-char (point-max))
+            (insert "\nNow Reloading BROWSE and TAGS...")
+            (redisplay)
+            (save-window-excursion
+              (if (get-buffer "*Tree*")
+                  (with-current-buffer "*Tree*"
+                    (find-alternate-file (concat outlaws-platform "BROWSE"))
+                    (setq c++-ebrowse-source-table nil)
+                    (bury-buffer))
+                (find-file-noselect (concat outlaws-platform "BROWSE"))
+                (bury-buffer))
+              (visit-tags-table (concat outlaws-platform "TAGS")))
+            (message "Compilation and tags reload complete"))
+        (message "Nothing changed, skipping tags reload")))
+    (quit-window nil (get-buffer-window buffer))))
 
-(defun outlaws ()
-  (interactive)
+(defun outlaws (arg)
+  (interactive "P")
   (cond 
    ((eq system-type 'darwin)
     (setq outlaws-base "/Users/arthur/Documents/outlaws/")
@@ -388,23 +381,25 @@
     (setq outlaws-platform "C:/Users/Arthur/Documents/outlaws/win32/"))
    (t
     (error "unsupported system")))
-
-    (save-window-excursion
-      (find-file (concat outlaws-platform "Makefile"))
-      (find-file (concat outlaws-platform "BROWSE"))
-      (visit-tags-table (concat outlaws-platform "TAGS"))
-      ;; (progn
-      ;;   (message "Loading source files... ")
-      ;;   (find-file (concat outlaws-base "core/*.h") t)
-      ;;   (find-file (concat outlaws-base "game/*.h") t)
-      ;;   (find-file (concat outlaws-base "game/*.cpp") t))
-      )
-    (message "Outlaws loaded")
-
-    (setq compile-makefile (concat outlaws-platform "Makefile"))
-    (add-hook 'compilation-finish-functions 'outlaws-compilation-finish)
-    ;(desktop-read outlaws-base)
+  
+  (save-window-excursion
+    (find-file-noselect (concat outlaws-platform "Makefile"))
+    (find-file-noselect (concat outlaws-platform "BROWSE"))
+    (visit-tags-table (concat outlaws-platform "TAGS"))
+    ;; (progn
+    ;;   (message "Loading source files... ")
+    ;;   (find-file (concat outlaws-base "core/*.h") t)
+    ;;   (find-file (concat outlaws-base "game/*.h") t)
+    ;;   (find-file (concat outlaws-base "game/*.cpp") t))
     )
+
+  (setq compile-makefile (concat outlaws-platform "Makefile"))
+  (add-hook 'compilation-finish-functions 'outlaws-compilation-finish)
+  (when arg
+    (desktop-read))
+  (bury-buffer "*Warnings*")
+  (message "Outlaws loaded")
+  )
 
 
 ;;; language / major modes
@@ -414,12 +409,12 @@
 
 ;; minor modes
 
-(defun my-disable-partial-truncate ()
-  (interactive)
-  (make-local-variable 'truncate-partial-width-windows)
-  (setq truncate-partial-width-windows nil))
+;; (defun my-disable-partial-truncate ()
+;;   (interactive)
+;;   (make-local-variable 'truncate-partial-width-windows)
+;;   (setq truncate-partial-width-windows nil))
 
-(add-hook 'compilation-mode-hook 'my-disable-partial-truncate)
+;; (add-hook 'compilation-mode-hook 'my-disable-partial-truncate)
 
 (defun my-temp-buffer-hook ()
   (local-set-key (kbd "q") 'quit-window)
