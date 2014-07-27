@@ -547,7 +547,7 @@
   (setq parens-require-spaces nil)
   (local-set-key (kbd "C-{") 'my-c-insert-braces)
   (local-set-key (kbd "C-<") 'insert-pair)
-  (local-set-key (kbd "C->") 'my-c-insert-arrow)
+  ;; (local-set-key (kbd "C->") 'my-c-insert-arrow)
   (abbrev-mode -1)
   (local-set-key (kbd "C-j") 'newline)
   )

@@ -781,8 +781,8 @@ then it calls the second function."
         (define-key map [remap find-tag] 'hippie-goto)                           ; M-.
         (define-key map [remap find-tag-other-window] 'hippie-goto-other-window) ; C-x 4 .
         (define-key map (kbd "C-M-.") 'hippie-goto-other-window)
-        (define-key map (kbd "s-.") 'hippie-eldoc-next)
-        (define-key map (kbd "s-/") 'hippie-eldoc-view)
+        (define-key map (kbd "C->") 'hippie-eldoc-next)
+        (define-key map (kbd "C-?") 'hippie-eldoc-view)
         map))
 
 ;;;###autoload
