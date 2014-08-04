@@ -163,13 +163,13 @@
  use-dialog-box nil                       ; no gui
  compilation-read-command t
  ;; compilation-scroll-output 'first-error
-compilation-scroll-output nil
+ compilation-scroll-output nil
  undo-limit 20000000                     ; I have a lot of memory
  find-file-confirm-nonexistent-file t
  find-file-visit-truename t             ; follow symlinks
  disabled-command-function nil            ; enable all commands
  history-delete-duplicates t
- history-length 1000
+ history-length 10000
  max-specpdl-size 10000
  max-lisp-eval-depth 10000
  backup-directory-alist '(("." . "~/.emacs-backups"))
@@ -290,6 +290,7 @@ compilation-scroll-output nil
     ;; (replace-buffer-in-windows buffer)
     ))
 (add-hook 'compilation-finish-functions 'my-compilation-finish-function)
+(setq compilation-error-regexp-alist '(python-tracebacks-and-caml comma msft gcc-include gnu))
 
 ;; this controls default file pattern for rgrep
 (setq grep-files-aliases

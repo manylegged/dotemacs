@@ -378,9 +378,7 @@ definition found using `hap-imenu-at-point-other-file'"
 (defun hap-do-current-entry (x-to-buffer)
   (and (hippie-eldoc-function)
        hap-eldoc-current-prototypes
-       (let* ((count (length hap-eldoc-current-prototypes))
-              (index (mod hap-eldoc-prototype-index count))
-              (entry (nth index hap-eldoc-current-prototypes)))
+       (let ((entry (hap-get-current-entry)))
          (hap-window-to-entry entry x-to-buffer)
          (setq hap-eldoc-current-prototypes nil)
          entry)))
@@ -576,6 +574,7 @@ the default and don't actually prompt user"
            (index (mod hap-eldoc-prototype-index count))
            (entry (hap-update-entry (nth index hap-eldoc-current-prototypes)))
            (prefix (and (> count 1) (format "(%d/%d) " (1+ index) count))))
+      (setcar (nthcdr index hap-eldoc-current-prototypes) entry) ; save updated entry
       (concat prefix (hap-get-context entry) (nth 2 entry) (nth 3 entry)))))
 
 (define-button-type 'hippie-eldoc-view
