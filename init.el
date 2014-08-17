@@ -156,8 +156,10 @@
  eval-expression-debug-on-error t
  truncate-partial-width-windows t       ; don't wrap lines in split windows
  enable-recursive-minibuffers t
- print-level 6
- print-length 24
+ ;; print-level 6
+ ;; print-length 24
+ print-level nil
+ print-length nil ; setting this lower breaks savehist!!
  tags-case-fold-search t
  tags-revert-without-query t
  use-dialog-box nil                       ; no gui
@@ -398,7 +400,8 @@
   (add-hook 'compilation-finish-functions 'outlaws-compilation-finish)
   (when arg
     (desktop-read))
-  (bury-buffer "*Warnings*")
+  (when (get-buffer "*Warnings*")
+    (bury-buffer "*Warnings*"))
   (message "Outlaws loaded")
   )
 
@@ -539,6 +542,7 @@
   (setq forward-sexp-function 'my-c++-forward-sexp)
   (local-set-key [remap backward-up-list] 'my-c++-backward-up-list)
   (local-set-key [remap transpose-sexps] 'my-c++-transpose-sexps)
+  (local-set-key (kbd "C-c C-k") 'my-c++-kill-decl)
   (hippie-eldoc 1)
   (setq parens-require-spaces nil)
   (local-set-key (kbd "C-{") 'my-c-insert-braces)
@@ -629,3 +633,7 @@
 (add-hook 'python-mode-hook 'my-python-hook)
 
 
+(defun transparency (value)
+  "Sets the transparency of the frame window. 0=transparent/100=opaque"
+  (interactive "nTransparency Value 0 - 100 opaque:")
+  (set-frame-parameter (selected-frame) 'alpha value))

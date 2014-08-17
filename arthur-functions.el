@@ -417,5 +417,61 @@ unless BEGIN is greather than END, in which case it defaults to
            default-directory
            nil)))
 
+(defun my-c++-beginning-of-statement ()
+  (c-beginning-of-statement-1)
+  (while (eq (char-before) ?\()
+    (backward-char)
+    (c-beginning-of-statement-1)))
+
+(defun my-c++-kill-decl ()
+  "Put member function definition for current member function declaration into the kill ring.
+If point is on an inline definition, transform it into a decleration."
+  (interactive)
+  (let (class-name (first-point (point)))
+    ;; get class name
+    (save-excursion
+      (ignore-errors
+        (my-c++-beginning-of-statement)
+        (my-c++-backward-up-list))
+      (beginning-of-line)
+      (unless (looking-at-p "\\(struct\\|class\\)")
+        (error "class header not found"))
+      (forward-word)
+      (forward-char)
+      (setq class-name (thing-at-point 'symbol)))
+    ;; grab inline definition
+    (my-c++-beginning-of-statement)
+    (let ((start (point))
+          (modified (buffer-modified-p))
+          proto kill)
+      (c-end-of-statement)
+      (setq proto (buffer-substring start (point)))
+      (goto-char start)
+      (re-search-forward "(")
+      (backward-char)
+      (re-search-backward "[^a-zA-Z0-9_]")
+      (forward-char)
+      (just-one-space)
+      (insert class-name "::")
+      (c-end-of-statement)
+      (if (eq (char-before) ?\;)
+          ;; prototype
+          (progn
+            (setq kill (concat (buffer-substring start (1- (point))) "\n{\n\n}\n"))
+            (kill-new kill)
+            (delete-region start (point)))
+        ;; inline definition
+        (setq proto (concat proto ";\n"))
+        (setq modified t)
+        (c-end-of-defun)
+        (setq kill (replace-regexp-in-string "\\({ \\| }\\)" "\n{\n" (buffer-substring start (point))))
+        (kill-new kill)
+        (delete-region start (point)))
+      (insert proto)
+      (unless modified
+        (set-buffer-modified-p nil))
+      (goto-char first-point)
+      (message "Yanked: %s {...}" (substring-no-properties (replace-regexp-in-string "\n.*" "" kill))))))
+
 
 (provide 'arthur-functions)

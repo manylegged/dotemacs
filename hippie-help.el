@@ -224,7 +224,7 @@ Return in same format as `hap-find-prototype'."
     (string-match-p (concat "^\\([a-zA-Z0-9_]+::\\)?" (regexp-quote str) "$") pat)))
 
 (defun hap-imenu-python-comparator (str pat)
-  (string-match-p (concat "^ ?\\(class\\)? ?" (regexp-quote str) "$") pat))
+  (string-match-p (concat "^" (regexp-quote str) ".(\\(class\\|def\\))?$") pat))
 
 (defvar hap-imenu-comparator-alist
   '((c++-mode . hap-imenu-c++-comparator)
@@ -241,7 +241,7 @@ Return in same format as `hap-find-prototype'."
                (list (hap-find-prototype (or method 'imenu)
                                          (marker-buffer (cdr val))
                                          (marker-position (cdr val))))
-             (car val))))))
+             val)))))
 
 (defun hap-imenu-read (str item)
   ;; TODO improve me
@@ -520,7 +520,15 @@ The rest are strings"
                                                       (buffer-substring beg proto-beg))))
             ;; proto is the function prototype itself (i.e "void foo(bar, bat)")
             (setq proto (hap-collapse-spaces (buffer-substring proto-beg end)))
-            )))
+            ))
+
+         ((eq major-mode 'python-mode)
+          (let ((type (intern (save-excursion (beginning-of-line) (thing-at-point 'symbol)))))
+            (setq proto (hap-collapse-spaces
+                         (buffer-substring (line-beginning-position)
+                                           (save-excursion
+                                             (re-search-forward ":$" (point-max))))))))
+          )
         ;; return prototype
         (list start
               (if struct (concat struct "...") nil)
@@ -704,7 +712,7 @@ Particularly useful for c/c++, where it can use ebrowse, imenu, and or tag data"
   (interactive)
   (with-no-warnings
     (make-variable-buffer-local 'eldoc-documentation-function))
-  (if (or (and (not (or (boundp 'eldoc-mode) eldoc-mode)) (null arg))
+  (if (or (and (not (and (boundp 'eldoc-mode) eldoc-mode)) (null arg))
           (and (numberp arg) (> arg 0)))
       (progn
         (setq eldoc-documentation-function 'hippie-eldoc-function)
