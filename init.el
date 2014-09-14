@@ -86,7 +86,7 @@
 (global-auto-revert-mode 1)
 (add-to-list 'global-auto-revert-ignore-modes 'ebrowse-tree-mode)
 ;(add-to-list 'global-auto-revert-ignore-modes 'tags-table-mode)
-;(desktop-save-mode 1)
+(desktop-save-mode 1)
 ;(ac-config-default)
 ;(yas-global-mode 1)
 
@@ -415,12 +415,15 @@
 
 ;; minor modes
 
-;; (defun my-disable-partial-truncate ()
-;;   (interactive)
-;;   (make-local-variable 'truncate-partial-width-windows)
-;;   (setq truncate-partial-width-windows nil))
+(defun my-disable-partial-truncate ()
+  (interactive)
+  (make-local-variable 'truncate-partial-width-windows)
+  (setq truncate-partial-width-windows nil))
+
+(add-hook 'nxml-mode-hook 'my-disable-partial-truncate)
 
 ;; (add-hook 'compilation-mode-hook 'my-disable-partial-truncate)
+
 
 (defun my-temp-buffer-hook ()
   (local-set-key (kbd "q") 'quit-window)
