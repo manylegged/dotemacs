@@ -292,7 +292,7 @@
     ;; (replace-buffer-in-windows buffer)
     ))
 (add-hook 'compilation-finish-functions 'my-compilation-finish-function)
-(setq compilation-error-regexp-alist '(python-tracebacks-and-caml comma msft gcc-include gnu))
+(setq compilation-error-regexp-alist '(ada aix bash python-tracebacks-and-caml comma msft gcc-include gnu))
 
 ;; this controls default file pattern for rgrep
 (setq grep-files-aliases
@@ -315,7 +315,7 @@
 (defun my-compile-keys ()
   (local-set-key (kbd "s-b") 'compile-with-makefile)
   (local-set-key (kbd "C-c C-c") 'compile-with-makefile))
-(add-hooks '(sh-mode-hook makefile-mode-hook c-mode-common-hook)
+(add-hooks '(sh-mode-hook makefile-mode-hook c-mode-common-hook python-mode-hook)
            'my-compile-keys)
 
 
@@ -348,7 +348,9 @@
 (defun outlaws-compilation-finish (buffer status)
   (when (and (equal status "finished\n")
              (equal (buffer-name buffer) "*compilation*")
-             (not (string-match-p "run" compile-command)))
+             (not (string-match-p "run" compile-command))
+             (let ((case-fold-search t))
+               (string-match-p "tag" compile-command)))
     (with-current-buffer buffer
       (if (not (save-excursion
                    (goto-char (point-min))
@@ -629,7 +631,8 @@
          ("\\_<self\\_>" . font-lock-variable-name-face)
 ;;;          ("\\_<print\\_>" . font-lock-builtin-face)
          ))
-  (local-set-key (kbd "C-j") 'newline))
+  (local-set-key (kbd "C-j") 'newline)
+  (hippie-eldoc 1))
 (add-hook 'python-mode-hook 'my-python-hook)
 
 

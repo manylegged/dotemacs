@@ -224,7 +224,7 @@ Return in same format as `hap-find-prototype'."
     (string-match-p (concat "^\\([a-zA-Z0-9_]+::\\)?" (regexp-quote str) "$") pat)))
 
 (defun hap-imenu-python-comparator (str pat)
-  (string-match-p (concat "^" (regexp-quote str) ".(\\(class\\|def\\))?$") pat))
+  (string-match-p (concat "^" (regexp-quote str) "\\(.(\\(class\\|def\\))\\)?$") pat))
 
 (defvar hap-imenu-comparator-alist
   '((c++-mode . hap-imenu-c++-comparator)
