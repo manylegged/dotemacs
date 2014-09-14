@@ -55,9 +55,10 @@
   (require 'eye nil t)
   (add-to-list 'auto-mode-alist (cons eye-image-type-regexp 'eye-mode))
   (mapc (lambda (x) 
-          (unless (string-match-p "html" (car x))
+          (unless (or (string-match-p "html" (car x))
+                      (string-match-p "http" (car x)))
             (add-to-list 'auto-mode-alist (cons (car x) 'eye-mode))))
-          eye-backend-alist)
+        eye-backend-alist)
   (add-to-list 'magic-fallback-mode-alist (cons 'image-type-auto-detected-p 'eye-mode)))
 
 (autoload 'u-mandelbrot "u-mandelbrot" "A simple fractal browser" t)

@@ -406,6 +406,8 @@ unless BEGIN is greather than END, in which case it defaults to
   (interactive)
   (require 'grep)
   (require 'hippie-help)                ; with-no-interactivity
+  (declare-function grep-tag-default "grep")
+  (declare-function grep-read-files "grep")
   (grep-compute-defaults)
   (let ((sym (if (use-region-p)
                  (buffer-substring (point) (mark))
@@ -427,51 +429,71 @@ unless BEGIN is greather than END, in which case it defaults to
   "Put member function definition for current member function declaration into the kill ring.
 If point is on an inline definition, transform it into a decleration."
   (interactive)
-  (let (class-name (first-point (point)))
+  (back-to-indentation)
+  (let (class-name
+        (first-point (point)))
+    (forward-char)
     ;; get class name
     (save-excursion
       (ignore-errors
         (my-c++-beginning-of-statement)
         (my-c++-backward-up-list))
       (beginning-of-line)
-      (unless (looking-at-p "\\(struct\\|class\\)")
-        (error "class header not found"))
-      (forward-word)
-      (forward-char)
-      (setq class-name (thing-at-point 'symbol)))
+      (when (looking-at-p "\\(struct\\|class\\)")
+        (forward-word)
+        (forward-char)
+        (setq class-name (thing-at-point 'symbol))))
     ;; grab inline definition
     (my-c++-beginning-of-statement)
     (let ((start (point))
+          (sline (line-beginning-position))
           (modified (buffer-modified-p))
-          proto kill)
+          proto kill end yank)
+      ;; grab prototype
       (c-end-of-statement)
       (setq proto (buffer-substring start (point)))
+      (setq yank proto)
+      ;; insert Class::
       (goto-char start)
       (re-search-forward "(")
       (backward-char)
       (re-search-backward "[^a-zA-Z0-9_]")
       (forward-char)
       (just-one-space)
-      (insert class-name "::")
+      (when class-name
+        (insert class-name "::"))
       (c-end-of-statement)
       (if (eq (char-before) ?\;)
           ;; prototype
-          (progn
-            (setq kill (concat (buffer-substring start (1- (point))) "\n{\n\n}\n"))
-            (kill-new kill)
-            (delete-region start (point)))
+            (setq kill (concat (buffer-substring start (1- (point))) "\n{\n\n}\n")
+                  end (point))
         ;; inline definition
-        (setq proto (concat proto ";\n"))
+        (setq proto (concat proto ";"))
         (setq modified t)
-        (c-end-of-defun)
-        (setq kill (replace-regexp-in-string "\\({ \\| }\\)" "\n{\n" (buffer-substring start (point))))
-        (kill-new kill)
-        (delete-region start (point)))
+        ;; (c-end-of-defun)
+        (forward-sexp 1)
+        (setq end (point-marker))
+        ;; expand on-line definitions
+        (when (eq (line-beginning-position) sline)
+          (goto-char start)
+          (when (re-search-forward " *{ *" end t)
+            (replace-match "\n{\n"))
+          (goto-char end)
+          (when (re-search-backward " *} *" start t)
+            (replace-match "\n}"))
+          (indent-region start end))
+        (setq kill (concat (replace-regexp-in-string
+                            (concat "\n" (make-string c-basic-offset ? )) "\n"
+                            (buffer-substring start end)) "\n")))
+      ;; replace kill with prototype
+      (kill-new kill)
+      (delete-region start end)
       (insert proto)
+      ;; restore state
       (unless modified
         (set-buffer-modified-p nil))
       (goto-char first-point)
-      (message "Yanked: %s {...}" (substring-no-properties (replace-regexp-in-string "\n.*" "" kill))))))
+      (message "Yanked: %s {...}" (substring-no-properties (replace-regexp-in-string "\n.*" "" yank))))))
 
 
 (provide 'arthur-functions)
