@@ -53,6 +53,10 @@
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
 
+(unless (require 'auto-complete nil t)
+  (dolist (el (list 'auto-complete 'color-theme 'lua-mode 'parenface))
+    (package-install el)))
+
 (when (require 'auto-complete nil t)
 
   (add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
@@ -89,6 +93,7 @@
 (desktop-save-mode 1)
 ;(ac-config-default)
 ;(yas-global-mode 1)
+
 
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
@@ -420,7 +425,7 @@
   (make-local-variable 'truncate-partial-width-windows)
   (setq truncate-partial-width-windows nil))
 
-(add-hook 'nxml-mode-hook 'my-disable-partial-truncate)
+(add-hooks '(compilation-mode-hook nxml-mode-hook) 'my-disable-partial-truncate)
 
 ;; (add-hook 'compilation-mode-hook 'my-disable-partial-truncate)
 
