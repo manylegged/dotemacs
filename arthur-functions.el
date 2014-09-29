@@ -389,6 +389,17 @@ unless BEGIN is greather than END, in which case it defaults to
         (skip-syntax-backward ".")))))
 
 
+(defvar my-align-rules-list 
+  `((c-case-statement
+     (regexp   . "case ['\\ a-zA-Z0-9_]*:\\(\\s-*\\)[^;]*;")
+     (modes    . align-c++-modes)
+     (tab-stop . nil))
+    (c-else-if-block
+     ;; indent a block of if, else if statemenst where the body is on the same line
+     (regexp   . "if ([^;{}]*)\\(\\s-*\\){? *[^;{]")
+     (modes    . align-c++-modes)
+     (tab-stop . nil))))
+
 ;; alignment
 (defun align-dwim ()
   "Align region, or current block if region is not active"
@@ -396,7 +407,7 @@ unless BEGIN is greather than END, in which case it defaults to
   (require 'align)
   (if (use-region-p)
       (let ((align-region-separate 'entire))
-        (align (region-beginning) (region-end)))
+        (align (region-beginning) (region-end) nil my-align-rules-list))
     (let ((align-region-separate 'group))
       (align-current))))
 
