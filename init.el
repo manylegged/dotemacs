@@ -382,13 +382,16 @@
   (cond 
    ((eq system-type 'darwin)
     (setq outlaws-base "/Users/arthur/Documents/outlaws/")
-    (setq outlaws-platform "/Users/arthur/Documents/outlaws/osx/"))
+    (setq outlaws-platform (concat outlaws-base "osx/")))
    ((eq system-type 'gnu/linux)
     (setq outlaws-base "/home/arthur/outlaws/")
-    (setq outlaws-platform "/home/arthur/outlaws/linux/"))
+    (setq outlaws-platform (concat outlaws-base "linux/")))
    ((eq system-type 'windows-nt)
     (setq outlaws-base "C:/Users/Arthur/Documents/outlaws/")
-    (setq outlaws-platform "C:/Users/Arthur/Documents/outlaws/win32/"))
+    (setq outlaws-platform (concat outlaws-base "win32/")))
+   ((eq system-type 'cygwin)
+    (setq outlaws-base "/cygdrive/c/Users/Arthur/Documents/outlaws/")
+    (setq outlaws-platform (concat outlaws-base "win32/")))
    (t
     (error "unsupported system")))
   
