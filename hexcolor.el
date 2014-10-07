@@ -18,7 +18,7 @@
   )
 
 (defvar hexcolor-keywords
-  '(("\\(0x\\|[#]\\)[0-9a-fA-F]\\{2\\}?\\([0-9a-fA-F]\\{6\\}\\)\\>" 
+  '(("\\(0x\\|[#]\\)[0-9a-fA-F]\\{2\\}?\\([0-9a-fA-F]\\{6\\}\\)[uL]?\\>" 
      (0 (hexcolor-fontify) prepend)
      ))
   "keywords passed to `font-lock-add-keywords' for `hexcolor-mode'")

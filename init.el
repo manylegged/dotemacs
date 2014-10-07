@@ -54,7 +54,7 @@
 
 
 (unless (require 'auto-complete nil t)
-  (dolist (el (list 'auto-complete 'color-theme 'lua-mode 'parenface))
+  (dolist (el '(auto-complete color-theme lua-mode parenface))
     (package-install el)))
 
 (when (require 'auto-complete nil t)
