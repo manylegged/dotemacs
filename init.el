@@ -50,7 +50,7 @@
 (require 'package)
 (package-initialize)
 (add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+             '("melpa" . "http://melpa.org/packages/") t)
 
 
 (unless (require 'auto-complete nil t)
@@ -173,8 +173,8 @@
  compilation-scroll-output nil
  undo-limit 20000000                     ; I have a lot of memory
  find-file-confirm-nonexistent-file t
- find-file-visit-truename t             ; follow symlinks
- disabled-command-function nil            ; enable all commands
+ find-file-visit-truename nil           ; don't dereference symlinks
+ disabled-command-function nil          ; enable all commands
  history-delete-duplicates t
  history-length 10000
  max-specpdl-size 10000
@@ -284,6 +284,7 @@
 (global-set-key (kbd "C-\"") 'insert-pair)
 (global-set-key (kbd "C-'") 'insert-pair)
 
+(add-hook 'eval-expression-minibuffer-setup-hook 'eldoc-mode)
 
 ;; compiling
 
@@ -583,7 +584,7 @@
             'symbols) . font-lock-keyword-face)
          (,(regexp-opt
             (list "float2" "float3" "float4" "vec2" "vec3" "vec4" "mat2" "mat3" "mat4"
-                  "ushort" "uint" "trit"
+                  "ushort" "uint" "trit" "lstring"
                   "id") 'symbols) . font-lock-type-face)
          (,(regexp-opt
             (list "nil" "YES" "NO" 
