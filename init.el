@@ -90,7 +90,6 @@
 (global-auto-revert-mode 1)
 (add-to-list 'global-auto-revert-ignore-modes 'ebrowse-tree-mode)
 ;(add-to-list 'global-auto-revert-ignore-modes 'tags-table-mode)
-;; (desktop-save-mode 1)
 ;(ac-config-default)
 ;(yas-global-mode 1)
 
@@ -108,7 +107,7 @@
     (when (and (require 'color-theme nil t)
                (require 'arthur-theme))
       (unless arthur-current-theme
-        (color-theme-arthur-light))
+        (color-theme-arthur-dark))
       ;; (let ((color-theme-legal-variables "\\(color\\|face\\)")
       ;;       (hour (string-to-number (format-time-string "%H"))))
       ;;   (if (and (< 8 hour ) (< hour 21))
@@ -187,6 +186,7 @@
  ring-bell-function (lambda () nil); suppress annoying beeps
  switch-to-buffer-preserve-window-point 'already-displayed
  imenu-auto-rescan-maxout 120000
+ desktop-globals-to-save nil      ; stop Fing up my history
  )
 
 ;(add-to-list 'warning-suppress-types '(undo discard-info))
@@ -652,3 +652,4 @@
   "Sets the transparency of the frame window. 0=transparent/100=opaque"
   (interactive "nTransparency Value 0 - 100 opaque:")
   (set-frame-parameter (selected-frame) 'alpha value))
+

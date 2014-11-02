@@ -486,7 +486,6 @@ Works on member functions (including constructors, etc) as well as regular funct
             (forward-char)
             (just-one-space))
           (insert class-name "::")))
-      (setq yank (buffer-substring start (point)))
       (if (eq (char-before) ?\;)
           ;; prototype
             (setq kill (concat (buffer-substring start (1- (point))) "\n{\n\n}\n")
@@ -511,6 +510,8 @@ Works on member functions (including constructors, etc) as well as regular funct
         (setq kill (concat (replace-regexp-in-string
                             (concat "\n" (make-string c-basic-offset ? )) "\n"
                             (buffer-substring start end)) "\n")))
+      (setq kill (replace-regexp-in-string "^\\(\\(static\\|virtual\\) \\)*" "" kill))
+      (setq yank (replace-regexp-in-string "{.*" "" kill))
       ;; replace kill with prototype
       (kill-new kill)
       (delete-region start end)
