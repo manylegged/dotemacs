@@ -245,6 +245,7 @@
 (global-set-key (kbd "C-S-s") 'rgrep)
 (global-set-key (kbd "s-F") 'rgrep)
 (global-set-key (kbd "s-?") 'rgrep-defaults)
+(global-set-key (kbd "C-S-f") 'rgrep-defaults)
 (define-key isearch-mode-map (kbd "M-w") 'isearch-toggle-word)
 (define-key isearch-mode-map (kbd "C-M-w") 'isearch-yank-symbol)
 
