@@ -50,7 +50,7 @@
 (require 'package)
 (package-initialize)
 (add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+             '("melpa" . "http://melpa.org/packages/") t)
 
 
 (unless (require 'auto-complete nil t)
@@ -90,7 +90,6 @@
 (global-auto-revert-mode 1)
 (add-to-list 'global-auto-revert-ignore-modes 'ebrowse-tree-mode)
 ;(add-to-list 'global-auto-revert-ignore-modes 'tags-table-mode)
-;; (desktop-save-mode 1)
 ;(ac-config-default)
 ;(yas-global-mode 1)
 
@@ -108,7 +107,7 @@
     (when (and (require 'color-theme nil t)
                (require 'arthur-theme))
       (unless arthur-current-theme
-        (color-theme-arthur-light))
+        (color-theme-arthur-dark))
       ;; (let ((color-theme-legal-variables "\\(color\\|face\\)")
       ;;       (hour (string-to-number (format-time-string "%H"))))
       ;;   (if (and (< 8 hour ) (< hour 21))
@@ -173,8 +172,8 @@
  compilation-scroll-output nil
  undo-limit 20000000                     ; I have a lot of memory
  find-file-confirm-nonexistent-file t
- find-file-visit-truename t             ; follow symlinks
- disabled-command-function nil            ; enable all commands
+ find-file-visit-truename nil           ; don't dereference symlinks
+ disabled-command-function nil          ; enable all commands
  history-delete-duplicates t
  history-length 10000
  max-specpdl-size 10000
@@ -187,6 +186,7 @@
  ring-bell-function (lambda () nil); suppress annoying beeps
  switch-to-buffer-preserve-window-point 'already-displayed
  imenu-auto-rescan-maxout 120000
+ desktop-globals-to-save nil      ; stop Fing up my history
  )
 
 ;(add-to-list 'warning-suppress-types '(undo discard-info))
@@ -285,6 +285,7 @@
 (global-set-key (kbd "C-\"") 'insert-pair)
 (global-set-key (kbd "C-'") 'insert-pair)
 
+(add-hook 'eval-expression-minibuffer-setup-hook 'eldoc-mode)
 
 ;; compiling
 
@@ -584,7 +585,7 @@
             'symbols) . font-lock-keyword-face)
          (,(regexp-opt
             (list "float2" "float3" "float4" "vec2" "vec3" "vec4" "mat2" "mat3" "mat4"
-                  "ushort" "uint" "trit"
+                  "ushort" "uint" "trit" "lstring"
                   "id") 'symbols) . font-lock-type-face)
          (,(regexp-opt
             (list "nil" "YES" "NO" 
@@ -652,3 +653,4 @@
   "Sets the transparency of the frame window. 0=transparent/100=opaque"
   (interactive "nTransparency Value 0 - 100 opaque:")
   (set-frame-parameter (selected-frame) 'alpha value))
+

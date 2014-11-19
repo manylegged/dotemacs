@@ -192,9 +192,10 @@
 With prefix ARG,also load it"
   (interactive "P")
   (require 'bytecomp)
-  (when (or (file-exists-p (byte-compile-dest-file buffer-file-name))
-            (yes-or-no-p (format "Byte compile %s? "
-                                 (abbreviate-file-name buffer-file-name))))
+  (when (and buffer-file-name
+             (or (file-exists-p (byte-compile-dest-file buffer-file-name))
+                 (yes-or-no-p (format "Byte compile %s? "
+                                      (abbreviate-file-name buffer-file-name)))))
     (byte-compile-file buffer-file-name arg)))
 
 (defun eval-this-buffer ()
@@ -398,6 +399,11 @@ unless BEGIN is greather than END, in which case it defaults to
      ;; indent a block of if, else if statemenst where the body is on the same line
      (regexp   . "if ([^;{}]*)\\(\\s-*\\){? *[^;{]")
      (modes    . align-c++-modes)
+     (tab-stop . nil))
+    (c-ternary-chain
+     ;; chain of ? : expressions
+     (regexp   . "[^; ]\\(\\s-*\\)[?][^;\n{}]\+:$")
+     (modes    . align-c++-modes)
      (tab-stop . nil))))
 
 ;; alignment
@@ -431,14 +437,16 @@ unless BEGIN is greather than END, in which case it defaults to
            nil)))
 
 (defun my-c++-beginning-of-statement ()
+  "like `c-beginning-of-statement-1', but get out of nested parens better" 
   (c-beginning-of-statement-1)
   (while (eq (char-before) ?\()
     (backward-char)
     (c-beginning-of-statement-1)))
 
 (defun my-c++-kill-decl ()
-  "Put member function definition for current member function declaration into the kill ring.
-If point is on an inline definition, transform it into a decleration."
+  "Put definition for current function declaration into the kill ring.
+If point is on an inline definition, additionally transform it into a decleration.
+Works on member functions (including constructors, etc) as well as regular functions."
   (interactive)
   (back-to-indentation)
   (let (class-name
@@ -448,8 +456,8 @@ If point is on an inline definition, transform it into a decleration."
     (save-excursion
       (ignore-errors
         (my-c++-beginning-of-statement)
-        (my-c++-backward-up-list))
-      (beginning-of-line)
+        (my-c++-backward-up-list)
+        (my-c++-beginning-of-statement))
       (when (looking-at-p "\\(struct\\|class\\)")
         (forward-word)
         (forward-char)
@@ -459,21 +467,25 @@ If point is on an inline definition, transform it into a decleration."
     (let ((start (point))
           (sline (line-beginning-position))
           (modified (buffer-modified-p))
+          (tructor (not (looking-at-p "[^\n(]* [^\n(]*("))) ; constructor / destructor
           proto kill end yank)
       ;; grab prototype
-      (c-end-of-statement)
+      (goto-char (min (save-excursion (c-end-of-statement) (point))
+                      (save-excursion
+                        (or (and (re-search-forward ")\\s *:" (point-max) t) (1+ (match-beginning 0)))
+                            (point-max)))))
       (setq proto (buffer-substring start (point)))
-      (setq yank proto)
       ;; insert Class::
-      (goto-char start)
-      (re-search-forward "(")
-      (backward-char)
-      (re-search-backward "[^a-zA-Z0-9_]")
-      (forward-char)
-      (just-one-space)
       (when class-name
-        (insert class-name "::"))
-      (c-end-of-statement)
+        (save-excursion
+          (goto-char start)
+          (unless tructor
+            (re-search-forward "(")
+            (backward-char)
+            (re-search-backward "[^a-zA-Z0-9_]")
+            (forward-char)
+            (just-one-space))
+          (insert class-name "::")))
       (if (eq (char-before) ?\;)
           ;; prototype
             (setq kill (concat (buffer-substring start (1- (point))) "\n{\n\n}\n")
@@ -482,6 +494,8 @@ If point is on an inline definition, transform it into a decleration."
         (setq proto (concat proto ";"))
         (setq modified t)
         ;; (c-end-of-defun)
+        (when (re-search-forward "{" (point-max) t)
+          (backward-char))
         (forward-sexp 1)
         (setq end (point-marker))
         ;; expand on-line definitions
@@ -496,6 +510,8 @@ If point is on an inline definition, transform it into a decleration."
         (setq kill (concat (replace-regexp-in-string
                             (concat "\n" (make-string c-basic-offset ? )) "\n"
                             (buffer-substring start end)) "\n")))
+      (setq kill (replace-regexp-in-string "^\\(\\(static\\|virtual\\) \\)*" "" kill))
+      (setq yank (replace-regexp-in-string "{.*" "" kill))
       ;; replace kill with prototype
       (kill-new kill)
       (delete-region start end)

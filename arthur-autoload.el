@@ -38,11 +38,6 @@
 (autoload 'rfc2047-decode-string "rfc2047")
 (autoload 'rfc2047-decode-region "rfc2047")
 
-(autoload 'glsl-mode "glsl-mode" "Major mode for GLSL programs" t)
-(add-to-list 'auto-mode-alist '("\\.vert\\'" . glsl-mode))
-(add-to-list 'auto-mode-alist '("\\.frag\\'" . glsl-mode))
-(autoload 'opengl-mode "opengl" "Minor mode for OpenGL programs" t)
-
 (autoload 'hippie-help "hippie-help" "Intelligently display help for the thing at point." t)
 (autoload 'hippie-goto "hippie-help" "Intelligently goto the thing at point." t)
 (autoload 'hippie-eldoc "hippie-help" "Eldoc using hippie help keybindings" t)
@@ -63,5 +58,11 @@
 
 (autoload 'u-mandelbrot "u-mandelbrot" "A simple fractal browser" t)
 (autoload 'mandelbrot "u-mandelbrot" "A simple fractal browser" t)
+
+(autoload 'glsl-mode "glsl-mode" nil t)
+(add-to-list 'auto-mode-alist '("\\.glsl\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.vert\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.frag\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.geom\\'" . glsl-mode))
 
 (provide 'arthur-autoload)
