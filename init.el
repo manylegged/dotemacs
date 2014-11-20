@@ -421,6 +421,7 @@
 
 (add-to-list 'magic-mode-alist '("^ELF" . hexl-mode))
 (add-to-list 'auto-mode-alist '("\.o\\'" . hexl-mode))
+(add-to-list 'auto-mode-alist '("\.vdf\\'" . javascript-mode))
 
 ;; minor modes
 

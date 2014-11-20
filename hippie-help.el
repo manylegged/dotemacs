@@ -576,6 +576,11 @@ the default and don't actually prompt user"
            (entry (hap-update-entry (nth index hap-eldoc-current-prototypes))))
       entry)))
 
+(defun hap-add-trailing-newline (str)
+  (if (or (null str) (string-match-p "\n$" str))
+      str
+    (concat str "\n")))
+
 (defun hap-get-current-message ()
   (when hap-eldoc-current-prototypes
     (let* ((count (length hap-eldoc-current-prototypes))
@@ -583,7 +588,10 @@ the default and don't actually prompt user"
            (entry (hap-update-entry (nth index hap-eldoc-current-prototypes)))
            (prefix (and (> count 1) (format "(%d/%d) " (1+ index) count))))
       (setcar (nthcdr index hap-eldoc-current-prototypes) entry) ; save updated entry
-      (concat prefix (hap-get-context entry) (nth 2 entry) (nth 3 entry)))))
+      (concat prefix
+              (hap-get-context entry)
+              (hap-add-trailing-newline (nth 2 entry))
+              (nth 3 entry)))))
 
 (define-button-type 'hippie-eldoc-view
   'follow-link t
