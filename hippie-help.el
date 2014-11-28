@@ -186,22 +186,18 @@ Return in same format as `hap-find-prototype'."
            (visit-tags-table-buffer)
            (save-excursion
              (goto-char (point-min))
-             ;; format is prototype  symbol  line, byte
-             (while (re-search-forward (concat "" sym "\\([0-9]*\\),\\([0-9]*\\)") (point-max) t)
-               (let* ((prototype (buffer-substring (line-beginning-position) (match-beginning 0)))
-                      (pos (string-to-number (match-string 2)))
-                      (line (string-to-number (match-string 1)))
+             ;; format is 'prototype  symbol  line, byte'
+             ;; sometimes 'symbol ' is missing
+             (while (re-search-forward
+                     (concat
+                      "\\(\\(" sym "\\)\\|\\(" sym "[ (]?\\)\\)\\([0-9]*\\),\\([0-9]*\\)")
+                     (point-max) t)
+               (let* ((prototype (buffer-substring (line-beginning-position)
+                                                   (1- (or (match-end 3) (1+ (match-beginning 0))))))
+                      (pos (string-to-number (match-string 5)))
+                      (line (string-to-number (match-string 4)))
                       (entry (hap-find-etag-filename-make-entry prototype line pos)))
-                 (setq tags (cons entry tags))))
-             (unless tags
-               (goto-char (point-min))
-               ;; except for some lines which are missing the symbol  secton
-               (while (re-search-forward (concat "\\(" sym "[ (]?\\)\\([0-9]*\\),\\([0-9]*\\)") (point-max) t)
-                 (let* ((prototype (buffer-substring (line-beginning-position) (match-end 1)))
-                        (pos (string-to-number (match-string 3)))
-                        (line (string-to-number (match-string 2)))
-                        (entry (hap-find-etag-filename-make-entry prototype line pos)))
-                   (setq tags (cons entry tags))))))
+                 (setq tags (cons entry tags)))))
            tags))))
 
 (defun hap-find-tag ()
@@ -577,7 +573,7 @@ the default and don't actually prompt user"
       entry)))
 
 (defun hap-add-trailing-newline (str)
-  (if (or (null str) (string-match-p "\n$" str))
+  (if (or (null str) (eq (length str) 0) (string-match-p "\n$" str))
       str
     (concat str "\n")))
 

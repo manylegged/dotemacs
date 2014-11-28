@@ -419,7 +419,7 @@ unless BEGIN is greather than END, in which case it defaults to
 
 
 (defun rgrep-defaults ()
-  "Call `rgrep', using all the default prompt values"
+  "Call `rgrep', using all the default prompt values, in parent of current directory"
   (interactive)
   (require 'grep)
   (require 'hippie-help)                ; with-no-interactivity
@@ -434,6 +434,7 @@ unless BEGIN is greather than END, in which case it defaults to
     (rgrep sym
            (with-no-interactivity (grep-read-files sym))
            default-directory
+           ;; (expand-file-name ".." default-directory)
            nil)))
 
 (defun my-c++-beginning-of-statement ()
@@ -449,77 +450,85 @@ If point is on an inline definition, additionally transform it into a decleratio
 Works on member functions (including constructors, etc) as well as regular functions."
   (interactive)
   (back-to-indentation)
-  (let (class-name
-        (first-point (point)))
-    (forward-char)
-    ;; get class name
-    (save-excursion
-      (ignore-errors
-        (my-c++-beginning-of-statement)
-        (my-c++-backward-up-list)
-        (my-c++-beginning-of-statement))
-      (when (looking-at-p "\\(struct\\|class\\)")
-        (forward-word)
-        (forward-char)
-        (setq class-name (thing-at-point 'symbol))))
-    ;; grab inline definition
-    (my-c++-beginning-of-statement)
-    (let ((start (point))
-          (sline (line-beginning-position))
-          (modified (buffer-modified-p))
-          (tructor (not (looking-at-p "[^\n(]* [^\n(]*("))) ; constructor / destructor
-          proto kill end yank)
-      ;; grab prototype
-      (goto-char (min (save-excursion (c-end-of-statement) (point))
-                      (save-excursion
-                        (or (and (re-search-forward ")\\s *:" (point-max) t) (1+ (match-beginning 0)))
-                            (point-max)))))
-      (setq proto (buffer-substring start (point)))
-      ;; insert Class::
-      (when class-name
-        (save-excursion
-          (goto-char start)
-          (unless tructor
-            (re-search-forward "(")
-            (backward-char)
-            (re-search-backward "[^a-zA-Z0-9_]")
-            (forward-char)
-            (just-one-space))
-          (insert class-name "::")))
-      (if (eq (char-before) ?\;)
-          ;; prototype
+  (if (looking-at-p "[^\n]*::")
+      ;; convert definition into decleration
+      (progn
+        (setq yank (concat (replace-regexp-in-string
+                            "[a-zA-Z0-9_]*::" ""
+                            (buffer-substring (point) (save-excursion (c-end-of-statement) (point)))) ";"))
+        (kill-new yank)
+        (message "Yanked: %s" yank))
+    ;; convert decleration into definition
+    (let (yank class-name (first-point (point)))
+      (forward-char)
+      ;; get class name
+      (save-excursion
+        (ignore-errors
+          (my-c++-beginning-of-statement)
+          (my-c++-backward-up-list)
+          (my-c++-beginning-of-statement))
+        (when (looking-at-p "\\(struct\\|class\\)")
+          (forward-word)
+          (forward-char)
+          (setq class-name (thing-at-point 'symbol))))
+      ;; grab inline definition
+      (my-c++-beginning-of-statement)
+      (let ((start (point))
+            (sline (line-beginning-position))
+            (modified (buffer-modified-p))
+            (tructor (not (looking-at-p "[^\n(]* [^\n(]*("))) ; constructor / destructor
+            proto kill end)
+        ;; grab prototype
+        (goto-char (min (save-excursion (c-end-of-statement) (point))
+                        (save-excursion
+                          (or (and (re-search-forward ")\\s *:" (point-max) t) (1+ (match-beginning 0)))
+                              (point-max)))))
+        (setq proto (buffer-substring start (point)))
+        ;; insert Class::
+        (when class-name
+          (save-excursion
+            (goto-char start)
+            (unless tructor
+              (re-search-forward "(")
+              (backward-char)
+              (re-search-backward "[^a-zA-Z0-9_]")
+              (forward-char)
+              (just-one-space))
+            (insert class-name "::")))
+        (if (eq (char-before) ?\;)
+            ;; prototype
             (setq kill (concat (buffer-substring start (1- (point))) "\n{\n\n}\n")
                   end (point))
-        ;; inline definition
-        (setq proto (concat proto ";"))
-        (setq modified t)
-        ;; (c-end-of-defun)
-        (when (re-search-forward "{" (point-max) t)
-          (backward-char))
-        (forward-sexp 1)
-        (setq end (point-marker))
-        ;; expand on-line definitions
-        (when (eq (line-beginning-position) sline)
-          (goto-char start)
-          (when (re-search-forward " *{ *" end t)
-            (replace-match "\n{\n"))
-          (goto-char end)
-          (when (re-search-backward " *} *" start t)
-            (replace-match "\n}"))
-          (indent-region start end))
-        (setq kill (concat (replace-regexp-in-string
-                            (concat "\n" (make-string c-basic-offset ? )) "\n"
-                            (buffer-substring start end)) "\n")))
-      (setq kill (replace-regexp-in-string "^\\(\\(static\\|virtual\\) \\)*" "" kill))
-      (setq yank (replace-regexp-in-string "{.*" "" kill))
-      ;; replace kill with prototype
-      (kill-new kill)
-      (delete-region start end)
-      (insert proto)
-      ;; restore state
-      (unless modified
-        (set-buffer-modified-p nil))
-      (goto-char first-point)
+          ;; inline definition
+          (setq proto (concat proto ";"))
+          (setq modified t)
+          ;; (c-end-of-defun)
+          (when (re-search-forward "{" (point-max) t)
+            (backward-char))
+          (forward-sexp 1)
+          (setq end (point-marker))
+          ;; expand on-line definitions
+          (when (eq (line-beginning-position) sline)
+            (goto-char start)
+            (when (re-search-forward " *{ *" end t)
+              (replace-match "\n{\n"))
+            (goto-char end)
+            (when (re-search-backward " *} *" start t)
+              (replace-match "\n}"))
+            (indent-region start end))
+          (setq kill (concat (replace-regexp-in-string
+                              (concat "\n" (make-string c-basic-offset ? )) "\n"
+                              (buffer-substring start end)) "\n")))
+        (setq kill (replace-regexp-in-string "^\\(\\(static\\|virtual\\) \\)*" "" kill))
+        (setq yank (replace-regexp-in-string "{.*" "" kill))
+        ;; replace kill with prototype
+        (kill-new kill)
+        (delete-region start end)
+        (insert proto)
+        ;; restore state
+        (unless modified
+          (set-buffer-modified-p nil))
+        (goto-char first-point))
       (message "Yanked: %s {...}" (substring-no-properties (replace-regexp-in-string "\n.*" "" yank))))))
 
 

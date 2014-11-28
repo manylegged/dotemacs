@@ -500,7 +500,8 @@
   (add-to-list 'hippie-expand-try-functions-list
                'try-complete-lisp-symbol t)
   (add-to-list 'hippie-expand-try-functions-list
-               'try-complete-lisp-symbol-partially t))
+               'try-complete-lisp-symbol-partially t)
+  (local-set-key (kbd "C-j") 'newline))
 (add-hook 'emacs-lisp-mode-hook 'my-elisp-hook)
 
 
