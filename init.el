@@ -586,7 +586,7 @@
             'symbols) . font-lock-keyword-face)
          (,(regexp-opt
             (list "float2" "float3" "float4" "vec2" "vec3" "vec4" "mat2" "mat3" "mat4"
-                  "ushort" "uint" "trit" "lstring"
+                  "ushort" "uint" "trit" "lstring" "int2" "int3"
                   "id") 'symbols) . font-lock-type-face)
          (,(regexp-opt
             (list "nil" "YES" "NO" 
@@ -594,6 +594,8 @@
          ;("~" (0 font-lock-negation-char-face prepend))
          ("\\_<0x[0-9a-fA-f]+\\_>" . font-lock-constant-face) ; hex
          ("\\_<[0-9]*\\.?[0-9]*f?\\_>" . font-lock-constant-face) ; dec floats and ints
+         ("\\_<\\([A-Z_][A-Z_0-9]*\\)\\_>[^(]" 1 font-lock-constant-face) ; preprocessor constants
+         ("\\_<_[A-Za-z_][a-zA-Z_0-9]*\\_>" . font-lock-constant-face) ; preprocessor constants beginning with underscore
          ))
   (when (and (featurep 'semantic) semantic-mode)
     (add-to-list 'ac-sources 'ac-source-semantic))

@@ -444,6 +444,7 @@ unless BEGIN is greather than END, in which case it defaults to
     (backward-char)
     (c-beginning-of-statement-1)))
 
+
 (defun my-c++-kill-decl ()
   "Put definition for current function declaration into the kill ring.
 If point is on an inline definition, additionally transform it into a decleration.
@@ -452,10 +453,10 @@ Works on member functions (including constructors, etc) as well as regular funct
   (back-to-indentation)
   (if (looking-at-p "[^\n]*::")
       ;; convert definition into decleration
-      (progn
-        (setq yank (concat (replace-regexp-in-string
-                            "[a-zA-Z0-9_]*::" ""
-                            (buffer-substring (point) (save-excursion (c-end-of-statement) (point)))) ";"))
+      (let ((yank (concat (replace-regexp-in-string
+                           "[a-zA-Z0-9_]*::" ""
+                           (buffer-substring
+                            (point) (save-excursion (c-end-of-statement) (point)))) ";")))
         (kill-new yank)
         (message "Yanked: %s" yank))
     ;; convert decleration into definition
@@ -479,10 +480,12 @@ Works on member functions (including constructors, etc) as well as regular funct
             (tructor (not (looking-at-p "[^\n(]* [^\n(]*("))) ; constructor / destructor
             proto kill end)
         ;; grab prototype
-        (goto-char (min (save-excursion (c-end-of-statement) (point))
-                        (save-excursion
-                          (or (and (re-search-forward ")\\s *:" (point-max) t) (1+ (match-beginning 0)))
-                              (point-max)))))
+        (goto-char (min (save-excursion
+                          (re-search-forward "\\()\\( [a-z]*\\)[ \n\t]*{\\)\\|;" (point-max) t)
+                          (match-end 2))
+                        (or (and tructor (save-excursion (re-search-forward ")\\s *:" (point-max) t)
+                                                         (1+ (match-beginning 0))))
+                            (point-max))))
         (setq proto (buffer-substring start (point)))
         ;; insert Class::
         (when class-name
@@ -519,7 +522,7 @@ Works on member functions (including constructors, etc) as well as regular funct
           (setq kill (concat (replace-regexp-in-string
                               (concat "\n" (make-string c-basic-offset ? )) "\n"
                               (buffer-substring start end)) "\n")))
-        (setq kill (replace-regexp-in-string "^\\(\\(static\\|virtual\\) \\)*" "" kill))
+        (setq kill (replace-regexp-in-string "^\\(\\(static\\|virtual\\|inline\\) \\)*" "" kill))
         (setq yank (replace-regexp-in-string "{.*" "" kill))
         ;; replace kill with prototype
         (kill-new kill)
