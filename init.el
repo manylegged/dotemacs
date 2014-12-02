@@ -422,6 +422,7 @@
 
 (add-to-list 'magic-mode-alist '("^ELF" . hexl-mode))
 (add-to-list 'auto-mode-alist '("\.o\\'" . hexl-mode))
+(add-to-list 'auto-mode-alist '("\.vdf\\'" . javascript-mode))
 
 ;; minor modes
 
@@ -500,7 +501,8 @@
   (add-to-list 'hippie-expand-try-functions-list
                'try-complete-lisp-symbol t)
   (add-to-list 'hippie-expand-try-functions-list
-               'try-complete-lisp-symbol-partially t))
+               'try-complete-lisp-symbol-partially t)
+  (local-set-key (kbd "C-j") 'newline))
 (add-hook 'emacs-lisp-mode-hook 'my-elisp-hook)
 
 
@@ -585,7 +587,7 @@
             'symbols) . font-lock-keyword-face)
          (,(regexp-opt
             (list "float2" "float3" "float4" "vec2" "vec3" "vec4" "mat2" "mat3" "mat4"
-                  "ushort" "uint" "trit" "lstring"
+                  "ushort" "uint" "trit" "lstring" "int2" "int3"
                   "id") 'symbols) . font-lock-type-face)
          (,(regexp-opt
             (list "nil" "YES" "NO" 
@@ -593,6 +595,8 @@
          ;("~" (0 font-lock-negation-char-face prepend))
          ("\\_<0x[0-9a-fA-f]+\\_>" . font-lock-constant-face) ; hex
          ("\\_<[0-9]*\\.?[0-9]*f?\\_>" . font-lock-constant-face) ; dec floats and ints
+         ("\\_<\\([A-Z_][A-Z_0-9]*\\)\\_>[^(]" 1 font-lock-constant-face) ; preprocessor constants
+         ("\\_<_[A-Za-z_][a-zA-Z_0-9]*\\_>" . font-lock-constant-face) ; preprocessor constants beginning with underscore
          ))
   (when (and (featurep 'semantic) semantic-mode)
     (add-to-list 'ac-sources 'ac-source-semantic))

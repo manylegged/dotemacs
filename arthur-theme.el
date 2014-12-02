@@ -9,7 +9,7 @@
   (color-theme-install
    '(color-theme-arthur-dark
      ((background-color . "black")
-      (foreground-color . "#a0a0a0")
+      (foreground-color . "#000000")
       (background-mode . dark)
       (mouse-color . "white")
       (cursor-color . "grey80"))
@@ -101,6 +101,44 @@
      (custom-button-mouse ((t (:background "grey95" :foreground "black" :box "grey50"))))
      
      )))
+
+(defun color-theme-arthur-dark2 ()
+  "grayscale"
+  (interactive)
+  (setq arthur-current-theme 'dark2)
+  (let ((color-theme-is-cumulative t))
+    (color-theme-arthur-dark)
+    (color-theme-install
+     '(color-theme-arthur-dark2
+       ((background-color . "#202020")
+        (foreground-color . "#c0c0c0")
+        (background-mode . dark)
+        (mouse-color . "white")
+        (cursor-color . "grey80"))
+       
+       (fringe ((t (:background "#282828"))))
+       (mode-line ((t (:background "#90cc30" :foreground "black"))))
+       (mode-line-inactive ((t (:background "#404040" :foreground "#a0a0a0"))))
+       (mode-line-highlight ((t (:background "grey60" :foreground "black"))))
+       (mode-line-buffer-id ((t (:foreground unspecified :background unspecified))))
+       (which-func ((t (:bold t :foreground unspecified))))
+       (minibuffer-prompt ((t (:bold t :foreground "#b0e000"))))
+       
+       (font-lock-keyword-face ((t (:bold t :foreground "#b0e000"))))
+       (font-lock-variable-name-face ((t (:italic t :foreground "#b0b080"))))
+       (font-lock-constant-face ((t (:foreground "#0x70bb60"))))
+       (font-lock-type-face ((t (:foreground "#60bb00"))))
+       (font-lock-builtin-face ((t (:foreground "#80cc70"))))
+       (font-lock-preprocessor-face ((t (:foreground "#00bbff"))))
+       (font-lock-negation-char-face ((t (:foreground "#f0e000"))))
+       (font-lock-string-face ((t (:foreground "#80cc30" :background unspecified))))
+       (font-lock-function-name-face ((t (:bold t :foreground "#a0bb44"))))
+
+       (font-lock-comment-face ((t (:slant unspecified :foreground "#606060" :background unspecified))))
+       (font-lock-comment-delimiter-face ((t (:foreground "#808080" :background unspecified))))
+       (font-lock-doc-face ((t (:foreground "#80cc00" :background unspecified))))
+       ))))
+       
 
 (defun color-theme-arthur-mild ()
   "grayscale"

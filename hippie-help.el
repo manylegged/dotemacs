@@ -186,22 +186,18 @@ Return in same format as `hap-find-prototype'."
            (visit-tags-table-buffer)
            (save-excursion
              (goto-char (point-min))
-             ;; format is prototype  symbol  line, byte
-             (while (re-search-forward (concat "" sym "\\([0-9]*\\),\\([0-9]*\\)") (point-max) t)
-               (let* ((prototype (buffer-substring (line-beginning-position) (match-beginning 0)))
-                      (pos (string-to-number (match-string 2)))
-                      (line (string-to-number (match-string 1)))
+             ;; format is 'prototype  symbol  line, byte'
+             ;; sometimes 'symbol ' is missing
+             (while (re-search-forward
+                     (concat
+                      "\\(\\(" sym "\\)\\|\\(" sym "[ (]?\\)\\)\\([0-9]*\\),\\([0-9]*\\)")
+                     (point-max) t)
+               (let* ((prototype (buffer-substring (line-beginning-position)
+                                                   (1- (or (match-end 3) (1+ (match-beginning 0))))))
+                      (pos (string-to-number (match-string 5)))
+                      (line (string-to-number (match-string 4)))
                       (entry (hap-find-etag-filename-make-entry prototype line pos)))
-                 (setq tags (cons entry tags))))
-             (unless tags
-               (goto-char (point-min))
-               ;; except for some lines which are missing the symbol  secton
-               (while (re-search-forward (concat "\\(" sym "[ (]?\\)\\([0-9]*\\),\\([0-9]*\\)") (point-max) t)
-                 (let* ((prototype (buffer-substring (line-beginning-position) (match-end 1)))
-                        (pos (string-to-number (match-string 3)))
-                        (line (string-to-number (match-string 2)))
-                        (entry (hap-find-etag-filename-make-entry prototype line pos)))
-                   (setq tags (cons entry tags))))))
+                 (setq tags (cons entry tags)))))
            tags))))
 
 (defun hap-find-tag ()
@@ -576,6 +572,11 @@ the default and don't actually prompt user"
            (entry (hap-update-entry (nth index hap-eldoc-current-prototypes))))
       entry)))
 
+(defun hap-add-trailing-newline (str)
+  (if (or (null str) (eq (length str) 0) (string-match-p "\n$" str))
+      str
+    (concat str "\n")))
+
 (defun hap-get-current-message ()
   (when hap-eldoc-current-prototypes
     (let* ((count (length hap-eldoc-current-prototypes))
@@ -583,7 +584,10 @@ the default and don't actually prompt user"
            (entry (hap-update-entry (nth index hap-eldoc-current-prototypes)))
            (prefix (and (> count 1) (format "(%d/%d) " (1+ index) count))))
       (setcar (nthcdr index hap-eldoc-current-prototypes) entry) ; save updated entry
-      (concat prefix (hap-get-context entry) (nth 2 entry) (nth 3 entry)))))
+      (concat prefix
+              (hap-get-context entry)
+              (hap-add-trailing-newline (nth 2 entry))
+              (nth 3 entry)))))
 
 (define-button-type 'hippie-eldoc-view
   'follow-link t
