@@ -108,7 +108,7 @@
     (when (and (require 'color-theme nil t)
                (require 'arthur-theme))
       (unless arthur-current-theme
-        (color-theme-arthur-dark))
+        (color-theme-arthur-dark2))
       ;; (let ((color-theme-legal-variables "\\(color\\|face\\)")
       ;;       (hour (string-to-number (format-time-string "%H"))))
       ;;   (if (and (< 8 hour ) (< hour 21))
@@ -246,6 +246,7 @@
 (global-set-key (kbd "C-S-s") 'rgrep)
 (global-set-key (kbd "s-F") 'rgrep)
 (global-set-key (kbd "s-?") 'rgrep-defaults)
+(global-set-key (kbd "C-S-f") 'rgrep-defaults)
 (define-key isearch-mode-map (kbd "M-w") 'isearch-toggle-word)
 (define-key isearch-mode-map (kbd "C-M-w") 'isearch-yank-symbol)
 
@@ -501,7 +502,8 @@
   (add-to-list 'hippie-expand-try-functions-list
                'try-complete-lisp-symbol t)
   (add-to-list 'hippie-expand-try-functions-list
-               'try-complete-lisp-symbol-partially t))
+               'try-complete-lisp-symbol-partially t)
+  (local-set-key (kbd "C-j") 'newline))
 (add-hook 'emacs-lisp-mode-hook 'my-elisp-hook)
 
 
@@ -586,7 +588,7 @@
             'symbols) . font-lock-keyword-face)
          (,(regexp-opt
             (list "float2" "float3" "float4" "vec2" "vec3" "vec4" "mat2" "mat3" "mat4"
-                  "ushort" "uint" "trit" "lstring"
+                  "ushort" "uint" "trit" "lstring" "int2" "int3"
                   "id") 'symbols) . font-lock-type-face)
          (,(regexp-opt
             (list "nil" "YES" "NO" 
@@ -594,6 +596,8 @@
          ;("~" (0 font-lock-negation-char-face prepend))
          ("\\_<0x[0-9a-fA-f]+\\_>" . font-lock-constant-face) ; hex
          ("\\_<[0-9]*\\.?[0-9]*f?\\_>" . font-lock-constant-face) ; dec floats and ints
+         ("\\_<\\([A-Z_][A-Z_0-9]*\\)\\_>[^(]" 1 font-lock-constant-face) ; preprocessor constants
+         ("\\_<_[A-Za-z_][a-zA-Z_0-9]*\\_>" . font-lock-constant-face) ; preprocessor constants beginning with underscore
          ))
   (when (and (featurep 'semantic) semantic-mode)
     (add-to-list 'ac-sources 'ac-source-semantic))
