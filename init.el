@@ -107,7 +107,7 @@
     (when (and (require 'color-theme nil t)
                (require 'arthur-theme))
       (unless arthur-current-theme
-        (color-theme-arthur-dark))
+        (color-theme-arthur-dark2))
       ;; (let ((color-theme-legal-variables "\\(color\\|face\\)")
       ;;       (hour (string-to-number (format-time-string "%H"))))
       ;;   (if (and (< 8 hour ) (< hour 21))

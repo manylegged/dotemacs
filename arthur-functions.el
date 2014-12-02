@@ -451,7 +451,7 @@ If point is on an inline definition, additionally transform it into a decleratio
 Works on member functions (including constructors, etc) as well as regular functions."
   (interactive)
   (back-to-indentation)
-  (if (looking-at-p "[^\n]*::")
+  (if (looking-at-p "[^\n{]*::[a-zA-Z_0-9]*(")
       ;; convert definition into decleration
       (let ((yank (concat (replace-regexp-in-string
                            "[a-zA-Z0-9_]*::" ""
@@ -481,8 +481,8 @@ Works on member functions (including constructors, etc) as well as regular funct
             proto kill end)
         ;; grab prototype
         (goto-char (min (save-excursion
-                          (re-search-forward "\\()\\( [a-z]*\\)[ \n\t]*{\\)\\|;" (point-max) t)
-                          (match-end 2))
+                          (re-search-forward "\\()\\( *[a-z]*\\)[ \n\t]*{\\)\\|;" (point-max) t)
+                          (or (match-end 2) (match-end 0)))
                         (or (and tructor (save-excursion (re-search-forward ")\\s *:" (point-max) t)
                                                          (1+ (match-beginning 0))))
                             (point-max))))
@@ -494,7 +494,7 @@ Works on member functions (including constructors, etc) as well as regular funct
             (unless tructor
               (re-search-forward "(")
               (backward-char)
-              (re-search-backward "[^a-zA-Z0-9_]")
+              (re-search-backward "[ \t\n]")
               (forward-char)
               (just-one-space))
             (insert class-name "::")))
