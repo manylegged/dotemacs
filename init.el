@@ -34,7 +34,12 @@
                       ispell-program-name "/opt/local/bin/aspell"
                       vc-hg-program "/opt/local/bin/hg"
                       find-function-C-source-directory (expand-file-name "~/Documents/emacs/emacs-24.3.91/src")
-                      latex-run-command (executable-find "latex")))
+                      latex-run-command (executable-find "latex"))
+        (setq mac-option-modifier 'meta)
+        (setq mac-command-modifier 'super)
+        (set-frame-parameter nil 'fullscreen 'fullwidth)
+        ;; (set-frame-parameter nil 'fullscreen 'fullboth)
+        )
 
                                         ; linux
     (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/")
@@ -284,6 +289,15 @@
 (global-set-key (kbd "M-[") 'insert-pair)
 (global-set-key (kbd "C-\"") 'insert-pair)
 (global-set-key (kbd "C-'") 'insert-pair)
+
+(defun my-toggle-fullscreen ()
+  (interactive)
+  (if (eq system-type 'darwin)
+      (set-frame-parameter nil 'fullscreen
+                           (if (eq (frame-parameter nil 'fullscreen) 'fullwidth)
+                               'fullboth 'fullwidth))
+    (toggle-frame-fullscreen)))
+(global-set-key (kbd "M-RET") 'my-toggle-fullscreen)
 
 (add-hook 'eval-expression-minibuffer-setup-hook 'eldoc-mode)
 
@@ -536,11 +550,6 @@
 (add-to-list 'auto-mode-alist '("\\.mm\\'" . c++-mode))
 (add-to-list 'completion-ignored-extensions ".dep")
 
-(defun c-indent-align-for-tab ()
-  (interactive)
-  (c-indent-line-or-region)
-  (align-dwim))
-  
 (defun my-c-common-hook ()
   (c-set-style "stroustrup")
   (c-set-offset 'statement-cont '(c-lineup-assignments +))
@@ -548,7 +557,6 @@
   (c-set-offset 'inextern-lang 0)
   (local-set-key [remap newline-and-indent] 'c-context-line-break)
   (local-set-key (kbd "C-c o") 'ff-find-other-file)
-  ;(local-set-key (kbd "TAB") 'c-indent-align-for-tab)
   (local-set-key (kbd "TAB") 'c-indent-line-or-region)
   (local-set-key (kbd "C-c C-l") 'align-dwim)
   (imenu-add-menubar-index)
