@@ -207,7 +207,7 @@ With prefix ARG,also load it"
 (defun clock ()
   "Display the time and date in the mode line"
   (interactive)
-  (message (format-time-string "It is %l:%M%p on %A, %B %e, %Y.")))
+  (message (format-time-string "It is %-I:%M %p on %A, %B %-d, %Y.")))
 
 (defun range (begin &optional end step)
   "Return a list where the first element is BEGIN each element is
@@ -478,7 +478,10 @@ Works on member functions (including constructors, etc) as well as regular funct
             (sline (line-beginning-position))
             (modified (buffer-modified-p))
             (tructor (not (looking-at-p "[^\n(]* [^\n(]*("))) ; constructor / destructor
+            (friend (looking-at-p "friend"))
             proto kill end)
+        (when (looking-at "inline")
+          (kill-word 1))
         ;; grab prototype
         (goto-char (min (save-excursion
                           (re-search-forward "\\()\\( *[a-z]*\\)[ \n\t]*{\\)\\|;" (point-max) t)
@@ -488,16 +491,22 @@ Works on member functions (including constructors, etc) as well as regular funct
                             (point-max))))
         (setq proto (buffer-substring start (point)))
         ;; insert Class::
-        (when class-name
+        (when (and class-name (not friend))
           (save-excursion
             (goto-char start)
             (unless tructor
               (re-search-forward "(")
               (backward-char)
-              (re-search-backward "[ \t\n]")
+              (re-search-backward "[ \t\n*&]")
               (forward-char)
               (just-one-space))
             (insert class-name "::")))
+        ;; remove default argument values
+        (save-excursion
+          (let ((proto-end (point)))
+            (goto-char start)
+            (while (re-search-forward " *= *[^,)]+" proto-end t)
+              (replace-match ""))))
         (if (eq (char-before) ?\;)
             ;; prototype
             (setq kill (concat (buffer-substring start (1- (point))) "\n{\n\n}\n")
@@ -522,7 +531,7 @@ Works on member functions (including constructors, etc) as well as regular funct
           (setq kill (concat (replace-regexp-in-string
                               (concat "\n" (make-string c-basic-offset ? )) "\n"
                               (buffer-substring start end)) "\n")))
-        (setq kill (replace-regexp-in-string "^\\(\\(static\\|virtual\\|inline\\) \\)*" "" kill))
+        (setq kill (replace-regexp-in-string "^\\(\\(static\\|virtual\\|inline\\|friend\\) \\)*" "" kill))
         (setq yank (replace-regexp-in-string "{.*" "" kill))
         ;; replace kill with prototype
         (kill-new kill)
