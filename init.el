@@ -30,11 +30,18 @@
         ;; macports directory
         (add-to-list 'exec-path "/opt/local/bin")
         (setenv "PATH" (concat (getenv "PATH") ":" "/opt/local/bin"))
-        (setq-default explicit-bash-args '("--login" "-i")
-                      ispell-program-name "/opt/local/bin/aspell"
-                      vc-hg-program "/opt/local/bin/hg"
-                      find-function-C-source-directory (expand-file-name "~/Documents/emacs/emacs-24.3.91/src")
-                      latex-run-command (executable-find "latex")))
+        (setq-default
+         explicit-bash-args '("--login" "-i")
+         ispell-program-name "/opt/local/bin/aspell"
+         vc-hg-program "/opt/local/bin/hg"
+         find-function-C-source-directory (expand-file-name "~/Documents/emacs/emacs-24.3.91/src")
+         latex-run-command (executable-find "latex"))
+        (setq mac-option-modifier 'meta)
+        (setq mac-command-modifier 'super)
+        (unless (frame-parameter nil 'fullscreen)
+          (set-frame-parameter nil 'fullscreen 'fullwidth))
+        ;; (set-frame-parameter nil 'fullscreen 'fullboth)
+        )
 
                                         ; linux
     (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/")
@@ -54,6 +61,7 @@
 
 
 (unless (require 'auto-complete nil t)
+  (package-refresh-contents)
   (dolist (el '(auto-complete color-theme lua-mode parenface))
     (package-install el)))
 
@@ -107,7 +115,7 @@
     (when (and (require 'color-theme nil t)
                (require 'arthur-theme))
       (unless arthur-current-theme
-        (color-theme-arthur-dark))
+        (color-theme-arthur-dark2))
       ;; (let ((color-theme-legal-variables "\\(color\\|face\\)")
       ;;       (hour (string-to-number (format-time-string "%H"))))
       ;;   (if (and (< 8 hour ) (< hour 21))
@@ -245,6 +253,7 @@
 (global-set-key (kbd "C-S-s") 'rgrep)
 (global-set-key (kbd "s-F") 'rgrep)
 (global-set-key (kbd "s-?") 'rgrep-defaults)
+(global-set-key (kbd "C-S-f") 'rgrep-defaults)
 (define-key isearch-mode-map (kbd "M-w") 'isearch-toggle-word)
 (define-key isearch-mode-map (kbd "C-M-w") 'isearch-yank-symbol)
 
@@ -283,6 +292,16 @@
 (global-set-key (kbd "M-[") 'insert-pair)
 (global-set-key (kbd "C-\"") 'insert-pair)
 (global-set-key (kbd "C-'") 'insert-pair)
+
+(defun my-toggle-fullscreen ()
+  (interactive)
+  (if (eq system-type 'darwin)
+      (set-frame-parameter nil 'fullscreen
+                           (if (eq (frame-parameter nil 'fullscreen) 'fullwidth)
+                               'fullboth 'fullwidth))
+    (toggle-frame-fullscreen)))
+(global-set-key (kbd "M-RET") 'my-toggle-fullscreen)
+(global-set-key (kbd "C-x c") 'clock)
 
 (add-hook 'eval-expression-minibuffer-setup-hook 'eldoc-mode)
 
@@ -535,11 +554,6 @@
 (add-to-list 'auto-mode-alist '("\\.mm\\'" . c++-mode))
 (add-to-list 'completion-ignored-extensions ".dep")
 
-(defun c-indent-align-for-tab ()
-  (interactive)
-  (c-indent-line-or-region)
-  (align-dwim))
-  
 (defun my-c-common-hook ()
   (c-set-style "stroustrup")
   (c-set-offset 'statement-cont '(c-lineup-assignments +))
@@ -547,7 +561,6 @@
   (c-set-offset 'inextern-lang 0)
   (local-set-key [remap newline-and-indent] 'c-context-line-break)
   (local-set-key (kbd "C-c o") 'ff-find-other-file)
-  ;(local-set-key (kbd "TAB") 'c-indent-align-for-tab)
   (local-set-key (kbd "TAB") 'c-indent-line-or-region)
   (local-set-key (kbd "C-c C-l") 'align-dwim)
   (imenu-add-menubar-index)

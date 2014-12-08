@@ -126,7 +126,7 @@
        
        (font-lock-keyword-face ((t (:bold t :foreground "#b0e000"))))
        (font-lock-variable-name-face ((t (:italic t :foreground "#b0b080"))))
-       (font-lock-constant-face ((t (:foreground "#0x70bb60"))))
+       (font-lock-constant-face ((t (:foreground "#70bb60"))))
        (font-lock-type-face ((t (:foreground "#60bb00"))))
        (font-lock-builtin-face ((t (:foreground "#80cc70"))))
        (font-lock-preprocessor-face ((t (:foreground "#00bbff"))))
