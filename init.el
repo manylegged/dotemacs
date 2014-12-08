@@ -30,14 +30,16 @@
         ;; macports directory
         (add-to-list 'exec-path "/opt/local/bin")
         (setenv "PATH" (concat (getenv "PATH") ":" "/opt/local/bin"))
-        (setq-default explicit-bash-args '("--login" "-i")
-                      ispell-program-name "/opt/local/bin/aspell"
-                      vc-hg-program "/opt/local/bin/hg"
-                      find-function-C-source-directory (expand-file-name "~/Documents/emacs/emacs-24.3.91/src")
-                      latex-run-command (executable-find "latex"))
+        (setq-default
+         explicit-bash-args '("--login" "-i")
+         ispell-program-name "/opt/local/bin/aspell"
+         vc-hg-program "/opt/local/bin/hg"
+         find-function-C-source-directory (expand-file-name "~/Documents/emacs/emacs-24.3.91/src")
+         latex-run-command (executable-find "latex"))
         (setq mac-option-modifier 'meta)
         (setq mac-command-modifier 'super)
-        (set-frame-parameter nil 'fullscreen 'fullwidth)
+        (unless (frame-parameter nil 'fullscreen)
+          (set-frame-parameter nil 'fullscreen 'fullwidth))
         ;; (set-frame-parameter nil 'fullscreen 'fullboth)
         )
 
@@ -298,6 +300,7 @@
                                'fullboth 'fullwidth))
     (toggle-frame-fullscreen)))
 (global-set-key (kbd "M-RET") 'my-toggle-fullscreen)
+(global-set-key (kbd "C-x c") 'clock)
 
 (add-hook 'eval-expression-minibuffer-setup-hook 'eldoc-mode)
 
