@@ -392,7 +392,8 @@ unless BEGIN is greather than END, in which case it defaults to
 
 (defvar my-align-rules-list 
   `((c-case-statement
-     (regexp   . "case ['\\ a-zA-Z0-9_]*:\\(\\s-*\\)[^;]*;")
+     (regexp   . "\\(case ['\\ a-zA-Z0-9_]*\\|default\\):\\(\\s-*\\)[^;]*;")
+     (group    . 2)
      (modes    . align-c++-modes)
      (tab-stop . nil))
     (c-else-if-block

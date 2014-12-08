@@ -103,7 +103,7 @@
      )))
 
 (defun color-theme-arthur-dark2 ()
-  "grayscale"
+  "yellow-green / grey"
   (interactive)
   (setq arthur-current-theme 'dark2)
   (let ((color-theme-is-cumulative t))
