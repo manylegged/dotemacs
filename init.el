@@ -36,8 +36,9 @@
          vc-hg-program "/opt/local/bin/hg"
          find-function-C-source-directory (expand-file-name "~/Documents/emacs/emacs-24.3.91/src")
          latex-run-command (executable-find "latex"))
-        (setq mac-option-modifier 'meta)
-        (setq mac-command-modifier 'super)
+        (with-no-warnings
+          (setq mac-option-modifier 'meta)
+          (setq mac-command-modifier 'super))
         (unless (frame-parameter nil 'fullscreen)
           (set-frame-parameter nil 'fullscreen 'fullwidth))
         ;; (set-frame-parameter nil 'fullscreen 'fullboth)
