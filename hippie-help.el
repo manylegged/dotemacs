@@ -95,7 +95,7 @@ functions run as part of BODY will not change globals state"
   "Return non-nil if symbol string should be processed further"
   (if (stringp sym)
       (and (> (length sym) 2)
-           (string-match-p "^[_a-zA-Z]" sym)
+           (string-match-p "^[~_a-zA-Z]" sym)
            (not (string-match-p hap-ignore-symbol-regexp sym))
            sym)
     sym))
@@ -112,7 +112,7 @@ functions run as part of BODY will not change globals state"
   "See `read-face-name'"
   ;; TODO get the face in use at point, too
   ;; maybe I can use flet to override completing-read-multiple
-  (memq (intern-soft (thing-at-point 'symbol)) (face-list)))
+  (memq (intern-soft (hap-symbol-at-point)) (face-list)))
 
 (defun hap-doxygen-at-point ()
   (and (boundp 'doxymacs-mode) doxymacs-mode
@@ -131,12 +131,27 @@ functions run as part of BODY will not change globals state"
         (let ((woman-use-topic-at-point t))
           (with-no-warnings (woman-file-name nil))))))
 
+(defun forward-c++-symbol (arg)
+  "Called from `thing-at-point' c++-symbol"
+  (if (natnump arg)
+      (re-search-forward "\\(\\sw\\|\\s_\\)+" nil 'move arg)
+    (while (< arg 0)
+      (if (re-search-backward "\\(\\sw\\|\\s_\\)+" nil 'move)
+	  (skip-syntax-backward "w_"))
+      (if (eq (char-before) ?~)
+          (backward-char))
+      (setq arg (1+ arg)))))
+
+(defun hap-symbol-at-point ()
+  "same as `symbol-at-point', but properly handles C++ destructors"
+  (hap-filter-symbol (thing-at-point 'c++-symbol)))
+
 (defun hap-tag-at-point ()
   "Return non-nil if point is contained in an etags tag."
   (cond 
    ((not (memq major-mode '(c-mode c++-mode objc-mode))) nil)
    (hap-eldoc-in-progress (hap-search-tags))
-   (t (let ((sym (hap-filter-symbol (thing-at-point 'symbol)))
+   (t (let ((sym (hap-symbol-at-point))
             message-log-max                 ; inhibit messages going to log
             case-fold-search)               ; case sensitive
         (and sym tags-file-name
@@ -177,7 +192,7 @@ functions run as part of BODY will not change globals state"
 (defun hap-search-tags ()
   "Search tags file to find definitions for symbol at point.
 Return in same format as `hap-find-prototype'."
-  (let ((sym (hap-filter-symbol (thing-at-point 'symbol)))
+  (let ((sym (hap-symbol-at-point))
         message-log-max                 ; inhibit messages going to log
         case-fold-search                ; case sensitive
         tags)
@@ -213,7 +228,7 @@ Return in same format as `hap-find-prototype'."
 
 (defun hap-python-at-point ()
   (and (eq major-mode 'python-mode)
-       (thing-at-point 'symbol)))
+       (hap-symbol-at-point)))
 
 (defun hap-imenu-c++-comparator (str pat)
   (when (stringp str)
@@ -228,7 +243,7 @@ Return in same format as `hap-find-prototype'."
 
 (defun hap-imenu-at-point (&optional method)
   "return (SYMBOL . MARKER) for SYM or the symbol at point with `imenu', else nil"
-  (let ((sym (thing-at-point 'symbol)))
+  (let ((sym (hap-symbol-at-point)))
     (and sym
          (let* ((imenu-auto-rescan t)
                 (imenu-name-lookup-function (cdr-safe (assoc major-mode hap-imenu-comparator-alist)))
@@ -257,7 +272,7 @@ Return in same format as `hap-find-prototype'."
 (defun hap-imenu-at-point-other-file ()
   "return (SYMBOL . MARKER) for the symbol at point using `imenu',
 in the file returned by `ff-find-other-file'"
-  (let ((sym (thing-at-point 'symbol))
+  (let ((sym (hap-symbol-at-point))
         (buf (current-buffer)))
     (save-current-buffer
       (with-no-interactivity
@@ -298,7 +313,7 @@ definition found using `hap-imenu-at-point-other-file'"
        (hap-ebrowse-prepare-trees)
        (let* ((header (nth 1 (ebrowse-choose-tree)))
               (members (ebrowse-member-table header))
-              (name (nth 1 (ebrowse-tags-read-member+class-name))))
+              (name (hap-symbol-at-point)))
          (and name
               (gethash name members)
               name))))
@@ -519,7 +534,7 @@ The rest are strings"
             ))
 
          ((eq major-mode 'python-mode)
-          (let ((type (intern (save-excursion (beginning-of-line) (thing-at-point 'symbol)))))
+          (let ((type (intern (save-excursion (beginning-of-line) (symbol-at-point)))))
             (setq proto (hap-collapse-spaces
                          (buffer-substring (line-beginning-position)
                                            (save-excursion
@@ -687,8 +702,8 @@ return a string representing the prototype for the function under point"
               (minibuffer-selected-window)) ; suppress while minibuffer is in use
     (when (or hap-debug-enabled
               (not hap-eldoc-current-prototypes)
-              (not (string-equal (thing-at-point 'symbol) hap-eldoc-last-symbol)))
-      (setq hap-eldoc-last-symbol (thing-at-point 'symbol))
+              (not (string-equal (hap-symbol-at-point) hap-eldoc-last-symbol)))
+      (setq hap-eldoc-last-symbol (hap-symbol-at-point))
       ;; try to move out of an argument list onto the function name
       (let ((start (point))
             (search-start (or (save-excursion (re-search-backward "[;{}#]" (point-min) t))
