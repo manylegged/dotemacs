@@ -43,7 +43,7 @@
         ;; (set-frame-parameter nil 'fullscreen 'fullboth)
         )
 
-                                        ; linux
+    ;; linux
     (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/")
     (setq ispell-program-name "/usr/bin/aspell")
     )
@@ -578,7 +578,7 @@
   (local-set-key (kbd "C-<") 'insert-pair)
   ;; (local-set-key (kbd "C->") 'my-c-insert-arrow)
   (abbrev-mode -1)
-  (local-set-key (kbd "C-j") 'newline)
+  (local-set-key (kbd "C-j") 'newline-and-indent)
   )
 (add-hook 'c-mode-common-hook 'my-c-common-hook)
 
