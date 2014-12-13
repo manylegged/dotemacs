@@ -36,8 +36,9 @@
          vc-hg-program "/opt/local/bin/hg"
          find-function-C-source-directory (expand-file-name "~/Documents/emacs/emacs-24.3.91/src")
          latex-run-command (executable-find "latex"))
-        (setq mac-option-modifier 'meta)
-        (setq mac-command-modifier 'super)
+        (with-no-warnings
+          (setq mac-option-modifier 'meta)
+          (setq mac-command-modifier 'super))
         (unless (frame-parameter nil 'fullscreen)
           (set-frame-parameter nil 'fullscreen 'fullwidth))
         ;; (set-frame-parameter nil 'fullscreen 'fullboth)
@@ -444,15 +445,21 @@
 
 ;; minor modes
 
-(defun my-disable-partial-truncate ()
+(defun toggle-partial-truncate (&optional arg)
   (interactive)
   (make-local-variable 'truncate-partial-width-windows)
-  (setq truncate-partial-width-windows nil))
+  (setq truncate-partial-width-windows
+        (cond
+         ((not arg) (not truncate-partial-width-windows))
+         ((> 0 arg) t)
+         ((<= 0 arg) nil))))
+
+(defun my-disable-partial-truncate ()
+  (toggle-partial-truncate -1))
 
 (add-hooks '(compilation-mode-hook nxml-mode-hook) 'my-disable-partial-truncate)
 
-;; (add-hook 'compilation-mode-hook 'my-disable-partial-truncate)
-
+(add-hook 'markdown-mode-hook 'visual-line-mode)
 
 (defun my-temp-buffer-hook ()
   (local-set-key (kbd "q") 'quit-window)

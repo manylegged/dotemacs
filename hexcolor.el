@@ -30,14 +30,15 @@ With arg, turn hexcolor-mode on if arg is positive, off otherwise.
 
 Hexcolor mode highlights hexidecimal and X color names in the
 color they specify."
-  ;:lighter " 0xRGB"
+  ;;:lighter " 0xRGB"
   :lighter ""
   :group 'hexcolor
   (let ((keywords hexcolor-keywords))
     (if hexcolor-mode
-      (font-lock-add-keywords nil keywords)
+        (font-lock-add-keywords nil keywords)
       (font-lock-remove-keywords nil keywords))
-    (ignore-errors (font-lock-fontify-buffer))))
+    (when (called-interactively-p 'any)
+      (ignore-errors (font-lock-fontify-buffer)))))
 
 
 (defvar facecolor-keywords
@@ -53,7 +54,8 @@ Facecolor mode highlights face names with the faces they specify"
   (if facecolor-mode
       (font-lock-add-keywords nil facecolor-keywords)
     (font-lock-remove-keywords nil facecolor-keywords))
-  (font-lock-fontify-buffer))
+  (when (called-interactively-p 'any)
+    (ignore-errors (font-lock-fontify-buffer))))
 
 
 (provide 'hexcolor)
