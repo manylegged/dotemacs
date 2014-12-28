@@ -544,5 +544,4 @@ Works on member functions (including constructors, etc) as well as regular funct
         (goto-char first-point))
       (message "Yanked: %s {...}" (substring-no-properties (replace-regexp-in-string "\n.*" "" yank))))))
 
-
 (provide 'arthur-functions)

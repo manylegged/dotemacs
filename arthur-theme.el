@@ -9,7 +9,7 @@
   (color-theme-install
    '(color-theme-arthur-dark
      ((background-color . "black")
-      (foreground-color . "#000000")
+      (foreground-color . "#a0a0a0")
       (background-mode . dark)
       (mouse-color . "white")
       (cursor-color . "grey80"))
@@ -29,7 +29,7 @@
      (mode-line-inactive ((t (:background "#0d0715" :foreground "#555e6e"))))
      (mode-line-highlight ((t (:background "grey60" :foreground "black"))))
      (mode-line-buffer-id ((t (:foreground unspecified :background unspecified))))
-     (which-func ((t (:bold t :foreground unspecified))))
+     (which-func ((t (:weight bold :foreground unspecified))))
      (minibuffer-prompt ((t (:foreground "red2"))))
 
      (font-lock-comment-face ((t (:slant unspecified :foreground "#5b5979" :background unspecified))))
@@ -38,24 +38,24 @@
      (font-lock-string-face ((t (:foreground "#80cccc" :background unspecified))))
      (font-lock-regexp-grouping-construct ((t (:foreground "PaleGreen3"))))
      (font-lock-regexp-grouping-backslash ((t (:foreground "OliveDrab3"))))
-     (font-lock-keyword-face ((t (:bold t :foreground "#e90e3a"))))
+     (font-lock-keyword-face ((t (:weight bold :foreground "#e90e3a"))))
      (font-lock-constant-face ((t (:foreground "#9070c0"))))
                                         ;     (font-lock-type-face ((t (:foreground "#0F7889"))))
      (font-lock-type-face ((t (:foreground "#7f3975"))))
                                         ;     (font-lock-variable-name-face ((t (:slant unspecified :foreground "aquamarine4"))))
      (font-lock-variable-name-face ((t (:italic t :foreground "#782b49"))))
-     (font-lock-function-name-face ((t (:bold t :foreground "#aa0825"))))
+     (font-lock-function-name-face ((t (:weight bold :foreground "#aa0825"))))
      (font-lock-builtin-face ((t (:foreground "#940624"))))
      (font-lock-preprocessor-face ((t (:foreground "#d73a6c"))))
      (font-lock-negation-char-face ((t (:foreground "#aa0825"))))
-     (font-lock-warning-face ((t (:bold t :foreground "OrangeRed3"))))
-     (tuareg-font-lock-governing-face ((t (:bold t :foreground "OrangeRed" :weight bold))))
+     (font-lock-warning-face ((t (:weight bold :foreground "OrangeRed3"))))
+     (tuareg-font-lock-governing-face ((t (:weight bold :foreground "OrangeRed" :weight bold))))
      (tuareg-font-lock-operator-face ((t (:foreground "SeaGreen"))))
 
      (highline-face ((t (:background "grey12"))))
-     (setnu-line-number-face ((t (:background "grey15" :foreground "white" :bold t))))
-     (show-paren-match ((t (:foreground "black" :background "#04bbff" :bold t))))
-     (show-paren-mismatch-face ((t (:bold t :foreground "red"))))
+     (setnu-line-number-face ((t (:background "grey15" :foreground "white" :weight bold))))
+     (show-paren-match ((t (:foreground "black" :background "#04bbff" :weight unspecified))))
+     (show-paren-mismatch-face ((t (:weight unspecified :foreground "red"))))
                                         ;     (paren-face ((t (:foreground "DarkGoldenrod4"))))
      (paren-face ((t (:foreground "grey40"))))
      (region ((t (:foreground "black" :background "#bbff04"))))
@@ -64,7 +64,7 @@
      (lazy-highlight ((t (:foreground "black" :background "#726f99"))))
      (secondary-selection ((t (:background "navy"))))
      
-     (comint-highlight-input ((t (:bold t :weight bold))))
+     (comint-highlight-input ((t (:weight bold :weight bold))))
      (comint-highlight-prompt ((t (:foreground "green3"))))
 
      (flymake-errline ((t (:underline "OrangeRed"))))
@@ -105,9 +105,9 @@
 (defun color-theme-arthur-dark2 ()
   "yellow-green / grey"
   (interactive)
-  (setq arthur-current-theme 'dark2)
   (let ((color-theme-is-cumulative t))
     (color-theme-arthur-dark)
+    (setq arthur-current-theme 'dark2)
     (color-theme-install
      '(color-theme-arthur-dark2
        ((background-color . "#202020")
@@ -121,10 +121,10 @@
        (mode-line-inactive ((t (:background "#404040" :foreground "#a0a0a0"))))
        (mode-line-highlight ((t (:background "grey60" :foreground "black"))))
        (mode-line-buffer-id ((t (:foreground unspecified :background unspecified))))
-       (which-func ((t (:bold t :foreground unspecified))))
-       (minibuffer-prompt ((t (:bold t :foreground "#b0e000"))))
+       (which-func ((t (:weight bold :foreground unspecified))))
+       (minibuffer-prompt ((t (:weight bold :foreground "#b0e000"))))
        
-       (font-lock-keyword-face ((t (:bold t :foreground "#b0e000"))))
+       (font-lock-keyword-face ((t (:weight bold :foreground "#b0e000"))))
        (font-lock-variable-name-face ((t (:italic t :foreground "#b0b080"))))
        (font-lock-constant-face ((t (:foreground "#70bb60"))))
        (font-lock-type-face ((t (:foreground "#60bb00"))))
@@ -132,7 +132,7 @@
        (font-lock-preprocessor-face ((t (:foreground "#00bbff"))))
        (font-lock-negation-char-face ((t (:foreground "#f0e000"))))
        (font-lock-string-face ((t (:foreground "#80cc30" :background unspecified))))
-       (font-lock-function-name-face ((t (:bold t :foreground "#a0bb44"))))
+       (font-lock-function-name-face ((t (:weight bold :foreground "#a0bb44"))))
 
        (font-lock-comment-face ((t (:slant unspecified :foreground "#606060" :background unspecified))))
        (font-lock-comment-delimiter-face ((t (:foreground "#808080" :background unspecified))))
@@ -143,9 +143,9 @@
 (defun color-theme-arthur-mild ()
   "grayscale"
   (interactive)
-  (setq arthur-current-theme 'mild)
   (let ((color-theme-is-cumulative t))
     (color-theme-arthur-dark)
+    (setq arthur-current-theme 'mild)
     (color-theme-install
      '(color-theme-arthur-mild
        () ()
@@ -156,9 +156,9 @@
 
        (font-lock-doc-face ((t (:foreground "grey50"))))
        (font-lock-string-face ((t (:foreground "grey75"))))
-       (font-lock-regexp-grouping-construct ((t (:foreground "grey80" :bold t))))
+       (font-lock-regexp-grouping-construct ((t (:foreground "grey80" :weight bold))))
        (font-lock-regexp-grouping-backslash ((t (:foreground "grey40"))))
-       (font-lock-keyword-face ((t (:bold t :foreground "grey85"))))
+       (font-lock-keyword-face ((t (:weight bold :foreground "grey85"))))
        (font-lock-constant-face ((t (:foreground "grey60"))))
        (font-lock-type-face ((t (:foreground "grey90"))))
        (font-lock-variable-name-face ((t (:italic t :foreground "grey75"))))
@@ -166,15 +166,14 @@
        (font-lock-builtin-face ((t (:foreground "grey60"))))
        (font-lock-preprocessor-face ((t (:foreground "DeepPink3"))))
        (font-lock-negation-char-face ((t (:foreground "#ffffff"))))
-       (font-lock-warning-face ((t (:bold t :foreground "OrangeRed3"))))
+       (font-lock-warning-face ((t (:weight bold :foreground "OrangeRed3"))))
        (font-lock-comment-face ((t (:foreground "#404040" :background unspecified))))
        (font-lock-comment-delimiter-face ((t (:foreground "#606060" :background unspecified))))
        
-       (font-latex-bold-face ((t (:foreground "grey75" :bold t))))
+       (font-latex-bold-face ((t (:foreground "grey75" :weight bold))))
        (font-latex-warning-face ((t (:foreground "coral4"))))
 
-       (show-paren-match-face ((t (:bold t :foreground "gray75"))))
-       (help-argument-name ((t (:foreground "grey70" :bold t))))
+       (help-argument-name ((t (:foreground "grey70" :weight bold))))
 
        ))))
 
@@ -182,9 +181,9 @@
 (defun color-theme-arthur-light ()
   "Color theme by Arthur Danskin, created 2007-11-16."
   (interactive)
-  (setq arthur-current-theme 'light)
   (let ((color-theme-is-cumulative t))
                                         ;(color-theme-arthur-dark)
+    (setq arthur-current-theme 'light)
     (color-theme-install
      '(color-theme-arthur-light
        ((background-color . "white")
@@ -207,19 +206,19 @@
        (font-lock-comment-delimiter-face ((t (:foreground "#877797" :background unspecified))))
        (font-lock-doc-face ((t (:foreground "DeepPink4" :background unspecified))))
        (font-lock-string-face ((t (:foreground "#843243" :background unspecified))))
-       (font-lock-keyword-face ((t (:bold nil :foreground "#203079" :background unspecified))))
-;;;        (font-lock-warning-face ((t (:bold t :foreground "red"))))
+       (font-lock-keyword-face ((t (:weight unspecified :foreground "#203079" :background unspecified))))
+;;;        (font-lock-warning-face ((t (:weight bold :foreground "red"))))
        (font-lock-constant-face ((t (:foreground "#707080"))))
        (font-lock-type-face ((t (:foreground "#535385" :background unspecified))))
        (font-lock-variable-name-face ((t (:italic unspecified :foreground "#404F34"))))
-       (font-lock-function-name-face ((t (:bold t :foreground "#002000" :background unspecified))))
+       (font-lock-function-name-face ((t (:weight bold :foreground "#002000" :background unspecified))))
        (font-lock-builtin-face ((t (:foreground "#6f102f"))))
        (font-lock-preprocessor-face ((t (:foreground "#111111"))))
 
-       (tuareg-font-lock-governing-face ((t (:bold t :foreground "firebrick" :weight bold))))
+       (tuareg-font-lock-governing-face ((t (:weight bold :foreground "firebrick" :weight bold))))
        (tuareg-font-lock-operator-face ((t (:foreground "SpringGreen4"))))
 
-       (show-paren-match ((t (:background "#00bbff" :foreground "black" :bold t))))
+       (show-paren-match ((t (:background "#00bbff" :foreground "black" :weight unspecified))))
        (highlight ((t (:background "#FFA300"))))
        (isearch ((t (:background "#00bbff"))))
        (lazy-highlight ((t (:background "#00aaee"))))
@@ -232,9 +231,16 @@
        (widget-field-face ((t (:background "ghost white"))))
 ;;;        (widget-single-line-field-face ((t (:background "RoyalBlue"))))
 
-;;;        (comint-highlight-input ((t (:bold t :weight bold))))
+;;;        (comint-highlight-input ((t (:weight bold :weight bold))))
 ;;;        (comint-highlight-prompt ((t (:foreground "chartreuse4"))))
 
        ))))
+
+(eval-when-compile
+  (cond 
+   ((eq arthur-current-theme 'dark) (color-theme-arthur-dark))
+   ((eq arthur-current-theme 'dark2) (color-theme-arthur-dark2))
+   ((eq arthur-current-theme 'mild) (color-theme-arthur-mild))
+   ((eq arthur-current-theme 'light) (color-theme-arthur-light))))
 
 (provide 'arthur-theme)
