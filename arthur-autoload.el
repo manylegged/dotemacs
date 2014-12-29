@@ -33,7 +33,7 @@
 
 (autoload 'flymake-extra-enable "flymake-extra" "Turn on flymake" t)
 
-(autoload 'visible-lines-mode "visible-lines" "line oriented movements" t)
+;; (autoload 'visible-lines-mode "visible-lines" "line oriented movements" t)
 
 (autoload 'rfc2047-decode-string "rfc2047")
 (autoload 'rfc2047-decode-region "rfc2047")

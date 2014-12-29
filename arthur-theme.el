@@ -217,7 +217,7 @@
 
        (tuareg-font-lock-governing-face ((t (:weight bold :foreground "firebrick" :weight bold))))
        (tuareg-font-lock-operator-face ((t (:foreground "SpringGreen4"))))
-
+       
        (show-paren-match ((t (:background "#00bbff" :foreground "black" :weight unspecified))))
        (highlight ((t (:background "#FFA300"))))
        (isearch ((t (:background "#00bbff"))))
@@ -236,11 +236,51 @@
 
        ))))
 
+
+(defun color-theme-arthur-light2 ()
+  "grayscale"
+  (interactive)
+  (let ((color-theme-is-cumulative t))
+    (color-theme-arthur-light)
+    (setq arthur-current-theme 'light2)
+    (color-theme-install
+     '(color-theme-arthur-light2
+       ((background-color . "#e0e0e0")
+        (foreground-color . "#000000")
+        (background-mode . light)
+        (mouse-color . "black")
+        (cursor-color . "black"))
+       
+       (fringe ((t (:background "#d0d0d0"))))
+       (mode-line ((t (:background "#90cc30" :foreground "black"))))
+       (mode-line-inactive ((t (:background "#404040" :foreground "#a0a0a0"))))
+       (mode-line-highlight ((t (:background "grey60" :foreground "black"))))
+       (mode-line-buffer-id ((t (:foreground unspecified :background unspecified))))
+       (which-func ((t (:bold t :foreground unspecified))))
+       (minibuffer-prompt ((t (:bold t :foreground "#708000"))))
+       
+       (font-lock-keyword-face ((t (:bold t :foreground "#406000"))))
+       (font-lock-variable-name-face ((t (:italic t :foreground "#606030"))))
+       (font-lock-constant-face ((t (:foreground "#207b10"))))
+       (font-lock-type-face ((t (:foreground "#208b00"))))
+       (font-lock-builtin-face ((t (:foreground "#307c20"))))
+       (font-lock-preprocessor-face ((t (:foreground "#00bbff"))))
+       (font-lock-negation-char-face ((t (:foreground "#cf0000"))))
+       (font-lock-string-face ((t (:foreground "#408c05" :background unspecified))))
+       (font-lock-function-name-face ((t (:bold t :foreground "#707b04"))))
+
+       (font-lock-comment-face ((t (:slant unspecified :foreground "#606060" :background unspecified))))
+       (font-lock-comment-delimiter-face ((t (:foreground "#808080" :background unspecified))))
+       (font-lock-doc-face ((t (:foreground "#80cc00" :background unspecified))))
+       ))))
+
+
 (eval-when-compile
   (cond 
    ((eq arthur-current-theme 'dark) (color-theme-arthur-dark))
    ((eq arthur-current-theme 'dark2) (color-theme-arthur-dark2))
    ((eq arthur-current-theme 'mild) (color-theme-arthur-mild))
-   ((eq arthur-current-theme 'light) (color-theme-arthur-light))))
+   ((eq arthur-current-theme 'light) (color-theme-arthur-light))
+   ((eq arthur-current-theme 'light2) (color-theme-arthur-light2))))
 
 (provide 'arthur-theme)

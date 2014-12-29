@@ -55,16 +55,15 @@
 
 (require 'generic-x)
 
-(require 'package)
-(package-initialize)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.org/packages/") t)
+(when (require 'package nil t)
+  (package-initialize)
+  (add-to-list 'package-archives
+	       '("melpa" . "http://melpa.org/packages/") t)
 
-
-(unless (require 'auto-complete nil t)
-  (package-refresh-contents)
-  (dolist (el '(auto-complete color-theme lua-mode parenface))
-    (package-install el)))
+  (unless (require 'auto-complete nil t)
+    (package-refresh-contents)
+    (dolist (el '(auto-complete color-theme lua-mode parenface))
+      (package-install el))))
 
 (when (require 'auto-complete nil t)
 
@@ -265,7 +264,8 @@
 
 (global-set-key (kbd "M-/") 'hippie-expand)
 (global-set-key (kbd "M-,") 'hippie-expand-line)
-(hippie-help-mode 1)
+(ignore-errors
+  (hippie-help-mode 1))
 (global-set-key (kbd "C-,") 'imenu)
 (global-set-key (kbd "<C-M-backspace>") 'my-delete-indentation)
 (global-set-key (kbd "<f12>") 'hippie-help)
@@ -324,7 +324,7 @@
 (setq grep-files-aliases
   '(("all" .   "* .*")
     ("el" .    "*.el")
-    ("c" .     "*.c *.cpp *.h *.hpp *.inc *.m *.mm")
+    ("c" .     "*.c *.cpp *.h *.hpp *.inc *.inl *.m *.mm")
     ("m" .     "[Mm]akefile*")
     ("tex" .   "*.tex")
     ("texi" .  "*.texi")
@@ -436,6 +436,24 @@
   (message "Outlaws loaded")
   )
 
+
+(defun outlaws-stack-lookup ()
+  (interactive)
+  (let ((buf (get-buffer-create "*crashlog*")))
+    (if (and buffer-file-name (string-match-p "^Reassembly.*[.]txt$" buffer-file-name))
+        (shell-command-on-region (point-min) (point-max)
+                                 (concat outlaws-base "scripts/stack_lookup.py -a -")
+                                 buf)
+      (shell-command (concat outlaws-base "scripts/stack_lookup.py -a") buf))
+    (set-buffer buf)
+    (compilation-mode)
+    (pop-to-buffer buf)
+    (goto-char (point-min))
+    (unless (search-forward "Dumping stack" (point-max) t)
+      (goto-char (point-max))
+      (forward-line (- (/ (frame-height) 2))))
+    (recenter)))
+(global-set-key (kbd "C-c s") 'outlaws-stack-lookup)
 
 ;;; language / major modes
 

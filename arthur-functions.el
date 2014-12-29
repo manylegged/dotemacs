@@ -207,7 +207,10 @@ With prefix ARG,also load it"
 (defun clock ()
   "Display the time and date in the mode line"
   (interactive)
-  (message (format-time-string "It is %-I:%M %p on %A, %B %-d, %Y.")))
+  (require 'battery)
+  (message "%s" (concat (format-time-string "It is %-I:%M %p on %A, %B %-d, %Y.    ")
+                        (battery-format battery-echo-area-format
+                                        (funcall battery-status-function)))))
 
 (defun range (begin &optional end step)
   "Return a list where the first element is BEGIN each element is
