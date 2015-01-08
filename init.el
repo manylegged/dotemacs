@@ -40,8 +40,9 @@
           (setq mac-option-modifier 'meta)
           (setq mac-command-modifier 'super))
         (unless (frame-parameter nil 'fullscreen)
-          (set-frame-parameter nil 'fullscreen 'fullwidth))
-        ;; (set-frame-parameter nil 'fullscreen 'fullboth)
+          ;; (set-frame-parameter nil 'fullscreen nil)
+          (set-frame-parameter nil 'fullscreen 'maximized)
+          )
         )
 
     ;; linux
@@ -620,7 +621,7 @@
              "in" "out" "inout" "oneway" ;; "self"
              "super"
              ;; things I use
-             "foreach" "unless" "lambda")
+             "foreach" "for_" "unless" "lambda")
             'symbols) . font-lock-keyword-face)
          (,(regexp-opt
             (list "float2" "float3" "float4" "vec2" "vec3" "vec4" "mat2" "mat3" "mat4"
