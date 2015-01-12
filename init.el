@@ -7,6 +7,8 @@
   (require 'cc-mode))
 
 ;; os
+(defvar ispell-program-name)
+
 (cond
  ((eq system-type 'windows-nt)
   (let* ((cygroot (if (file-directory-p "C:/cygwin64") 
@@ -42,9 +44,7 @@
     (setq mac-option-modifier 'meta)
     (setq mac-command-modifier 'super))
   (unless (frame-parameter nil 'fullscreen)
-    (set-frame-parameter nil 'fullscreen 'fullwidth))
-  ;; (set-frame-parameter nil 'fullscreen 'fullboth)
-  )
+    (set-frame-parameter nil 'fullscreen 'maximized)))
  (t ; linux
   (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/")
   (setq ispell-program-name "/usr/bin/aspell")
@@ -55,16 +55,15 @@
 
 (require 'generic-x)
 
-(require 'package)
-(package-initialize)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.org/packages/") t)
+(when (require 'package nil t)
+  (package-initialize)
+  (add-to-list 'package-archives
+	       '("melpa" . "http://melpa.org/packages/") t)
 
-
-(unless (require 'auto-complete nil t)
-  (package-refresh-contents)
-  (dolist (el '(auto-complete color-theme lua-mode parenface))
-    (package-install el)))
+  (unless (require 'auto-complete nil t)
+    (package-refresh-contents)
+    (dolist (el '(auto-complete color-theme lua-mode parenface))
+      (package-install el))))
 
 (when (require 'auto-complete nil t)
 
@@ -265,7 +264,8 @@
 
 (global-set-key (kbd "M-/") 'hippie-expand)
 (global-set-key (kbd "M-,") 'hippie-expand-line)
-(hippie-help-mode 1)
+(ignore-errors
+  (hippie-help-mode 1))
 (global-set-key (kbd "C-,") 'imenu)
 (global-set-key (kbd "<C-M-backspace>") 'my-delete-indentation)
 (global-set-key (kbd "<f12>") 'hippie-help)
@@ -324,7 +324,7 @@
 (setq grep-files-aliases
   '(("all" .   "* .*")
     ("el" .    "*.el")
-    ("c" .     "*.c *.cpp *.h *.hpp *.inc *.m *.mm")
+    ("c" .     "*.c *.cpp *.h *.hpp *.inc *.inl *.m *.mm")
     ("m" .     "[Mm]akefile*")
     ("tex" .   "*.tex")
     ("texi" .  "*.texi")
@@ -436,6 +436,24 @@
   (message "Outlaws loaded")
   )
 
+
+(defun outlaws-stack-lookup ()
+  (interactive)
+  (let ((buf (get-buffer-create "*crashlog*")))
+    (if (and buffer-file-name (string-match-p "^Reassembly.*[.]txt$" buffer-file-name))
+        (shell-command-on-region (point-min) (point-max)
+                                 (concat outlaws-base "scripts/stack_lookup.py -a -")
+                                 buf)
+      (shell-command (concat outlaws-base "scripts/stack_lookup.py -a") buf))
+    (set-buffer buf)
+    (compilation-mode)
+    (pop-to-buffer buf)
+    (goto-char (point-min))
+    (unless (search-forward "Dumping stack" (point-max) t)
+      (goto-char (point-max))
+      (forward-line (- (/ (frame-height) 2))))
+    (recenter)))
+(global-set-key (kbd "C-c s") 'outlaws-stack-lookup)
 
 ;;; language / major modes
 
@@ -585,7 +603,7 @@
   (local-set-key (kbd "C-<") 'insert-pair)
   ;; (local-set-key (kbd "C->") 'my-c-insert-arrow)
   (abbrev-mode -1)
-  (local-set-key (kbd "C-j") 'newline)
+  (local-set-key (kbd "C-j") 'newline-and-indent)
   )
 (add-hook 'c-mode-common-hook 'my-c-common-hook)
 
@@ -602,7 +620,7 @@
              "in" "out" "inout" "oneway" ;; "self"
              "super"
              ;; things I use
-             "foreach" "unless" "lambda")
+             "foreach" "for_" "unless" "lambda")
             'symbols) . font-lock-keyword-face)
          (,(regexp-opt
             (list "float2" "float3" "float4" "vec2" "vec3" "vec4" "mat2" "mat3" "mat4"
