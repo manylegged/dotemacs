@@ -215,6 +215,7 @@
        (font-lock-function-name-face ((t (:bold t :foreground "#002000" :background unspecified))))
        (font-lock-builtin-face ((t (:foreground "#6f102f"))))
        (font-lock-preprocessor-face ((t (:foreground "#111111"))))
+       (font-lock-negation-char-face ((t (:foreground "#ff0000"))))
 
        (tuareg-font-lock-governing-face ((t (:bold t :foreground "firebrick" :weight bold))))
        (tuareg-font-lock-operator-face ((t (:foreground "SpringGreen4"))))

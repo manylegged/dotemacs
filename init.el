@@ -7,48 +7,48 @@
   (require 'cc-mode))
 
 ;; os
-(if (eq system-type 'windows-nt)
-    (progn
-      (let* ((cygroot (if (file-directory-p "C:/cygwin64") 
-			  "C:/cygwin64/" "C:/cygwin/"))
-	     (cygbin (concat cygroot "bin")))
-        (setq shell-file-name (concat cygbin "/bash.exe")
-              vc-hg-program (concat cygbin "/hg") 
-	      ispell-program-name (concat cygbin "/aspell.exe")
-              explicit-shell-file-name shell-file-name
-              explicit-bash-args '("--login" "-i"))
-        (add-to-list 'exec-path cygbin)
-        (add-to-list 'Info-default-directory-list (concat cygroot "usr/info/"))
-        (setenv "SHELL" shell-file-name)
-        (setenv "PATH" (concat (getenv "PATH") ";" (replace-regexp-in-string "/" "\\\\" cygbin)))
-        (setq myfont "Consolas-11")
-        ))
+(cond
+ ((eq system-type 'windows-nt)
+  (let* ((cygroot (if (file-directory-p "C:/cygwin64") 
+                      "C:/cygwin64/" "C:/cygwin/"))
+         (cygbin (concat cygroot "bin")))
+    (setq shell-file-name (concat cygbin "/bash.exe")
+          vc-hg-program (concat cygbin "/hg") 
+          ispell-program-name (concat cygbin "/aspell.exe")
+          explicit-shell-file-name shell-file-name
+          explicit-bash-args '("--login" "-i"))
+    (add-to-list 'exec-path cygbin)
+    (add-to-list 'Info-default-directory-list (concat cygroot "usr/info/"))
+    (setenv "SHELL" shell-file-name)
+    (setenv "PATH" (concat (getenv "PATH") ";" (replace-regexp-in-string "/" "\\\\" cygbin)))
+    (setq myfont "Consolas-11")
+    ))
+ ((eq system-type 'cygwin)
+  (grep-apply-setting 
+   'grep-find-command '("/usr/bin/find . -type f -exec grep -n  {} /dev/null \\;" . 30))
+  (setq myfont "Consolas-11"))
+ ((eq system-type 'darwin)
   (setq myfont "Dejavu Sans Mono-9")
-                                        ;(add-to-list 'load-path "~/.emacs.d/")
-  (if (eq system-type 'darwin)
-      (progn
-        ;; macports directory
-        (add-to-list 'exec-path "/opt/local/bin")
-        (setenv "PATH" (concat (getenv "PATH") ":" "/opt/local/bin"))
-        (setq-default
-         explicit-bash-args '("--login" "-i")
-         ispell-program-name "/opt/local/bin/aspell"
-         vc-hg-program "/opt/local/bin/hg"
-         find-function-C-source-directory (expand-file-name "~/Documents/emacs/emacs-24.3.91/src")
-         latex-run-command (executable-find "latex"))
-        (with-no-warnings
-          (setq mac-option-modifier 'meta)
-          (setq mac-command-modifier 'super))
-        (unless (frame-parameter nil 'fullscreen)
-          (set-frame-parameter nil 'fullscreen 'fullwidth))
-        ;; (set-frame-parameter nil 'fullscreen 'fullboth)
-        )
-
-                                        ; linux
-    (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/")
-    (setq ispell-program-name "/usr/bin/aspell")
-    )
+  ;; macports directory
+  (add-to-list 'exec-path "/opt/local/bin")
+  (setenv "PATH" (concat (getenv "PATH") ":" "/opt/local/bin"))
+  (setq-default
+   explicit-bash-args '("--login" "-i")
+   ispell-program-name "/opt/local/bin/aspell"
+   vc-hg-program "/opt/local/bin/hg"
+   find-function-C-source-directory (expand-file-name "~/Documents/emacs/emacs-24.3.91/src")
+   latex-run-command (executable-find "latex"))
+  (with-no-warnings
+    (setq mac-option-modifier 'meta)
+    (setq mac-command-modifier 'super))
+  (unless (frame-parameter nil 'fullscreen)
+    (set-frame-parameter nil 'fullscreen 'fullwidth))
+  ;; (set-frame-parameter nil 'fullscreen 'fullboth)
   )
+ (t ; linux
+  (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/")
+  (setq ispell-program-name "/usr/bin/aspell")
+  ))
 
 (require 'arthur-functions)
 (require 'arthur-autoload)
