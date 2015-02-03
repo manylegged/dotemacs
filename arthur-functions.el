@@ -14,6 +14,7 @@
 
 (defun print-buffer-file ()
   (interactive)
+  (kill-new buffer-file-name)
   (message buffer-file-name))
 
 (defun find-user-init-file ()
