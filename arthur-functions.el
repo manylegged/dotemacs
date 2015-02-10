@@ -204,6 +204,9 @@ With prefix ARG,also load it"
   (eval-buffer nil t)
   (message "Evaluated buffer."))
 
+(defvar battery-echo-area-format)
+(defvar battery-status-function)
+(declare-function battery-format "battery")
 
 (defun clock ()
   "Display the time and date in the mode line"
@@ -442,8 +445,11 @@ unless BEGIN is greather than END, in which case it defaults to
            ;; (expand-file-name ".." default-directory)
            nil)))
 
+(declare-function c-beginning-of-statement-1 "cc-engine")
+(declare-function c-end-of-statement "cc-cmds")
+
 (defun my-c++-beginning-of-statement ()
-  "like `c-beginning-of-statement-1', but get out of nested parens better" 
+  "like `c-beginning-of-statement-1', but get out of nested parens better"
   (c-beginning-of-statement-1)
   (while (eq (char-before) ?\()
     (backward-char)
@@ -506,6 +512,12 @@ Works on member functions (including constructors, etc) as well as regular funct
               (forward-char)
               (just-one-space))
             (insert class-name "::")))
+        ;; remove pure virtual specifier
+        (save-excursion
+          (re-search-backward ")")
+          (forward-char)
+          (when (looking-at " *= *0")
+            (replace-match "")))
         ;; remove default argument values
         (save-excursion
           (let ((proto-end (point)))
