@@ -26,6 +26,7 @@
     (setq myfont "Consolas-11")
     ))
  ((eq system-type 'cygwin)
+  (require 'grep)
   (grep-apply-setting 
    'grep-find-command '("/usr/bin/find . -type f -exec grep -n  {} /dev/null \\;" . 30))
   (setq myfont "Consolas-11"))
@@ -71,14 +72,14 @@
   (require 'auto-complete-config)
 
   (defvar c++-ebrowse-source-table nil "Cached ebrowsed completion table")
-  (ac-define-source c++-ebrowse
-		    '((candidates
-		       . (lambda ()
-			   (unless c++-ebrowse-source-table
-			     (setq c++-ebrowse-source-table (ebrowse-some-member-table)))
-			   (all-completions ac-prefix c++-ebrowse-source-table)))
-		      (requires . 0)
-		      (symbol . "c++")))
+  ;; (ac-define-source c++-ebrowse
+  ;; 		    '((candidates
+  ;; 		       . (lambda ()
+  ;; 			   (unless c++-ebrowse-source-table
+  ;; 			     (setq c++-ebrowse-source-table (ebrowse-some-member-table)))
+  ;; 			   (all-completions ac-prefix c++-ebrowse-source-table)))
+  ;; 		      (requires . 0)
+  ;; 		      (symbol . "c++")))
 
   (ac-define-source words-in-buffer
 		    '((init . ac-update-word-index)
