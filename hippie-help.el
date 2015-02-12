@@ -74,7 +74,7 @@ If BODY calls prompting functions, pick the default automatically"
           (select-window (win &optional norec) (set-buffer (window-buffer win)) win)
           (push-mark (&rest args) nil)
           (message (fmt &rest args) nil)
-          (find-file-noselect (name &rest args) (set-buffer (find-buffer-visiting name))))
+          (find-file-noselect (name &rest args) (set-buffer (hap-find-buffer name))))
      ,@body))
 
 (defun call-interactively-no-prompt (func)
@@ -131,6 +131,18 @@ functions run as part of BODY will not change globals state"
         (let ((woman-use-topic-at-point t))
           (with-no-warnings (woman-file-name nil))))))
 
+(defun hap-find-buffer (name)
+  (or (find-buffer-visiting name)
+      (and (functionp 'cygwin-convert-file-name-from-windows)
+           (find-buffer-visiting (cygwin-convert-file-name-from-windows name)))))
+
+(defun hap-truename (name)
+  (when (and (functionp 'cygwin-convert-file-name-from-windows)
+             (eq (elt name 1) ?:))
+    (setq name (cygwin-convert-file-name-from-windows name)))
+  (abbreviate-file-name
+   (file-truename name)))
+
 (defun forward-c++-symbol (arg)
   "Called from `thing-at-point' c++-symbol"
   (if (natnump arg)
@@ -177,11 +189,10 @@ functions run as part of BODY will not change globals state"
             pos)))))
 
 (defun hap-find-etag-filename-make-entry (prototype line pos)
-  (let* ((filename (abbreviate-file-name
-                    (file-truename
-                     (save-excursion
-                       (re-search-backward "\n\\([^,]+\\)," (point-min) t)
-                       (match-string 1))))))
+  (let* ((filename (hap-truename
+                    (save-excursion
+                      (re-search-backward "\n\\([^,]+\\)," (point-min) t)
+                      (match-string 1)))))
     (list (cons filename (1+ pos))
           nil
           nil
@@ -396,7 +407,7 @@ definition found using `hap-imenu-at-point-other-file'"
 
 (defun hap-test ()
   (interactive)
-  (hap-pop-to-buffer (find-buffer-visiting "Resources.cpp"))
+  (hap-pop-to-buffer (hap-find-buffer "Resources.cpp"))
   )
   
 ;;;###autoload
@@ -560,7 +571,7 @@ the default and don't actually prompt user"
 
 (defun hap-update-entry (entry)
   (let ((buffer (and (consp (car entry))
-                     (find-buffer-visiting (caar entry)))))
+                     (hap-find-buffer (caar entry)))))
     (if buffer
         (let* ((prototype (car (nth 4 entry)))
                (pos (hap-update-prototype-pos prototype buffer (cdar entry)))
@@ -675,7 +686,7 @@ the default and don't actually prompt user"
 
 (defun hap-sort-key (entry)
   (let ((file (hap-marker-filename (car entry)))
-        (buffer (hap-marker-buffer (car entry) 'find-buffer-visiting)))
+        (buffer (hap-marker-buffer (car entry) 'hap-find-buffer)))
     (+
      ;; current match last, current file forward
      (if (eq (current-buffer) buffer)
