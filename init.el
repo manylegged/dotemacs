@@ -3,6 +3,7 @@
 ;; .emacs for GNU emacs 24.3
 
 (eval-when-compile
+  (require 'grep)
   (require 'shell)
   (require 'cc-mode))
 
@@ -27,7 +28,7 @@
     ))
  ((eq system-type 'cygwin)
   (require 'grep)
-  (grep-apply-setting 
+  (grep-apply-setting
    'grep-find-command '("/usr/bin/find . -type f -exec grep -n  {} /dev/null \\;" . 30))
   (setq myfont "Consolas-11"))
  ((eq system-type 'darwin)
@@ -82,17 +83,17 @@
   ;; 		      (symbol . "c++")))
 
   (ac-define-source words-in-buffer
-		    '((init . ac-update-word-index)
-		      (candidates . (ac-word-candidates
-				     (lambda (buffer)
-				       (eq buffer (current-buffer)))))))
+  		    '((init . ac-update-word-index)
+  		      (candidates . (ac-word-candidates
+  				     (lambda (buffer)
+  				       (eq buffer (current-buffer)))))))
 
   (setq-default ac-sources '(ac-source-imenu
-			     ac-source-abbrev
-			     ;;ac-source-words-in-buffer
-			     ac-source-words-in-same-mode-buffers
-			     ))
-					;(ac-set-trigger-key (kbd "TAB"))
+  			     ac-source-abbrev
+  			     ;;ac-source-words-in-buffer
+  			     ac-source-words-in-same-mode-buffers
+  			     ))
+  ;;(ac-set-trigger-key (kbd "TAB"))
   (ac-set-trigger-key nil)
   (global-auto-complete-mode t))
 

@@ -21,6 +21,11 @@
   (interactive)
   (find-file user-init-file))
 
+;; emacs 22
+(eval-when-compile
+  (unless (fboundp 'declare-function)
+    (defun declare-function (&rest args)
+      nil)))
 
 ;; (defun in-string-p (face)
 ;;   "return FACE if we are fontifying a string, else nil"
