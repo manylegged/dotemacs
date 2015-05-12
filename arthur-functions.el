@@ -417,6 +417,11 @@ unless BEGIN is greather than END, in which case it defaults to
      ;; chain of ? : expressions
      (regexp   . "[^; ]\\(\\s-*\\)[?][^;\n{}]\+:$")
      (modes    . align-c++-modes)
+     (tab-stop . nil))
+    (c-metamacro
+     ;; Macro data definition
+     (regexp   . "F([^,]*,\\(\\s-*\\).*\\\\$")
+     (modes    . align-c++-modes)
      (tab-stop . nil))))
 
 ;; alignment
@@ -564,5 +569,23 @@ Works on member functions (including constructors, etc) as well as regular funct
           (set-buffer-modified-p nil))
         (goto-char first-point))
       (message "Yanked: %s {...}" (substring-no-properties (replace-regexp-in-string "\n.*" "" yank))))))
+
+(defun delete-word (arg)
+  "Delete characters forward until encountering the end of a word.
+With argument ARG, do this that many times."
+  (interactive "p")
+  (delete-region (point) (progn (forward-word arg) (point))))
+
+(defun backward-delete-word (arg)
+  "Delete characters backward until encountering the beginning of a word.
+With argument ARG, do this that many times."
+  (interactive "p")
+  (delete-word (- arg)))
+
+(defun subword-backward-delete (arg)
+  "Do the same as `backward-delete-word' but on subwords.
+See the command `subword-mode' for a description of subwords."
+  (interactive "p")
+  (delete-region (point) (subword-forward (- arg))))
 
 (provide 'arthur-functions)

@@ -9,6 +9,7 @@
 
 ;; os
 (defvar ispell-program-name)
+(declare-function grep-apply-setting "grep")
 
 (cond
  ((eq system-type 'windows-nt)
@@ -45,8 +46,9 @@
   (with-no-warnings
     (setq mac-option-modifier 'meta)
     (setq mac-command-modifier 'super))
-  (unless (frame-parameter nil 'fullscreen)
-    (set-frame-parameter nil 'fullscreen 'maximized)))
+  ;; (unless (frame-parameter nil 'fullscreen)
+  ;;   (set-frame-parameter nil 'fullscreen 'maximized))
+  )
  (t ; linux
   (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/")
   (setq ispell-program-name "/usr/bin/aspell")
@@ -142,6 +144,11 @@
    select-active-regions t
    x-select-enable-primary t
    x-select-enable-clipboard t)
+
+  (setq initial-frame-alist
+        '((vertical-scroll-bars)
+          (width . 160)
+          (height . 60)))
   )
 
 ;; variables
@@ -197,9 +204,12 @@
  switch-to-buffer-preserve-window-point 'already-displayed
  imenu-auto-rescan-maxout 120000
  desktop-globals-to-save nil      ; stop Fing up my history
+ split-width-threshold 140
+ split-height-threshold 100
+ frame-resize-pixelwise t
  )
 
-;(add-to-list 'warning-suppress-types '(undo discard-info))
+;(add-to-list 'warning-suppress-types '(undo discard-info))q
 ;(add-to-list 'warning-suppress-types 'frameset)
 
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -241,6 +251,11 @@
 ;;  keybindings
 
 (windmove-default-keybindings 'super)
+(global-set-key (kbd "s-p") `windmove-up)
+(global-set-key (kbd "s-n") `windmove-down)
+(global-set-key (kbd "s-f") `windmove-right)
+(global-set-key (kbd "s-b") `windmove-left)
+
 (global-set-key [(Mouse-2)] 'mouse-yank-primary)
 (global-set-key (kbd "<Scroll_Lock>") 'scroll-lock-mode)
 (global-set-key (kbd "C-x C-/") 'winner-undo)
@@ -300,14 +315,13 @@
 (global-set-key (kbd "C-\"") 'insert-pair)
 (global-set-key (kbd "C-'") 'insert-pair)
 
-(defun my-toggle-fullscreen ()
-  (interactive)
-  (if (eq system-type 'darwin)
-      (set-frame-parameter nil 'fullscreen
-                           (if (eq (frame-parameter nil 'fullscreen) 'fullboth)
-                               nil 'fullboth))
-    (toggle-frame-fullscreen)))
-(global-set-key (kbd "M-RET") 'my-toggle-fullscreen)
+(global-set-key [remap backward-kill-word] 'backward-delete-word)
+(defun my-subword-hook ()
+  (local-set-key (kbd "M-DEL") 'subword-backward-delete))
+(add-hook 'subword-mode-hook 'my-subword-hook)
+
+(global-set-key (kbd "M-RET") 'toggle-frame-fullscreen)
+(global-set-key (kbd "s-m") 'toggle-frame-maximized)
 (global-set-key (kbd "C-x c") 'clock)
 
 (add-hook 'eval-expression-minibuffer-setup-hook 'eldoc-mode)
@@ -345,7 +359,7 @@
 (global-set-key (kbd "M-'") 'next-error)
 (global-set-key (kbd "M-\"") 'previous-error)
 (defun my-compile-keys ()
-  (local-set-key (kbd "s-b") 'compile-with-makefile)
+  ;; (local-set-key (kbd "s-b") 'compile-with-makefile)
   (local-set-key (kbd "C-c C-c") 'compile-with-makefile))
 (add-hooks '(sh-mode-hook makefile-mode-hook c-mode-common-hook python-mode-hook)
            'my-compile-keys)
@@ -466,6 +480,7 @@
 (add-to-list 'magic-mode-alist '("^ELF" . hexl-mode))
 (add-to-list 'auto-mode-alist '("\.o\\'" . hexl-mode))
 (add-to-list 'auto-mode-alist '("\.vdf\\'" . javascript-mode))
+(add-to-list 'auto-mode-alist '("\.po\\'" . default-generic-mode))
 
 ;; minor modes
 
@@ -518,6 +533,10 @@
                 (cons default (delete default ido-temp-list)))))))
 (add-hook 'ido-make-buffer-list-hook 'dont-munge-buffer-order-damnit)
 
+(defun other-window-prev ()
+  (interactive)
+  (other-window -1))
+
 ;; (global-set-key (kbd "<M-tab>") (lambda () 
 ;;                                   (interactive) 
 ;;                                   (switch-to-buffer (other-buffer (current-buffer)) nil t)))
@@ -526,7 +545,7 @@
 (define-key ido-common-completion-map (kbd "<M-tab>") 'ido-next-match)
 (define-key ido-common-completion-map (kbd "<M-S-tab>") 'ido-prev-match)
 (global-set-key (kbd "<C-tab>") 'other-window)
-(global-set-key (kbd "<C-S-tab>") 'other-frame)
+(global-set-key (kbd "<C-S-tab>") 'other-window-prev)
 (global-set-key (kbd "<C-M-tab>")
                 (lambda ()
                   "Make current buffer visible in another window, and switch to that window"
@@ -585,6 +604,26 @@
 (add-to-list 'auto-mode-alist '("\\.mm\\'" . c++-mode))
 (add-to-list 'completion-ignored-extensions ".dep")
 
+(define-derived-mode gamemonkey-mode javascript-mode "GM"
+  (font-lock-add-keywords
+   nil `((,(regexp-opt (list "local" "global" "foreach" "fork") 'symbols) . font-lock-keyword-face)
+         (,(regexp-opt (list "assert" "table" "yield") 'symbols) . font-lock-builtin-face))))
+
+(defun my-gamemonkey-hook ()
+  (local-set-key (kbd "C-c C-l") 'align-dwim)
+  (local-set-key (kbd "C-{") 'my-c-insert-braces)
+  ;; (hexcolor-mode 1)
+  (subword-mode 1)
+  (setq indent-tabs-mode t)
+  (setq tab-width 4))
+
+(add-hook 'gamemonkey-mode-hook 'my-gamemonkey-hook)
+
+(add-to-list 'auto-mode-alist '("\\.gm\\'" . gamemonkey-mode))
+(add-to-list 'auto-mode-alist '("\\.fp\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.vp\\'" . glsl-mode))
+
+  
 (defun my-c-common-hook ()
   (c-set-style "stroustrup")
   (c-set-offset 'statement-cont '(c-lineup-assignments +))
@@ -623,14 +662,14 @@
              "noexcept" "nullptr" "static_assert" "thread_local"
              "override" "final"
              ;; things xcode thinks are keywords (objective-c keywords)
-             "in" "out" "inout" "oneway" ;; "self"
+             "in" "out" "inout" "oneway" "export";; "self"
              "super"
              ;; things I use
              "foreach" "for_" "unless" "lambda")
             'symbols) . font-lock-keyword-face)
          (,(regexp-opt
             (list "float2" "float3" "float4" "vec2" "vec3" "vec4" "mat2" "mat3" "mat4"
-                  "ushort" "uint" "trit" "lstring" "int2" "int3"
+                  "ushort" "uint" "uint64" "trit" "lstring" "int2" "int3"
                   "id") 'symbols) . font-lock-type-face)
          (,(regexp-opt
             (list "nil" "YES" "NO" 
