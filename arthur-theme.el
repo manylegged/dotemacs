@@ -277,6 +277,7 @@
 
 
 (eval-when-compile
+  (defvar arthur-current-theme nil)
   (cond 
    ((eq arthur-current-theme 'dark) (color-theme-arthur-dark))
    ((eq arthur-current-theme 'dark2) (color-theme-arthur-dark2))
