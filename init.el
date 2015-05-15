@@ -605,8 +605,34 @@
 
 (define-derived-mode gamemonkey-mode javascript-mode "GM"
   (font-lock-add-keywords
-   nil `((,(regexp-opt (list "local" "global" "foreach" "fork") 'symbols) . font-lock-keyword-face)
-         (,(regexp-opt (list "assert" "table" "yield") 'symbols) . font-lock-builtin-face))))
+   nil `(("\\(\\<local\\|global\\|member\\>\\) *\\([a-zA-Z_0-9.]*\\)"
+          (1 'font-lock-type-face)
+          (2 'font-lock-variable-name-face))
+         ("\\(\\<fork\\\\>\\) *\\([a-zA-Z_0-9.]*\\)"
+          (1 'font-lock-type-face)
+          (2 'font-lock-keyword-face))
+         ("\\(\\<foreach\\>\\) *( *\\([a-zA-Z0-9_]*\\) *\\(and\\) *\\([a-zA-Z0-9_]*\\) *\\(\\<in\\>\\)"
+          (1 font-lock-keyword-face)
+          (2 font-lock-variable-name-face)
+          (3 font-lock-keyword-face)
+          (4 font-lock-variable-name-face)
+          (5 font-lock-keyword-face))
+         ("\\(\\<foreach\\>\\) *( *\\([a-zA-Z0-9_]*\\) *\\(\\<in\\>\\)"
+          (1 font-lock-keyword-face)
+          (2 font-lock-variable-name-face)
+          (3 font-lock-keyword-face))
+         (,(regexp-opt (list "assert" "yield" "sleep" "exit" "debug"
+                             "threadKill" "threadKillAll" "threadTime" "threadId"
+                             "threadAllIds" "signal" "block"
+                             "stateSet" "stateGet" "stateGetLast" "stateSetExitFunction"
+                             "sysTime" "doString" "typeId" "typeName"
+                             "typeRegisterOperator" "typeRegisterVariable"
+                             "sysCollectGarbage"
+                             "tableCount" "tableDuplicate" "tableClear" "tableFirst"
+                             "tableAtIndex" "print" "format"
+                             "v2" "v3" "v2i" "v3i" "table")
+                       'symbols) . font-lock-builtin-face)
+         ("\\(!\\)[^=]" 1 font-lock-negation-char-face))))
 
 (defun my-gamemonkey-hook ()
   (local-set-key (kbd "C-c C-l") 'align-dwim)
@@ -636,6 +662,8 @@
   (hexcolor-mode 1)
   (subword-mode 1)
   (setq tab-width 4)
+  (when (string-match-p "FunkEngin" buffer-file-name)
+    (setq indent-tabs-mode t))
   (make-local-variable 'forward-sexp-function)
   (setq forward-sexp-function 'my-c++-forward-sexp)
   (local-set-key [remap backward-up-list] 'my-c++-backward-up-list)
