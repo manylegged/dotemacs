@@ -197,7 +197,7 @@
 
        (fringe ((t (:background "#eeeeee" :foreground "#005080"))))
        (mode-line ((t (:background "#4F4390" :foreground "white"))))
-       (mode-line-inactive ((t (:background "#ccccccc":foreground "black"))))
+       (mode-line-inactive ((t (:background "#bbbbbb":foreground "black"))))
        (mode-line-highlight ((t (:background "grey20" :foreground "grey70"))))
        (minibuffer-prompt ((t (:foreground "#0060a0"))))
        (region ((t (:background "#aaaaaa"))))
