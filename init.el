@@ -606,32 +606,33 @@
 
 (define-derived-mode gamemonkey-mode javascript-mode "GM"
   (font-lock-add-keywords
-   nil `(("\\(\\<local\\|global\\|member\\>\\) *\\([a-zA-Z_0-9.]*\\)"
+   nil `((,(concat (regexp-opt '("local" "global" "member") 'symbols)
+                   " *\\([a-zA-Z_0-9.]*\\)")
           (1 'font-lock-type-face)
           (2 'font-lock-variable-name-face))
-         ("\\(\\<fork\\\\>\\) *\\([a-zA-Z_0-9.]*\\)"
-          (1 'font-lock-type-face)
-          (2 'font-lock-keyword-face))
-         ("\\(\\<foreach\\>\\) *( *\\([a-zA-Z0-9_]*\\) *\\(and\\) *\\([a-zA-Z0-9_]*\\) *\\(\\<in\\>\\)"
+         ("\\(\\_<fork\\_>\\) *\\([a-zA-Z_0-9.]*\\)"
+          (1 'font-lock-keyword-face)
+          (2 'font-lock-variable-name-face))
+         ("\\(\\_<foreach\\_>\\) *( *\\([a-zA-Z0-9_]*\\) *\\(and\\) *\\([a-zA-Z0-9_]*\\) *\\(\\<in\\>\\)"
           (1 font-lock-keyword-face)
           (2 font-lock-variable-name-face)
           (3 font-lock-keyword-face)
           (4 font-lock-variable-name-face)
           (5 font-lock-keyword-face))
-         ("\\(\\<foreach\\>\\) *( *\\([a-zA-Z0-9_]*\\) *\\(\\<in\\>\\)"
+         ("\\(\\_<foreach\\_>\\) *( *\\([a-zA-Z0-9_]*\\) *\\(\\<in\\>\\)"
           (1 font-lock-keyword-face)
           (2 font-lock-variable-name-face)
           (3 font-lock-keyword-face))
-         (,(regexp-opt (list "assert" "yield" "sleep" "exit" "debug"
-                             "threadKill" "threadKillAll" "threadTime" "threadId"
-                             "threadAllIds" "signal" "block"
-                             "stateSet" "stateGet" "stateGetLast" "stateSetExitFunction"
-                             "sysTime" "doString" "typeId" "typeName"
-                             "typeRegisterOperator" "typeRegisterVariable"
-                             "sysCollectGarbage"
-                             "tableCount" "tableDuplicate" "tableClear" "tableFirst"
-                             "tableAtIndex" "print" "format"
-                             "v2" "v3" "v2i" "v3i" "table")
+         (,(regexp-opt '("assert" "yield" "sleep" "exit" "debug" "select"
+                         "threadKill" "threadKillAll" "threadTime" "threadId"
+                         "threadAllIds" "signal" "block"
+                         "stateSet" "stateGet" "stateGetLast" "stateSetExitFunction"
+                         "sysTime" "doString" "typeId" "typeName"
+                         "typeRegisterOperator" "typeRegisterVariable"
+                         "sysCollectGarbage"
+                         "tableCount" "tableDuplicate" "tableClear" "tableFirst"
+                         "tableAtIndex" "print" "format"
+                         "v2" "v3" "v2i" "v3i" "table" "globals")
                        'symbols) . font-lock-builtin-face)
          ("\\(!\\)[^=]" 1 font-lock-negation-char-face))))
 
