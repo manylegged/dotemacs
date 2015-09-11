@@ -389,7 +389,6 @@
 
 (defvar outlaws-base)
 (defvar outlaws-platform)
-(defvar outlaws-platform-inc)
 
 (defun outlaws-compilation-finish (buffer status)
   (when (and (equal status "finished\n")
@@ -456,23 +455,38 @@
   (message "Outlaws loaded")
   )
 
-
-(defun outlaws-stack-lookup ()
-  (interactive)
-  (let ((buf (get-buffer-create "*crashlog*")))
-    (if (and buffer-file-name (string-match-p "^Reassembly.*[.]txt$" buffer-file-name))
-        (shell-command-on-region (point-min) (point-max)
-                                 (concat outlaws-base "scripts/stack_lookup.py -a -")
-                                 buf)
-      (shell-command (concat outlaws-base "scripts/stack_lookup.py -a") buf))
-    (set-buffer buf)
-    (compilation-mode)
-    (pop-to-buffer buf)
-    (goto-char (point-min))
-    (unless (search-forward "Dumping stack" (point-max) t)
+(defun outlaws-stack-lookup-sentinel (process event)
+  (when (string= event "finished")
+    (let ((buf (process-buffer process)))
+      (set-buffer buf)
+      (compilation-mode)
+      (pop-to-buffer buf)
       (goto-char (point-max))
-      (forward-line (- (/ (frame-height) 2))))
-    (recenter)))
+      (let ((inhibit-read-only t))
+        (insert "\nsentinel recieved event: " event))
+      (goto-char (point-min))
+      (unless (search-forward "Dumping stack" (point-max) t)
+        (goto-char (point-max))
+        (forward-line (- (/ (frame-height) 2))))
+      (recenter))))
+
+(defun outlaws-stack-lookup (arg)
+  (interactive "p")
+  (let* ((buf (get-buffer-create "*crashlog*"))
+         (args (append (list "*stack-lookup*" buf (concat outlaws-base "scripts/stack_lookup.py")
+                             (and arg "-a")))))
+    (when (and buffer-file-name
+               (or (string-match-p "/Reassembly.*[.]txt$" buffer-file-name)
+                   (string-match-p "/2015.*[.]txt[.]gz$" buffer-file-name)))
+      (setq args (append args (list buffer-file-name))))
+    (with-current-buffer buf
+      (setq buffer-read-only nil)
+      (delete-region (point-min) (point-max))
+      (insert "Running: ")
+      (print args buf))
+    (let ((process (apply 'start-process args)))
+      (set-process-sentinel process 'outlaws-stack-lookup-sentinel)
+      )))
 (global-set-key (kbd "C-c s") 'outlaws-stack-lookup)
 
 ;;; language / major modes
@@ -635,7 +649,7 @@
                        'symbols) . font-lock-builtin-face)
          ("\\(!\\)[^=]" 1 font-lock-negation-char-face))))
 
-(defun my-gamemonkey-hook ()
+(defun my-scripting-hook ()
   (local-set-key (kbd "C-c C-l") 'align-dwim)
   (local-set-key (kbd "C-{") 'my-c-insert-braces)
   ;; (hexcolor-mode 1)
@@ -643,12 +657,38 @@
   (setq indent-tabs-mode t)
   (setq tab-width 4))
 
-(add-hook 'gamemonkey-mode-hook 'my-gamemonkey-hook)
+(add-hook 'gamemonkey-mode-hook 'my-scripting-hook)
 
 (add-to-list 'auto-mode-alist '("\\.gm\\'" . gamemonkey-mode))
 (add-to-list 'auto-mode-alist '("\\.fp\\'" . glsl-mode))
 (add-to-list 'auto-mode-alist '("\\.vp\\'" . glsl-mode))
 
+
+(define-derived-mode squirrel-mode javascript-mode "Sq"
+  (font-lock-add-keywords
+   nil `(("\\(\\<local\\>\\) *\\([a-zA-Z_0-9.]*\\)"
+          (1 'font-lock-type-face)
+          (2 'font-lock-variable-name-face))
+         ("\\(\\<foreach\\>\\) *( *\\([a-zA-Z0-9_]*\\) *, *\\([a-zA-Z0-9_]*\\) *\\(\\<in\\>\\)"
+          (1 font-lock-keyword-face)
+          (2 font-lock-variable-name-face)
+          (3 font-lock-keyword-face)
+          (4 font-lock-variable-name-face)
+          (5 font-lock-keyword-face))
+         ("\\(\\<foreach\\>\\) *( *\\([a-zA-Z0-9_]*\\) *\\(\\<in\\>\\)"
+          (1 font-lock-keyword-face)
+          (2 font-lock-variable-name-face)
+          (3 font-lock-keyword-face))
+         (,(regexp-opt (list "base" "catch" "class" "clone"
+                             "continue" "const" "default" "delete" "enum"
+                             "extends" "in" "null" "resume"
+                             "throw" "try" "typeof" "yield" "constructor"
+                             "instanceof" "static")
+                       'symbols) . font-lock-keyword-face)
+         ("\\(!\\)[^=]" 1 font-lock-negation-char-face))))
+
+(add-hook 'squirrel-mode-hook 'my-scripting-hook)
+(add-to-list 'auto-mode-alist '("\\.nut\\'" . squirrel-mode))
   
 (defun my-c-common-hook ()
   (c-set-style "stroustrup")
@@ -697,14 +737,15 @@
             'symbols) . font-lock-keyword-face)
          (,(regexp-opt
             (list "float2" "float3" "float4" "vec2" "vec3" "vec4" "mat2" "mat3" "mat4"
-                  "ushort" "uint" "uint64" "trit" "lstring" "int2" "int3"
+                  "double2" "double3" "double4" "f2" "f3" "f4" "d2" "d3" "d4"
+                  "uchar" "ushort" "uint" "uint64" "trit" "lstring" "int2" "int3" "int4"
                   "id") 'symbols) . font-lock-type-face)
          (,(regexp-opt
             (list "nil" "YES" "NO" 
                   "epsilon" "M_PIf" "M_PI" "M_TAO" "M_TAOf") 'symbols). font-lock-constant-face)
          ;("~" (0 font-lock-negation-char-face prepend))
          ("\\_<0x[0-9a-fA-f]+\\_>" . font-lock-constant-face) ; hex
-         ("\\_<[0-9]*\\.?[0-9]*f?\\_>" . font-lock-constant-face) ; dec floats and ints
+         ("\\_<-?[0-9]*\\.?[0-9]*\\(e-?[0-9.]\+\\)?f?\\_>" . font-lock-constant-face) ; dec floats and ints
          ("\\_<\\([A-Z_][A-Z_0-9]*\\)\\_>[^(]" 1 font-lock-constant-face) ; preprocessor constants
          ("\\_<_[A-Za-z_][a-zA-Z_0-9]*\\_>" . font-lock-constant-face) ; preprocessor constants beginning with underscore
          ))

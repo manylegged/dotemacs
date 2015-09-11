@@ -161,11 +161,11 @@
   (let ((makefile (or (get-closest-pathname "Makefile") compile-makefile)))
     (if (null makefile)
         (call-interactively 'compile)
-      (setq compile-makefile makefile)
       (let* ((default-directory (file-name-directory makefile))
              (command (read-string (format "Compile command (in %s): "
                                           (abbreviate-file-name default-directory))
                                    compile-command nil)))
+        (setq compile-makefile makefile)
         (compile command (and arg t))))))
 
 (defvar run-program-command "make -k run")
@@ -532,7 +532,7 @@ Works on member functions (including constructors, etc) as well as regular funct
         (save-excursion
           (let ((proto-end (point)))
             (goto-char start)
-            (while (re-search-forward " *= *[^,)]+" proto-end t)
+            (while (re-search-forward " *= *[^,()]+" proto-end t)
               (replace-match ""))))
         (if (eq (char-before) ?\;)
             ;; prototype
@@ -558,12 +558,14 @@ Works on member functions (including constructors, etc) as well as regular funct
           (setq kill (concat (replace-regexp-in-string
                               (concat "\n" (make-string c-basic-offset ? )) "\n"
                               (buffer-substring start end)) "\n")))
-        (setq kill (replace-regexp-in-string "^\\(\\(static\\|virtual\\|inline\\|friend\\) \\)*" "" kill))
+        (setq kill (replace-regexp-in-string "^\\(\\(static\\|virtual\\|inline\\|friend\\|override\\) \\)*" "" kill))
         (setq yank (replace-regexp-in-string "{.*" "" kill))
         ;; replace kill with prototype
         (kill-new kill)
         (delete-region start end)
-        (insert proto)
+        (let ((before (point)))
+          (insert proto)
+          (font-lock-fontify-region before (point)))
         ;; restore state
         (unless modified
           (set-buffer-modified-p nil))

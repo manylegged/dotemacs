@@ -43,8 +43,8 @@
 (autoload 'hippie-eldoc "hippie-help" "Eldoc using hippie help keybindings" t)
 (autoload 'hippie-help-mode "hippie-help" "keybindings for hippie help" t)
 
-(autoload 'js2-mode "js2" nil t)
-(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+;; (autoload 'js2-mode "js2" nil t)
+;; (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 
 ;; (ignore-errors
 ;;   (require 'eye nil t)
