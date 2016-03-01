@@ -662,15 +662,20 @@ the default and don't actually prompt user"
           )))))
     
 
-(defun hippie-eldoc-next ()
-  "Show next possible hippie-goto target"
-  (interactive)
-  (eldoc-add-command 'hippie-eldoc-next)
+(defun hippie-eldoc-next (arg)
+  "Show next possible `hippie-goto' target"
+  (interactive "p")
+  (setq arg (or arg +1))
   (if hap-eldoc-current-prototypes
       (progn
-        (setq hap-eldoc-prototype-index (1+ hap-eldoc-prototype-index))
+        (setq hap-eldoc-prototype-index (+ arg hap-eldoc-prototype-index))
         (eldoc-message (hap-get-current-message)))
     (eldoc-message (hippie-eldoc-function))))
+
+(defun hippie-eldoc-previous ()
+  "Show previous `hippie-goto' target"
+  (interactive)
+  (hippie-eldoc-next -1))
 
 (defun hap-substr-equal (a b)
   (let ((la (length a)) (lb (length b)))
@@ -746,6 +751,8 @@ Particularly useful for c/c++, where it can use ebrowse, imenu, and or tag data"
           (and (numberp arg) (> arg 0)))
       (progn
         (setq eldoc-documentation-function 'hippie-eldoc-function)
+        (eldoc-add-command 'hippie-eldoc-next)
+        (eldoc-add-command 'hippie-eldoc-previous)
         (eldoc-mode 1))
     (eldoc-mode -1)))
 
@@ -826,6 +833,7 @@ then it calls the second function."
         (define-key map [remap find-tag] 'hippie-goto)                           ; M-.
         (define-key map [remap find-tag-other-window] 'hippie-goto-other-window) ; C-x 4 .
         (define-key map (kbd "C-M-.") 'hippie-goto-other-window)
+        (define-key map (kbd "C-<") 'hippie-eldoc-previous)
         (define-key map (kbd "C->") 'hippie-eldoc-next)
         (define-key map (kbd "C-?") 'hippie-eldoc-view)
         map))

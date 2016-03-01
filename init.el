@@ -695,7 +695,13 @@
 
 (add-hook 'squirrel-mode-hook 'my-scripting-hook)
 (add-to-list 'auto-mode-alist '("\\.nut\\'" . squirrel-mode))
-  
+
+(setq cc-other-file-alist
+      '(("\\.c\\'" (".h"))
+        ("\\.m\\'" (".h"))
+        ("\\.h\\'" (".c" ".cpp" ".m"))
+        ("\\.cpp\\'" (".hpp"".h"))
+        ("\\.hpp\\'" (".cpp"))))
 (defun my-c-common-hook ()
   (c-set-style "stroustrup")
   (c-set-offset 'statement-cont '(c-lineup-assignments +))
@@ -719,7 +725,7 @@
   (hippie-eldoc 1)
   (setq parens-require-spaces nil)
   (local-set-key (kbd "C-{") 'my-c-insert-braces)
-  (local-set-key (kbd "C-<") 'insert-pair)
+  ;; (local-set-key (kbd "C-<") 'insert-pair)
   ;; (local-set-key (kbd "C->") 'my-c-insert-arrow)
   (abbrev-mode -1)
   (local-set-key (kbd "C-j") 'newline-and-indent)
