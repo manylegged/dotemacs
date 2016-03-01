@@ -753,12 +753,11 @@
                   "uchar" "ushort" "uint" "uint64" "trit" "lstring" "int2" "int3" "int4"
                   "id") 'symbols) . font-lock-type-face)
          (,(regexp-opt
-            (list "nil" "YES" "NO" 
-                  "epsilon" "M_PIf" "M_PI" "M_TAO" "M_TAOf") 'symbols). font-lock-constant-face)
+            (list "nil" "YES" "NO" "epsilon") 'symbols). font-lock-constant-face)
          ;("~" (0 font-lock-negation-char-face prepend))
-         ("\\_<0x[0-9a-fA-f]+\\_>" . font-lock-constant-face) ; hex
-         ("\\_<-?[0-9]*\\.?[0-9]*\\(e-?[0-9.]\+\\)?f?\\_>" . font-lock-constant-face) ; dec floats and ints
-         ("\\_<\\([A-Z_][A-Z_0-9]*\\)\\_>[^(]" 1 font-lock-constant-face) ; preprocessor constants
+         ("\\_<0[xX][0-9a-fA-f]+\\_>" . font-lock-constant-face) ; hex
+         ("\\(\\_<\\|[.]\\)-?[0-9.]+\\([eE]-?[0-9.]+\\)?[lfLF]?\\_>" . font-lock-constant-face) ; dec floats and ints
+         ("\\_<\\([A-Z_][A-Z_0-9]*f?\\)\\_>[^(]" 1 font-lock-constant-face) ; preprocessor constants
          ("\\_<_[A-Za-z_][a-zA-Z_0-9]*\\_>" . font-lock-constant-face) ; preprocessor constants beginning with underscore
          ))
   (when (and (featurep 'semantic) semantic-mode)
