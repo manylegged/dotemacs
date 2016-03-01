@@ -105,6 +105,10 @@
 ;(ac-config-default)
 ;(yas-global-mode 1)
 
+;; allow c:/ paths on cygwin (load AFTER package-init)
+(when (eq system-type 'cygwin)
+  (require 'windows-path)
+  (windows-path-activate))
 
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
@@ -505,7 +509,8 @@
         (cond
          ((not arg) (not truncate-partial-width-windows))
          ((> 0 arg) t)
-         ((<= 0 arg) nil))))
+         ((<= 0 arg) nil)))
+  (message "Partial width windows: %s" (if truncate-partial-width-windows "Enabled" "Disabled")))
 
 (defun my-disable-partial-truncate ()
   (toggle-partial-truncate -1))
