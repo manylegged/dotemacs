@@ -65,4 +65,8 @@
 (add-to-list 'auto-mode-alist '("\\.frag\\'" . glsl-mode))
 (add-to-list 'auto-mode-alist '("\\.geom\\'" . glsl-mode))
 
+(when (eq system-type 'cygwin)
+  (require 'hlsl-mode)
+  (require 'p4))
+
 (provide 'arthur-autoload)

@@ -9,6 +9,7 @@
 
 ;; os
 (defvar ispell-program-name)
+(defvar vc-hg-program)
 (declare-function grep-apply-setting "grep")
 
 (cond
@@ -519,7 +520,24 @@
 
 (add-hook 'markdown-mode-hook 'visual-line-mode)
 
+(defun my-outlaws-isearch-point ()
+  "Jump to log file in stack_lookup.py triage output"
+  (interactive)
+  (push-mark)
+  (let ((end (line-end-position))
+        (beg (line-beginning-position)))
+    (goto-char end)
+    (let ((slash (search-backward "/" beg t)))
+      (when slash
+        (setq beg (1+ slash))))
+    (message (buffer-substring beg end))
+    (goto-char end)
+    (search-forward (buffer-substring beg end))
+    (recenter (min (max 0 scroll-margin)
+                   (truncate (/ (window-body-height) 4.0))))))
+
 (defun my-temp-buffer-hook ()
+  (local-set-key (kbd "n") 'my-outlaws-isearch-point)
   (local-set-key (kbd "q") 'quit-window)
   (local-set-key (kbd "k") 'kill-this-buffer))
 (add-hooks '(compilation-mode-hook completion-list-mode-hook)
@@ -708,7 +726,7 @@
   (c-set-offset 'inline-open 0)
   (c-set-offset 'inextern-lang 0)
   (local-set-key [remap newline-and-indent] 'c-context-line-break)
-  (local-set-key (kbd "C-c o") 'ff-find-other-file)
+  (local-set-key (kbd "C-c o") 'ff-get-other-file)
   (local-set-key (kbd "TAB") 'c-indent-line-or-region)
   (local-set-key (kbd "C-c C-l") 'align-dwim)
   (imenu-add-menubar-index)
