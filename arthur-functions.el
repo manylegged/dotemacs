@@ -204,6 +204,10 @@ With prefix ARG,also load it"
                                       (abbreviate-file-name buffer-file-name)))))
     (byte-compile-file buffer-file-name arg)))
 
+(defun byte-recompile-directory-force (dir)
+  (interactive "D")
+  (byte-recompile-directory dir 0 t))
+
 (defun eval-this-buffer ()
   (interactive)
   (eval-buffer nil t)
@@ -589,5 +593,6 @@ With argument ARG, do this that many times."
 See the command `subword-mode' for a description of subwords."
   (interactive "p")
   (delete-region (point) (subword-forward (- arg))))
+
 
 (provide 'arthur-functions)

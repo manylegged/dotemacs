@@ -203,28 +203,27 @@ functions run as part of BODY will not change globals state"
 (defun hap-search-tags ()
   "Search tags file to find definitions for symbol at point.
 Return in same format as `hap-find-prototype'."
-  (let ((sym (hap-symbol-at-point))
-        message-log-max                 ; inhibit messages going to log
-        case-fold-search                ; case sensitive
-        tags)
-    (and sym tags-file-name
-         (save-current-buffer
-           (visit-tags-table-buffer)
-           (save-excursion
-             (goto-char (point-min))
-             ;; format is 'prototype  symbol  line, byte'
-             ;; sometimes 'symbol ' is missing
-             (while (re-search-forward
-                     (concat
-                      "\\(\\(" sym "\\)\\|\\(" sym "[ (]?\\)\\)\\([0-9]*\\),\\([0-9]*\\)")
-                     (point-max) t)
-               (let* ((prototype (buffer-substring (line-beginning-position)
-                                                   (1- (or (match-end 3) (1+ (match-beginning 0))))))
-                      (pos (string-to-number (match-string 5)))
-                      (line (string-to-number (match-string 4)))
-                      (entry (hap-find-etag-filename-make-entry prototype line pos)))
-                 (setq tags (cons entry tags)))))
-           tags))))
+  (let* ((sym (hap-symbol-at-point))
+         message-log-max                 ; inhibit messages going to log
+         case-fold-search                ; case sensitive
+         (regexp (concat "\\(\\(" sym "\\)\\|\\(" sym "[ (]?\\)\\)\\([0-9]*\\),\\([0-9]*\\)"))
+         tags)
+    (save-excursion
+      (and
+       sym tags-file-name
+       (visit-tags-table-buffer)
+       (progn
+         (goto-char (point-min))
+         ;; format is 'prototype  symbol  line, byte'
+         ;; sometimes 'symbol ' is missing
+         (while (re-search-forward regexp (point-max) t)
+           (let* ((prototype (buffer-substring (line-beginning-position)
+                                               (1- (or (match-end 3) (1+ (match-beginning 0))))))
+                  (pos (string-to-number (match-string 5)))
+                  (line (string-to-number (match-string 4)))
+                  (entry (hap-find-etag-filename-make-entry prototype line pos)))
+             (push entry tags)))
+         tags)))))
 
 (defun hap-find-tag ()
   (interactive)

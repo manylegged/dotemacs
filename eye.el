@@ -63,7 +63,7 @@
 ;; * view images as ANSI art on a text terminal
 ;;
 ;;; Requirements:
-;; Eye is only tested with emacs 23, but it might work with emacs 22
+;; Eye is only tested with emacs 23/24, but it might work with emacs 22
 ;; External programs are required for various features.
 ;; * ImageMagick for resize/rotate/pdf support
 ;; * pdftoppm/pdfinfo (comes with xpdf or poppler) for pdf support
@@ -101,17 +101,21 @@
   (require 'cl))
 (require 'ffap)
 
+(defsubst eye-emacs-has-imagemagick () nil)
+(defsubst eye-can-resize ()
+  (and (or (executable-find "convert") (imagemagick-filter-types)) t))
+
 ;; ;; user variables
-;; (defvar eye-resize (and (executable-find "convert") t)
-;;   "Should images be resized to fit the window?
-;; If a number, zoom relative to window size.")
+(defvar eye-resize (eye-can-resize)
+  "Should images be resized to fit the window?
+If a number, zoom relative to window size.")
 (defvar eye-rotate 0
   "How many degrees counterclockwise should image be rotated?")
-;; (defvar eye-manga nil "Should we read right to left?
-;; This has no effect unless `eye-multi' is non-nil")
-;; (defvar eye-multi t "Display multiple images at a time?
-;; Images are displayed left to right, unless `eye-manga' is non-nil")
-;; (defvar eye-invert nil)
+(defvar eye-manga nil "Should we read right to left?
+This has no effect unless `eye-multi' is non-nil")
+(defvar eye-multi t "Display multiple images at a time?
+Images are displayed left to right, unless `eye-manga' is non-nil")
+(defvar eye-invert nil)
 
 
 ;; internal variables
@@ -135,15 +139,13 @@ Keep in mind that this will be rm -rf ed when we clear the cache.")
 (defvar eye-convert-args '(-filter "Quadratic"))
 
 
-(let* ((exlist '((xbm "xbm") (xpm "xpm") (gif "gif")
-                 (pbm "pbm") (png "png") (svg "svg")
-                 (jpeg "jpg" "jpeg" "JPG") (tiff "tiff")))
-       (typlist (apply 'nconc (mapcar (lambda (x) (cdr (assoc x exlist)))
-                                      image-types))))
-  (defconst eye-image-types typlist "List of supported image types")
-  (defconst eye-image-type-regexp
-    (format "\\.%s\\'" (regexp-opt typlist t))
-    "Regexp matching supported image types."))
+(defconst eye-image-types
+  (apply 'nconc (mapcar (lambda (x) (cdr (assoc x '((xbm "xbm") (xpm "xpm") (gif "gif")
+                                                    (pbm "pbm") (png "png") (svg "svg")
+                                                    (jpeg "jpg" "jpeg" "JPG") (tiff "tiff")))))
+                        image-types)) "List of supported image types")
+(defconst eye-image-type-regexp (format "\\.%s\\'" (regexp-opt eye-image-types t))
+  "Regexp matching supported image types.")
 
 (defvar eye-unzip (executable-find "unzip"))
 (defvar eye-unrar (executable-find "unrar"))
@@ -183,6 +185,18 @@ Keep in mind that this will be rm -rf ed when we clear the cache.")
 
 (defconst eye-subprocess-buffer " *eye subprocess*"
   "Name of debugging buffer for process output")
+
+;; slideshow
+(defvar eye-slideshow-timer nil "Timer for slideshow.")
+(defvar eye-slideshow-delay 3 "Seconds between slide advance.")
+(defvar eye-slideshow-command 'eye-find-next "Command to auto advance")
+(defvar eye-slideshow-arg 1 "Argument to `eye-slideshow-command'.")
+
+;; preloading 
+(defvar eye-preload t "Should images be preloaded?
+Special value 'all means preload continously.")
+(defvar eye-preload-next nil "Image index queued for preload.")
+
 
 (defun eye-temp-buffer-kill ()
   (let ((buf (get-buffer (concat " * eye temp" eye-source))))
@@ -342,6 +356,16 @@ call callback directly. When it's done, call CALLBACK with OUTFILE"
       (funcall callback outfile)
     (eye-start-filter-process command nil callback outfile)))
 
+(defsubst eye-backend-get (fun)
+  "Return the element of the current backend named FUN"
+  (let ((backend (assoc-default
+                  eye-source eye-backend-alist 'string-match-p)))
+    (eye-assert backend "Eye does not support this file type")
+    (plist-get backend fun)))
+
+(defsubst eye-resize-p () (and eye-resize (not (eq eye-frontend 'ansi))
+                               (not (eye-backend-get :noresize))))
+(defsubst eye-rotate-p () (/= 0 eye-rotate))
 
 (defun eye-convert-args ()
   "Argument list for ImageMagick convert"
@@ -379,16 +403,13 @@ Unique for these variables."
          (ext (if (string-match-p "\.gif\\'" base) "gif" "png")))
     (format "%s%s.%s" basename argstr ext)))
 
-(defsubst eye-resize-p () (and eye-resize (not (eq eye-frontend 'ansi))
-                               (not (eye-backend-get :noresize))))
-(defsubst eye-rotate-p () (/= 0 eye-rotate))
-
 (defun eye-with-converted-image (image callback &optional pipe)
   "Resize/rotate IMAGE appropriately and call CALLBACK.
 If PIPE is non-nil, use it as a command that produces the image
 on stdout. Then, IMAGE should be a temp file name with the right
 extension."
-  (if (not (or (eye-resize-p) (eye-rotate-p)))
+  (if (or (not (or (eye-resize-p) (eye-rotate-p)))
+          (eye-emacs-has-imagemagick))
       (if pipe
           (eye-start-process
            (list "/bin/sh" "-c" (format "%s > %s" pipe image))
@@ -619,13 +640,6 @@ Also set `eye-pdf-ratio'."
 ;;                                        page)))
 
 
-(defsubst eye-backend-get (fun)
-  "Return the element of the current backend named FUN"
-  (let ((backend (assoc-default
-                  eye-source eye-backend-alist 'string-match-p)))
-    (eye-assert backend "Eye does not support this file type")
-    (plist-get backend fun)))
-
 (defsubst eye-with-image (callback index)
   "Call CALLBACK with the file name of the INDEX th file
 extracted from `eye-source' and properly resized, rotated, etc.
@@ -814,7 +828,17 @@ Call (callback image size)."
   (setq cursor-type nil))
 
 (defun eye-image-load (file callback)
-  (let ((img (create-image file)))
+  (let* ((args (if (eye-emacs-has-imagemagick)
+                   (append
+                    (when (eye-rotate-p) (list :rotation eye-rotate))
+                    (when (eye-resize-p)
+                      (let* ((size (eye-window-size t))
+                             (width (car size))
+                             (height (cdr size)))
+                        (if (numberp eye-resize)
+                            (list :width (* width eye-resize) :height (* height eye-resize))
+                          (list :max-width width :max-height height)))))))
+         (img (apply 'create-image file nil nil args)))
     (image-animate img)
     (funcall callback img (image-size img))))
 
@@ -950,11 +974,6 @@ actually start a process."
        (funcall (eye-backend-get :list) eye-source 'eye-files-set)))))
 
 
-;; preloading 
-;; (defvar eye-preload t "Should images be preloaded?
-;; Special value 'all means preload continously.")
-(defvar eye-preload-next nil "Image index queued for preload.")
-
 (defun eye-preload-next (image size)
   (if (and eye-preload-next (eye-pack size))
       (progn
@@ -984,11 +1003,6 @@ actually start a process."
 
 
 ;; slideshow
-
-(defvar eye-slideshow-timer nil "Timer for slideshow.")
-(defvar eye-slideshow-delay 3 "Seconds between slide advance.")
-(defvar eye-slideshow-command 'eye-find-next "Command to auto advance")
-(defvar eye-slideshow-arg 1 "Argument to `eye-slideshow-command'.")
 
 (defun eye-slideshow-callback (buffer)
   (set-buffer buffer)
@@ -1538,7 +1552,7 @@ xpdf or poppler) to view pdfs.
        ,@body
        (eye-redisplay)))))
 
-(define-eye-toggle eye-resize (and (executable-find "convert") t)
+(define-eye-toggle eye-resize (eye-can-resize)
   "Should images be resized to fit the window?
 If a number, zoom relative to window size."
   (when eye-resize (eye-nav-bob)))

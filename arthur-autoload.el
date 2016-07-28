@@ -65,8 +65,6 @@
 (add-to-list 'auto-mode-alist '("\\.frag\\'" . glsl-mode))
 (add-to-list 'auto-mode-alist '("\\.geom\\'" . glsl-mode))
 
-(when (eq system-type 'cygwin)
-  (require 'hlsl-mode)
-  (require 'p4))
+(autoload 'eye "eye" "View images or comicbooks." t)
 
 (provide 'arthur-autoload)
