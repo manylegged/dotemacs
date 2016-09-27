@@ -37,10 +37,11 @@
   "Load all the tags files and set up paths for the project"
   (setq anisoptera-base (concat base "/")
         anisoptera-platform (concat base "/" platform-ext "/"))
-  (save-window-excursion
-    (find-file-noselect (concat anisoptera-platform "Makefile"))
-    (find-file-noselect (concat anisoptera-platform "BROWSE"))
-    (visit-tags-table (concat anisoptera-platform "TAGS"))
+  (ignore-errors
+    (save-window-excursion
+      (find-file-noselect (concat anisoptera-platform "Makefile"))
+      (find-file-noselect (concat anisoptera-platform "BROWSE"))
+      (visit-tags-table (concat anisoptera-platform "TAGS")))
     ;; (progn
     ;;   (message "Loading source files... ")
     ;;   (find-file (concat anisoptera-base "core/*.h") t)
@@ -50,8 +51,6 @@
 
   (setq compile-makefile (concat anisoptera-platform "Makefile"))
   (add-hook 'compilation-finish-functions 'anisoptera-compilation-finish)
-  (when arg
-    (desktop-read))
   (when (get-buffer "*Warnings*")
     (bury-buffer "*Warnings*"))
   (message "Anisoptera loaded: %s" (file-name-base base)))
