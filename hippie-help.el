@@ -418,8 +418,9 @@ You can customize the way this works by changing
   (interactive)
   (push-mark nil t)
   (ring-insert find-tag-marker-ring (point-marker))
-  (or (hap-do-current-entry 'switch-to-buffer)
-      (hap-do-it hippie-goto-try-functions-list nil)))
+  (when (or (hap-do-current-entry 'switch-to-buffer)
+            (hap-do-it hippie-goto-try-functions-list nil))
+    (run-hooks 'xref-after-jump-hook)))
 
 ;;;###autoload
 (defun hippie-goto-other-window (&optional arg)
@@ -439,7 +440,8 @@ You can customize the way this works by changing
               (setq point (point)))))
         (when buf
           (hap-pop-to-buffer buf)
-          (goto-char point)))))
+          (goto-char point)
+          (run-hooks 'xref-after-jump-hook)))))
 
 ;;;###autoload
 (defun hippie-help ()
@@ -829,8 +831,10 @@ then it calls the second function."
   (let ((map (make-sparse-keymap)))
         (define-key map (kbd "M-?") 'hippie-help)
         (define-key map (kbd "C-M-?") 'hippie-help)
-        (define-key map [remap find-tag] 'hippie-goto)                           ; M-.
-        (define-key map [remap find-tag-other-window] 'hippie-goto-other-window) ; C-x 4 .
+        ;; (define-key map [remap find-tag] 'hippie-goto)                           ; M-.
+        (define-key map (kbd "M-.") 'hippie-goto)              ; M-.
+        (define-key map [remap find-tag-other-window] 'hippie-goto-other-window) ; C-M-.
+        (define-key map [remap xref-find-definitions-other-window] 'hippie-goto-other-window) ; C-x 4 .
         (define-key map (kbd "C-M-.") 'hippie-goto-other-window)
         (define-key map (kbd "C-<") 'hippie-eldoc-previous)
         (define-key map (kbd "C->") 'hippie-eldoc-next)
