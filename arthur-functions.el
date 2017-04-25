@@ -562,7 +562,8 @@ Works on member functions (including constructors, etc) as well as regular funct
           (setq kill (concat (replace-regexp-in-string
                               (concat "\n" (make-string c-basic-offset ? )) "\n"
                               (buffer-substring start end)) "\n")))
-        (setq kill (replace-regexp-in-string "^\\(\\(static\\|virtual\\|inline\\|friend\\|override\\) \\)*" "" kill))
+        (setq kill (replace-regexp-in-string "^\\(\\(static\\|virtual\\|inline\\|friend\\) \\)*" "" kill))
+        (setq kill (replace-regexp-in-string " +override.*$" "" kill))
         (setq yank (replace-regexp-in-string "{.*" "" kill))
         ;; replace kill with prototype
         (kill-new kill)
