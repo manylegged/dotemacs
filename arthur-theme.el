@@ -128,7 +128,7 @@
     (font-lock-doc-face ((t (:foreground "#80cc00" :background unspecified))))
     ))
 
-(defvar arthur-theme-hue 0.9)
+(defvar arthur-theme-hue 1.19)
 
 (defun color-theme-adjust-hue (dat amount)
   "Return color theme DAT hue-shifted by AMOUNT"
