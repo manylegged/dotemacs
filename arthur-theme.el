@@ -102,8 +102,8 @@
     ((background-color . "#202020")
      (foreground-color . "#c0c0c0")
      (background-mode . dark)
-     (mouse-color . "white")
-     (cursor-color . "grey80"))
+     (mouse-color . "#fefefe")
+     (cursor-color . "#c0c0c0"))
     
     (fringe ((t (:background "#282828"))))
     (mode-line ((t (:background "#90cc30" :foreground "black"))))
@@ -143,7 +143,8 @@
 (defun color-theme-adjust (dat)
   "Return color theme DAT hue-shifted by AMOUNT"
   (cond
-   ((and (stringp dat) (string-prefix-p "#" dat))
+   ((and (stringp dat) ;; (string-prefix-p "#" dat)
+         )
     (let* ((rgb         (x-color-values dat))
            (red         (/ (float (nth 0 rgb)) 65535.0)) ; Convert from 0-65535 to 0.0-1.0
            (green       (/ (float (nth 1 rgb)) 65535.0))
@@ -163,7 +164,8 @@
                           value))
            )
            ;; (value       (arthur-color-invert (clamp (+ (nth 2 hsv) arthur-theme-value)))))
-      (hexrgb-hsv-to-hex hue saturation value)))
+      (hexrgb-hsv-to-hex hue saturation value 2)))
+   ((and (memq dat '(light dark)) arthur-theme-invert) (if (eq dat 'light) 'dark 'light))
    ((consp dat) (cons (color-theme-adjust (car dat)) (color-theme-adjust (cdr dat))))
    (t dat)))
 
