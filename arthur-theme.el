@@ -102,8 +102,8 @@
     ((background-color . "#202020")
      (foreground-color . "#c0c0c0")
      (background-mode . dark)
-     (mouse-color . "white")
-     (cursor-color . "grey80"))
+     (mouse-color . "#fefefe")
+     (cursor-color . "#c0c0c0"))
     
     (fringe ((t (:background "#282828"))))
     (mode-line ((t (:background "#90cc30" :foreground "black"))))
@@ -128,20 +128,52 @@
     (font-lock-doc-face ((t (:foreground "#80cc00" :background unspecified))))
     ))
 
-(defvar arthur-theme-hue 1.19)
+(defun clamp (val &optional mn mx)
+  (setq mn (or mn 0))
+  (setq mx (or mx 1))
+  (min (max val mn) mx))
 
-(defun color-theme-adjust-hue (dat amount)
+(defvar arthur-theme-hue 0.171 "color theme hue offset")
+(defvar arthur-theme-saturation 0.0 "color theme saturation offset")
+(defvar arthur-theme-value 0.0 "color theme value offset")
+(defvar arthur-theme-invert nil "invert theme if non-nil")
+
+(defun arthur-color-invert (val) (if arthur-theme-invert (- 1.0 val) val))
+
+(defun color-theme-adjust (dat)
   "Return color theme DAT hue-shifted by AMOUNT"
   (cond
-   ((and (stringp dat) (string-prefix-p "#" dat)) (hexrgb-increment-hue dat amount))
-   ((consp dat) (cons (color-theme-adjust-hue (car dat) amount) (color-theme-adjust-hue (cdr dat) amount)))
+   ((and (stringp dat) ;; (string-prefix-p "#" dat)
+         )
+    (let* ((rgb         (x-color-values dat))
+           (red         (/ (float (nth 0 rgb)) 65535.0)) ; Convert from 0-65535 to 0.0-1.0
+           (green       (/ (float (nth 1 rgb)) 65535.0))
+           (blue        (/ (float (nth 2 rgb)) 65535.0))
+           ;; (hsv         (hexrgb-rgb-to-hsv red green blue))
+           (hsv         (hexrgb-rgb-to-hsv (arthur-color-invert red)
+                                           (arthur-color-invert green)
+                                           (arthur-color-invert blue)))
+           (arthur-theme-hue (+ (if arthur-theme-invert 0.57 0.0) arthur-theme-hue))
+           (arthur-theme-saturation (- arthur-theme-saturation (if arthur-theme-invert 0.25 0.0)))
+           
+           (hue         (mod (+ (nth 0 hsv) arthur-theme-hue) 1.0))
+           (saturation  (clamp (+ (nth 1 hsv) arthur-theme-saturation)))
+           (value       (clamp (+ (nth 2 hsv) arthur-theme-value)))
+           (value       (if arthur-theme-invert ; increase contrast for light theme
+                            (clamp (+ 0.5 (* (- value 0.5) 1.25)))
+                          value))
+           )
+           ;; (value       (arthur-color-invert (clamp (+ (nth 2 hsv) arthur-theme-value)))))
+      (hexrgb-hsv-to-hex hue saturation value 2)))
+   ((and (memq dat '(light dark)) arthur-theme-invert) (if (eq dat 'light) 'dark 'light))
+   ((consp dat) (cons (color-theme-adjust (car dat)) (color-theme-adjust (cdr dat))))
    (t dat)))
 
 (defun color-theme-arthur-dark ()
   "Color theme by Arthur Danskin."
   (interactive)
   (setq arthur-current-theme 'dark)
-  (color-theme-install (color-theme-adjust-hue arthur-dark arthur-theme-hue)))
+  (color-theme-install (color-theme-adjust arthur-dark)))
 
 
 (defun color-theme-arthur-dark2 ()
@@ -151,7 +183,7 @@
   (let ((color-theme-is-cumulative t))
     (color-theme-arthur-dark)
     (setq arthur-current-theme 'dark2)
-    (color-theme-install (color-theme-adjust-hue arthur-dark2 arthur-theme-hue))))
+    (color-theme-install (color-theme-adjust arthur-dark2))))
 
 (defun color-theme-arthur-mild ()
   "grayscale"
@@ -335,20 +367,20 @@
    ((eq arthur-current-theme 'light2) (color-theme-arthur-light2))
    ((eq arthur-current-theme 'light3) (color-theme-arthur-light3))))
 
-(defun arthur-theme-incr-hue ()
+(defun arthur-theme-incr (sym inc)
   (interactive)
-  (setq arthur-theme-hue (+ arthur-theme-hue hexcolor-increment))
-  (message "Hue: %.3f" arthur-theme-hue)
-  (color-theme-arthur-dark2))
+  (set sym (+ (symbol-value sym) (* inc hexcolor-increment)))
+  (message "Hue: %.3f Sat: %.3f Val: %.3f Invert?:%s"
+           arthur-theme-hue arthur-theme-saturation arthur-theme-value arthur-theme-invert)
+  (arthur-theme))
 
-(defun arthur-theme-decr-hue ()
-  (interactive)
-  (setq arthur-theme-hue (- arthur-theme-hue hexcolor-increment))
-  (message "Hue: %.3f" arthur-theme-hue)
-  (color-theme-arthur-dark2))
-        
-(global-set-key (kbd "<f5>") 'arthur-theme-decr-hue)
-(global-set-key (kbd "<f6>") 'arthur-theme-incr-hue)
+(global-set-key (kbd "<f3>") (lambda () (interactive) (setq arthur-theme-invert (not arthur-theme-invert)) (arthur-theme-incr 'arthur-theme-hue 0.0)))
+(global-set-key (kbd "<f5>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-hue -1.0)))
+(global-set-key (kbd "<f6>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-hue 1.0)))
+(global-set-key (kbd "<f7>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-saturation -1.0)))
+(global-set-key (kbd "<f8>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-saturation 1.0)))
+(global-set-key (kbd "<f9>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-value -1.0)))
+(global-set-key (kbd "<f10>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-value 1.0)))
 
 ;; (eval-when-compile
   ;; (defvar arthur-current-theme nil)

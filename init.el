@@ -494,6 +494,9 @@
   (local-set-key (kbd "C-c p p") 'elp-instrument-function)
   (local-set-key (kbd "C-c p a") 'elp-instrument-package)
   (local-set-key (kbd "C-c p r") 'elp-results)
+  (local-set-key (kbd "C-c x") 'eval-print-last-sexp)
+  (setq eval-expression-print-length 100)
+  (setq eval-expression-print-level 10)
   (make-local-variable 'hippie-expand-try-functions-list)
   (add-to-list 'hippie-expand-try-functions-list
                'try-complete-lisp-symbol t)
