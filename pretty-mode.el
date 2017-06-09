@@ -33,12 +33,12 @@
   (let* ((beg (match-beginning 0))
 	 (end (match-end 0))
          (str (match-string 0)))
-    (if (or (if (pretty-is-sym (char-after beg))
-                (or (pretty-is-sym (char-before beg)) (pretty-is-sym (char-after end)))
-              (pretty-is-punct (char-before beg)))
+    (if (or 
+         ;;(pretty-is-sym (char-before beg))
+            ;;(pretty-is-sym (char-after end))
             (memq (get-text-property beg 'face)
-                  '(font-lock-doc-face font-lock-string-face
-                                       font-lock-comment-face)))
+                  '(font-lock-doc-face font-lock-string-face ;; font-lock-comment-face
+                                       )))
         (remove-text-properties beg end '(composition))
       (compose-region beg end (cdr (assoc str alist)))
 ;;;       (add-text-properties beg end `(display ,repl)))
@@ -65,9 +65,9 @@
 regular expressions with symbols. ALIST has the form ((STRING .
 REPLACE-CHAR) ...)."
   (when alist
+    (set (make-local-variable 'pretty-composition-rules) alist)
     `((,(regexp-opt (mapcar 'car alist))
-       (0 (pretty-font-lock-compose-symbol
-           ',alist))))))
+       (0 (pretty-font-lock-compose-symbol pretty-composition-rules))))))
 
 (defun pretty-keywords (&optional mode)
   "Return the font-lock keywords for MODE, or the current mode if
@@ -79,6 +79,11 @@ MODE is nil. Return nil if there are no keywords."
                             (assoc mode pretty-interaction-mode-alist))
                            pretty-patterns)))))
     (pretty-font-lock-keywords kwds)))
+
+(defun pretty-compose-one ()
+    (interactive)
+    (re-search-forward (caar (pretty-font-lock-keywords pretty-composition-rules)))
+    (pretty-font-lock-compose-symbol pretty-composition-rules))
 
 (defgroup pretty nil "Minor mode for replacing text with symbols "
   :group 'faces)
@@ -167,7 +172,8 @@ expected by `pretty-patterns'"
 ;;;        (?∈ ("List.mem" tuareg)
 ;;;            ("member" ,@lispy))
 ;;;        (?∉ ())
-       (?√ ("sqrt" ,@all))
+       (?√ ("sqrt" ,@all)
+           ("M_SQRT" c c++))
        (?∑ ("sum" python))
        (?α ("alpha" ,@all)
            ("'a" ,@mley))
@@ -216,6 +222,7 @@ expected by `pretty-patterns'"
        (?∞ ("HUGE_VAL" c c++)
            ("std::numeric_limits<double>::max()" c++)
            ("std::numeric_limits<float>::max()" c++))
+       ;; (?ᶠ (".f" c c++))
 
 ;;;        (?∙ ())
 ;;;        (?× ())

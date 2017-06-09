@@ -494,7 +494,6 @@
   (local-set-key (kbd "C-c p p") 'elp-instrument-function)
   (local-set-key (kbd "C-c p a") 'elp-instrument-package)
   (local-set-key (kbd "C-c p r") 'elp-results)
-  (local-set-key (kbd "C-c x") 'eval-print-last-sexp)
   (setq eval-expression-print-length 100)
   (setq eval-expression-print-level 10)
   (make-local-variable 'hippie-expand-try-functions-list)
@@ -629,7 +628,7 @@
   (hexcolor-mode 1)
   (subword-mode 1)
   (setq tab-width 4)
-  (when (string-match-p "FunkEngin" buffer-file-name)
+  (when (and buffer-file-name (string-match-p "FunkEngin" buffer-file-name))
     (setq indent-tabs-mode t))
   (make-local-variable 'forward-sexp-function)
   (setq forward-sexp-function 'my-c++-forward-sexp)
@@ -671,7 +670,8 @@
             (list "nil" "YES" "NO" "epsilon") 'symbols). font-lock-constant-face)
          ;("~" (0 font-lock-negation-char-face prepend))
          ("\\_<0[xX][0-9a-fA-f]+\\_>" . font-lock-constant-face) ; hex
-         ("\\(\\(\\_<\\|[.]\\)-?[0-9.]+\\([eE]-?[0-9.]+\\)?\\)\\([lfLFuU]?\\)\\_>"
+         (;"\\(\\(\\_<\\|[.]\\)[0-9]+\\([eE][+-]?[0-9.]+\\)?\\)\\([.]?[lfLFuU]?\\)\\_>"
+          "\\(\\([.]+\\|\\_<\\)[0-9]+\\([eE][+-]?[0-9.]+\\)?\\)\\([.]?[lfLFuU]?\\)\\_>"
           (1 font-lock-constant-face) (4 font-lock-comment-face)) ; dec floats and ints
          ("\\_<\\([A-Z_][A-Z_0-9][A-Z_0-9]+\\)\\(f?\\)\\_>[^(]"
           (1 font-lock-constant-face) (2 font-lock-comment-face)) ; preprocessor constants
