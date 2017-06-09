@@ -28,6 +28,7 @@
     (setenv "SHELL" shell-file-name)
     (setenv "PATH" (concat (getenv "PATH") ";" (replace-regexp-in-string "/" "\\\\" cygbin)))
     (setq myfont "Consolas-11")
+    (set-fontset-font "fontset-default" nil (font-spec :name "FreeMono"))
     ))
  ((eq system-type 'cygwin)
   (require 'grep)
@@ -498,6 +499,7 @@
                'try-complete-lisp-symbol t)
   (add-to-list 'hippie-expand-try-functions-list
                'try-complete-lisp-symbol-partially t)
+  (local-set-key (kbd "C-M-j") 'eval-print-last-sexp)
   (local-set-key (kbd "C-j") 'newline))
 (add-hook 'emacs-lisp-mode-hook 'my-elisp-hook)
 
@@ -654,7 +656,8 @@
              "in" "out" "inout" "oneway" "export";; "self"
              "super"
              ;; things I use
-             "foreach" "for_" "unless" "lambda")
+             "foreach" "for_" "unless" ;; "lambda"
+             )
             'symbols) . font-lock-keyword-face)
          (,(regexp-opt
             (list "float2" "float3" "float4" "vec2" "vec3" "vec4" "mat2" "mat3" "mat4"
@@ -665,8 +668,10 @@
             (list "nil" "YES" "NO" "epsilon") 'symbols). font-lock-constant-face)
          ;("~" (0 font-lock-negation-char-face prepend))
          ("\\_<0[xX][0-9a-fA-f]+\\_>" . font-lock-constant-face) ; hex
-         ("\\(\\_<\\|[.]\\)-?[0-9.]+\\([eE]-?[0-9.]+\\)?[lfLFuU]?\\_>" . font-lock-constant-face) ; dec floats and ints
-         ("\\_<\\([A-Z_][A-Z_0-9][A-Z_0-9]+f?\\)\\_>[^(]" 1 font-lock-constant-face) ; preprocessor constants
+         ("\\(\\(\\_<\\|[.]\\)-?[0-9.]+\\([eE]-?[0-9.]+\\)?\\)\\([lfLFuU]?\\)\\_>"
+          (1 font-lock-constant-face) (4 font-lock-comment-face)) ; dec floats and ints
+         ("\\_<\\([A-Z_][A-Z_0-9][A-Z_0-9]+\\)\\(f?\\)\\_>[^(]"
+          (1 font-lock-constant-face) (2 font-lock-comment-face)) ; preprocessor constants
          ("\\_<_[A-Za-z_][a-zA-Z_0-9]*\\_>" . font-lock-constant-face) ; preprocessor constants beginning with underscore
          ))
   (when (and (featurep 'semantic) semantic-mode)
