@@ -543,7 +543,6 @@ Works on member functions (including constructors, etc) as well as regular funct
             (setq kill (concat (buffer-substring start (1- (point))) "\n{\n\n}\n")
                   end (point))
           ;; inline definition
-          (setq proto (concat proto ";"))
           (setq modified t)
           ;; (c-end-of-defun)
           (when (re-search-forward "{" (point-max) t)
@@ -562,6 +561,11 @@ Works on member functions (including constructors, etc) as well as regular funct
           (setq kill (concat (replace-regexp-in-string
                               (concat "\n" (make-string c-basic-offset ? )) "\n"
                               (buffer-substring start end)) "\n")))
+        
+        ;; (when(string-match-p "virtual" kill)
+        ;; (setq proto (concat proto " override")))
+        (unless (string-match-p ";$" proto)
+          (setq proto (concat proto ";")))
         (setq kill (replace-regexp-in-string "^\\(\\(static\\|virtual\\|inline\\|friend\\) \\)*" "" kill))
         (setq kill (replace-regexp-in-string " +override.*$" "" kill))
         (setq yank (replace-regexp-in-string "{.*" "" kill))

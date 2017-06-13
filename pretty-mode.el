@@ -32,7 +32,8 @@
   "Compose a sequence of ascii chars into a symbol."
   (let* ((beg (match-beginning 0))
 	 (end (match-end 0))
-         (str (match-string 0)))
+         (str (match-string 0))
+         (mod (buffer-modified-p)))
     (if (or 
          ;;(pretty-is-sym (char-before beg))
             ;;(pretty-is-sym (char-after end))
@@ -41,11 +42,14 @@
                                        )))
         (remove-text-properties beg end '(composition))
       (compose-region beg end (cdr (assoc str alist)))
+      (restore-buffer-modified-p mod)
 ;;;       (add-text-properties beg end `(display ,repl)))
       ))
   ;; Return nil because we're not adding any face property.
   nil)
 
+(defvar pretty-current-keywords nil)
+  
 (defvar pretty-interaction-mode-alist
   '((inferior-scheme-mode . scheme-mode)
     (lisp-interaction-mode . emacs-lisp-mode)
@@ -96,13 +100,16 @@ Pretty mode builds on `font-lock-mode'. Instead of highlighting
 keywords, it replaces them with symbols. For example, lambda is
 displayed as λ in lisp modes."
   :group 'pretty
-;  :lighter " λ"
-  (if pretty-mode
-      (progn
-        (font-lock-add-keywords nil (pretty-keywords) t)
-        (font-lock-fontify-buffer))
-    (font-lock-remove-keywords nil (pretty-keywords))
-    (remove-text-properties (point-min) (point-max) '(composition nil))))
+                                        ;  :lighter " λ"
+  (let (mod (buffer-modified-p))
+    (when pretty-current-keywords
+      (font-lock-remove-keywords nil pretty-current-keywords)
+      (remove-text-properties (point-min) (point-max) '(composition nil)))
+    (when pretty-mode
+      (set (make-local-variable 'pretty-current-keywords) (pretty-keywords))
+      (font-lock-add-keywords nil pretty-current-keywords t)
+      (font-lock-fontify-buffer))
+    (restore-buffer-modified-p mod)))
 
 (defun turn-on-pretty-if-desired ()
   "Turn on `pretty-mode' if the current major mode supports it."
@@ -190,12 +197,12 @@ expected by `pretty-patterns'"
            ("fn" sml)
            ("fun" tuareg)
            ("\\" haskell))
-       (?π ("pi" ,@all)
-           ("M_PI" c c++)
-           ("M_PIf" c c++))
-       (?τ ("M_TAU" c c++)
-           ("M_TAUf" c c++))
+       (?π ;("pi" ,@all)
+           ("M_PI" c c++) )
+       (?τ ("M_TAU" c c++) )
        (?φ ("psi" ,@all))
+       (?ω ("omega" ,@all))
+       (?Ω ("Omega" ,@all))
 
        (?² ("**2" python tuareg octave)
            ("^2" octave haskell))
