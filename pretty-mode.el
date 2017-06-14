@@ -200,7 +200,8 @@ expected by `pretty-patterns'"
        (?π ;("pi" ,@all)
            ("M_PI" c c++) )
        (?τ ("M_TAU" c c++) )
-       (?φ ("psi" ,@all))
+
+       (?φ ("phi" ,@all))
        (?ω ("omega" ,@all))
        (?Ω ("Omega" ,@all))
 

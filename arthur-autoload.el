@@ -66,5 +66,7 @@
 (add-to-list 'auto-mode-alist '("\\.geom\\'" . glsl-mode))
 
 (autoload 'eye "eye" "View images or comicbooks." t)
+(autoload 'global-pretty-mode "pretty-mode" "pretty symbols" t)
+(autoload 'pretty-mode "pretty-mode" "pretty symbols" t)
 
 (provide 'arthur-autoload)
