@@ -550,7 +550,7 @@ The output string is `#' followed by `nb-digits' hex digits for each
 color component.  So for the default `nb-digits' value of 4, the form
 is \"#RRRRGGGGBBBB\"."
   (setq nb-digits  (or nb-digits  4))
-  (let ((scale (float (lsh 1 (* 4 nb-digits)))))
+  (let ((scale (float (1- (lsh 1 (* 4 nb-digits))))))
     (hexrgb-color-values-to-hex
      (mapcar (lambda (x) (floor (* x scale))) (hexrgb-hsv-to-rgb hue saturation value))
      nb-digits)))
