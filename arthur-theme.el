@@ -151,9 +151,9 @@
          (hsv         (hexrgb-rgb-to-hsv (arthur-color-invert red)
                                          (arthur-color-invert green)
                                          (arthur-color-invert blue)))
-         (arthur-theme-hue (+ (if arthur-theme-invert 0.57 0.0) arthur-theme-hue))
+         ;; (arthur-theme-hue (+ (if arthur-theme-invert 0.5 0.0) arthur-theme-hue))
          (arthur-theme-saturation (- arthur-theme-saturation (if arthur-theme-invert 0.25 0.0)))
-         (arthur-theme-contrast (+ (if arthur-theme-invert 0.25 0.0) arthur-theme-contrast))
+         (arthur-theme-contrast (+ arthur-theme-contrast (if arthur-theme-invert 0.25 0.0)))
          
          (hue         (mod (+ (nth 0 hsv) arthur-theme-hue) 1.0))
          (saturation  (clamp (* (nth 1 hsv) arthur-theme-saturation)))
