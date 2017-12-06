@@ -372,8 +372,8 @@
 (defun arthur-theme-incr (sym inc)
   (interactive)
   (set sym (+ (symbol-value sym) (* inc hexcolor-increment)))
-  (message "Hue: %.3f Sat: %.3f Val: %.3f Invert?:%s"
-           arthur-theme-hue arthur-theme-saturation arthur-theme-value arthur-theme-invert)
+  (message "Hue: %.3f Sat: %.3f Cont: %.3f Invert?:%s"
+           arthur-theme-hue arthur-theme-saturation arthur-theme-contrast arthur-theme-invert)
   (arthur-theme))
 
 (global-set-key (kbd "<f3>") (lambda () (interactive) (setq arthur-theme-invert (not arthur-theme-invert)) (arthur-theme-incr 'arthur-theme-hue 0.0)))
@@ -381,8 +381,8 @@
 (global-set-key (kbd "<f6>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-hue 1.0)))
 (global-set-key (kbd "<f7>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-saturation -1.0)))
 (global-set-key (kbd "<f8>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-saturation 1.0)))
-(global-set-key (kbd "<f9>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-value -1.0)))
-(global-set-key (kbd "<f10>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-value 1.0)))
+(global-set-key (kbd "<f9>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-contrast -1.0)))
+(global-set-key (kbd "<f10>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-contrast 1.0)))
 
 ;; (eval-when-compile
   ;; (defvar arthur-current-theme nil)

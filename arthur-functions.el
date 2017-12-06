@@ -182,6 +182,14 @@
       (let ((default-directory dir))
         (compile run-program-command (and arg t))))))
 
+(defun close-dir-buffers (dir)
+  "Close all open files under DIR"
+  (interactive "D")
+  (dolist (buf (buffer-list))
+    (when (and (buffer-file-name buf)
+               (string-match-p (concat "^" dir) (buffer-file-name buf)))
+      (kill-buffer buf))))
+
 
 ;; per-project settings
 (defun enter-project ()

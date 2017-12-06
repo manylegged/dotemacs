@@ -123,6 +123,7 @@
    ((eq system-type 'windows-nt) (anisoptera-setup "C:/Users/Arthur/Documents/helios" "platform/win32"))
    ((eq system-type 'cygwin) (anisoptera-setup "/cygdrive/c/Users/Arthur/Documents/helios" "platform/win32"))
    (t (error "unsupported system")))
-  (find-file (concat anisoptera-base "game/Helios.cpp")))
+  ;; (find-file (concat anisoptera-base "game/Helios.cpp"))
+  )
 
 (provide 'anisoptera)
