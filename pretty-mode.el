@@ -230,9 +230,8 @@ expected by `pretty-patterns'"
        ;;     ("(4)" octave)
        ;;     (".(4)" tuareg))
 
-       (?∞ ("HUGE_VAL" c c++)
-           ("std::numeric_limits<double>::max()" c++)
-           ("std::numeric_limits<float>::max()" c++))
+       (?∞ ("infinity" c c++)
+           ("INFINITY" c c++))
        ;; (?ᶠ (".f" c c++))
 
 ;;;        (?∙ ())

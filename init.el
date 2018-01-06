@@ -63,6 +63,8 @@
 (require 'anisoptera)
 (require 'generic-x)
 
+(global-pretty-mode 1)
+
 (when (require 'package nil t)
   (package-initialize)
   (add-to-list 'package-archives
@@ -304,7 +306,8 @@
 (ignore-errors
   (hippie-help-mode 1))
 (global-set-key (kbd "C-,") 'imenu)
-(global-set-key (kbd "<C-M-backspace>") 'my-delete-indentation)
+(global-set-key (kbd "<M-backspace>") 'subword-backward-delete)
+(global-set-key (kbd "<C-backspace>") 'my-delete-indentation)
 (global-set-key (kbd "<f12>") 'hippie-help)
 (define-key read-expression-map (kbd "TAB") 'completion-at-point)
 (global-set-key (kbd "C-z") 'undo)
@@ -369,7 +372,7 @@
 (setq grep-find-ignored-files nil)
 
 
-(global-set-key (kbd "<f8>") 'next-error) ; visual studio
+;; (global-set-key (kbd "<f8>") 'next-error) ; visual studio
 (global-set-key (kbd "s-'") 'next-error)  ; xcode 
 (global-set-key (kbd "s-\"") 'previous-error)  ; xcode 
 (global-set-key (kbd "M-'") 'next-error)
@@ -523,6 +526,7 @@
 ;; (add-hook 'gud-mode-hook 'my-gdb-hook)
 
 (defun my-lua-hook ()
+  (font-lock-add-keywords nil '(("#.+" . font-lock-comment-face)))
   (local-set-key (kbd "C-c C-l") 'align-dwim)
   (local-set-key (kbd "C-{") 'my-c-insert-braces)
   (hexcolor-mode 1)
@@ -621,6 +625,7 @@
   (c-set-offset 'statement-cont '(c-lineup-assignments +))
   (c-set-offset 'inline-open 0)
   (c-set-offset 'inextern-lang 0)
+  (c-set-offset 'innamespace 0)
   (local-set-key [remap newline-and-indent] 'c-context-line-break)
   (local-set-key (kbd "C-c o") 'ff-get-other-file)
   (local-set-key (kbd "TAB") 'c-indent-line-or-region)
@@ -672,6 +677,7 @@
             'symbols) . font-lock-keyword-face)
          (,(regexp-opt
             (list "float2" "float3" "float4" "vec2" "vec3" "vec4" "mat2" "mat3" "mat4"
+                  "dmat2" "dmat3" "dmat4"
                   "double2" "double3" "double4" "f2" "f3" "f4" "d2" "d3" "d4" "i2" "i3" "i4"
                   "uchar" "ushort" "uint" "uint64" "trit" "lstring" "int2" "int3" "int4"
                   "id") 'symbols) . font-lock-type-face)
