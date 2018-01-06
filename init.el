@@ -253,6 +253,7 @@
 (column-number-mode 1)
 (auto-compression-mode 1)
 (savehist-mode 1)
+(global-pretty-mode 1)
 
 ;; (server-start)
 ;; (setq server-window 'pop-to-buffer)
@@ -642,6 +643,14 @@
   ;; (local-set-key (kbd "C->") 'my-c-insert-arrow)
   (abbrev-mode -1)
   (local-set-key (kbd "C-j") 'newline-and-indent)
+
+  (setq cpp-known-face 'default)
+  (setq cpp-unknown-face 'default)
+  (setq cpp-known-writable 't)
+  (setq cpp-unknown-writable 't)
+  (setq cpp-edit-list '(("0" font-lock-comment-face default both)
+                        ("1" default font-lock-comment-face both)))
+  (cpp-highlight-buffer t)
   )
 (add-hook 'c-mode-common-hook 'my-c-common-hook)
 

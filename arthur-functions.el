@@ -459,6 +459,14 @@ unless BEGIN is greather than END, in which case it defaults to
            ;; (expand-file-name ".." default-directory)
            nil)))
 
+(defun my-c++-reverse-args (p m)
+  (interactive "r")
+  (save-excursion
+    (let ((s (combine-and-quote-strings
+              (nreverse (split-string (buffer-substring p m) "," t)) ",")))
+      (delete-region p m)
+      (insert s))))
+
 (declare-function c-beginning-of-statement-1 "cc-engine")
 (declare-function c-end-of-statement "cc-cmds")
 
