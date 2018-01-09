@@ -1,4 +1,3 @@
-
 ;;  -*- mode: emacs-lisp; -*-
 
 (defvar arthur-current-theme 'nil)
