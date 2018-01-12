@@ -377,6 +377,9 @@
            arthur-theme-hue arthur-theme-saturation arthur-theme-value arthur-theme-invert arthur-theme-invert-hue)
   (arthur-theme))
 
+(add-to-list 'desktop-globals-to-save 'arthur-theme-hue)
+(add-to-list 'desktop-globals-to-save 'arthur-theme-invert-hue)
+  
 (global-set-key (kbd "<f7>") (lambda () (interactive) (setq arthur-theme-invert-hue (not arthur-theme-invert-hue)) (arthur-theme-incr 'arthur-theme-hue 0.0)))
 (global-set-key (kbd "<f3>") (lambda () (interactive) (setq arthur-theme-invert (not arthur-theme-invert)) (arthur-theme-incr 'arthur-theme-hue 0.0)))
 (global-set-key (kbd "<f5>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-hue -1.0)))

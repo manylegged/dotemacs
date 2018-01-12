@@ -3,8 +3,17 @@
 
 (require 'arthur-functions)
 
+(defvar anisoptera-function nil)
 (defvar anisoptera-base)
 (defvar anisoptera-platform)
+
+
+(defun anisoptera-reload-hook ()
+  (when anisoptera-function
+    (funcall anisoptera-function)))
+
+(add-hook 'desktop-after-read-hook 'anisoptera-reload-hook)
+(add-to-list 'desktop-globals-to-save 'anisoptera-function)
 
 (defun anisoptera-compilation-finish (buffer status)
   (when (and (equal status "finished\n")
@@ -106,8 +115,9 @@
     (recenter (min (max 0 scroll-margin)
                    (truncate (/ (window-body-height) 4.0))))))
 
-(defun reassembly (arg)
-  (interactive "P")
+(defun reassembly ()
+  (interactive)
+  (setq anisoptera-function 'reassembly)
   (cond
    ((eq system-type 'darwin) (anisoptera-setup "/Users/arthur/Documents/outlaws" "osx"))
    ((eq system-type 'gnu/linux) (anisoptera-setup "/home/arthur/outlaws" "linux"))
@@ -115,8 +125,9 @@
    ((eq system-type 'cygwin) (anisoptera-setup "/cygdrive/c/Users/Arthur/Documents/outlaws" "win32"))
    (t (error "unsupported system"))))
 
-(defun helios (arg)
-  (interactive "P")
+(defun helios ()
+  (interactive)
+  (setq anisoptera-function 'helios)
   (cond
    ((eq system-type 'darwin) (anisoptera-setup "/Users/arthur/Documents/helios" "platform/osx"))
    ((eq system-type 'gnu/linux) (anisoptera-setup "/home/arthur/helios" "platform/linux"))

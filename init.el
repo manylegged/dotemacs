@@ -218,11 +218,14 @@
  ring-bell-function (lambda () nil); suppress annoying beeps
  switch-to-buffer-preserve-window-point 'already-displayed
  imenu-auto-rescan-maxout 120000
- desktop-globals-to-save nil      ; stop Fing up my history
  split-width-threshold 140
  split-height-threshold 100
  frame-resize-pixelwise t
  )
+
+; stop Fing up my history
+(setq desktop-globals-to-save
+      '(tags-file-name tags-table-list))
 
 ;(add-to-list 'warning-suppress-types '(undo discard-info))q
 ;(add-to-list 'warning-suppress-types 'frameset)
