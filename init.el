@@ -58,6 +58,11 @@
   (setq ispell-program-name "/usr/bin/aspell")
   ))
 
+; stop Fing up my history
+(defvar desktop-globals-to-save)
+(setq desktop-globals-to-save
+      '(tags-file-name tags-table-list))
+
 (require 'arthur-functions)
 (require 'arthur-autoload)
 (require 'anisoptera)
@@ -95,11 +100,11 @@
   ;; 		      (requires . 0)
   ;; 		      (symbol . "c++")))
 
-  (ac-define-source words-in-buffer
-  		    '((init . ac-update-word-index)
-  		      (candidates . (ac-word-candidates
-  				     (lambda (buffer)
-  				       (eq buffer (current-buffer)))))))
+  ;; (ac-define-source words-in-buffer
+  ;; 		    '((init . ac-update-word-index)
+  ;; 		      (candidates . (ac-word-candidates
+  ;; 				     (lambda (buffer)
+  ;; 				       (eq buffer (current-buffer)))))))
 
   (setq-default ac-sources '(ac-source-imenu
   			     ac-source-abbrev
@@ -223,10 +228,6 @@
  frame-resize-pixelwise t
  )
 
-; stop Fing up my history
-(setq desktop-globals-to-save
-      '(tags-file-name tags-table-list))
-
 ;(add-to-list 'warning-suppress-types '(undo discard-info))q
 ;(add-to-list 'warning-suppress-types 'frameset)
 
@@ -310,7 +311,8 @@
   (hippie-help-mode 1))
 (global-set-key (kbd "C-,") 'imenu)
 (global-set-key (kbd "<M-backspace>") 'subword-backward-delete)
-(global-set-key (kbd "<C-backspace>") 'my-delete-indentation)
+;; (global-set-key (kbd "<C-backspace>") 'my-delete-indentation)
+(global-set-key (kbd "<C-M-backspace>") 'my-delete-indentation)
 (global-set-key (kbd "<f12>") 'hippie-help)
 (define-key read-expression-map (kbd "TAB") 'completion-at-point)
 (global-set-key (kbd "C-z") 'undo)
@@ -652,13 +654,13 @@
   (abbrev-mode -1)
   (local-set-key (kbd "C-j") 'newline-and-indent)
 
-  (setq cpp-known-face 'default)
-  (setq cpp-unknown-face 'default)
-  (setq cpp-known-writable 't)
-  (setq cpp-unknown-writable 't)
-  (setq cpp-edit-list '(("0" font-lock-comment-face default both)
-                        ("1" default font-lock-comment-face both)))
-  (cpp-highlight-buffer t)
+  ;; (setq cpp-known-face 'default)
+  ;; (setq cpp-unknown-face 'default)
+  ;; (setq cpp-known-writable 't)
+  ;; (setq cpp-unknown-writable 't)
+  ;; (setq cpp-edit-list '(("0" font-lock-comment-face default both)
+  ;;                       ("1" default font-lock-comment-face both)))
+  ;; (cpp-highlight-buffer t)
   )
 (add-hook 'c-mode-common-hook 'my-c-common-hook)
 
