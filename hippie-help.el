@@ -366,7 +366,7 @@ definition found using `hap-imenu-at-point-other-file'"
     (hap-ebrowse-at-point . ebrowse-tags-find-declaration)
     (hap-variable-at-point . find-variable)
     (hap-function-at-point . find-function)
-    (ffap-file-at-point . find-file-at-point)
+    ;; (ffap-file-at-point . find-file-at-point)
     )
   "*Alist of functions to use for `hippie-goto'. The car of each
   pair is a predicate that returns non-nil if we can use the cdr

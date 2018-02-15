@@ -108,7 +108,9 @@ displayed as λ in lisp modes."
     (when pretty-mode
       (set (make-local-variable 'pretty-current-keywords) (pretty-keywords))
       (font-lock-add-keywords nil pretty-current-keywords t)
-      (font-lock-fontify-buffer))
+      (font-lock-flush)
+      ;; (font-lock-fontify-buffer)
+      )
     (restore-buffer-modified-p mod)))
 
 (defun turn-on-pretty-if-desired ()
@@ -188,6 +190,7 @@ expected by `pretty-patterns'"
            ("'b" ,@mley))
        (?γ ("gamma" ,@all)
            ("'c" ,@mley))
+       (?Γ ("Gamma" ,@all))
        (?Δ ("delta" ,@all)
            ("'d" ,@mley))
        (?ε ("epsilon" ,@all))
@@ -286,7 +289,9 @@ relevant buffer(s)."
   (interactive "MRegexp to replace: 
 MCharacter to replace with: ")
   (pretty-add-keywords nil `((,regexp . ,(string-to-char glyph))))
-  (font-lock-fontify-buffer))
+  (font-lock-flush)
+  ;; (font-lock-fontify-buffer)
+  )
 
 
 

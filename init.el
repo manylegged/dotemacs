@@ -10,7 +10,11 @@
 ;; os
 (defvar ispell-program-name)
 (defvar vc-hg-program)
-(eval-after-load "vc" '(remove-hook 'find-file-hooks 'vc-find-file-hook))
+(eval-after-load 'vc-hooks '(progn
+	(remove-hook 'find-file-hook 'vc-find-file-hook)
+	(remove-hook 'find-file-hook 'vc-refresh-state)))
+;; (eval-after-load "vc" '(remove-hook 'find-file-hooks 'vc-find-file-hook))
+;; (eval-after-load "vc" '(remove-hook 'find-file-hooks 'vc-refresh-state))
 (declare-function grep-apply-setting "grep")
 
 (cond
