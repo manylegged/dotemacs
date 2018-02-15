@@ -13,8 +13,6 @@
 (eval-after-load 'vc-hooks '(progn
 	(remove-hook 'find-file-hook 'vc-find-file-hook)
 	(remove-hook 'find-file-hook 'vc-refresh-state)))
-;; (eval-after-load "vc" '(remove-hook 'find-file-hooks 'vc-find-file-hook))
-;; (eval-after-load "vc" '(remove-hook 'find-file-hooks 'vc-refresh-state))
 (declare-function grep-apply-setting "grep")
 
 (cond
@@ -84,13 +82,7 @@
     (dolist (el '(auto-complete color-theme lua-mode parenface hexrgb))
       (package-install el))))
 
-(when (eq system-type 'cygwin)
-  (require 'hlsl-mode)
-  ;; (require 'p4)
-  )
-
 (when (require 'auto-complete nil t)
-
   (add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
   (require 'auto-complete-config)
 
