@@ -99,7 +99,7 @@
 
 (defvar arthur-dark2
   '(color-theme-arthur-dark2
-    ((background-color . "#202020")
+    ((background-color . "#202024")
      (foreground-color . "#c0c0c0")
      (background-mode . dark)
      (mouse-color . "#fefefe")

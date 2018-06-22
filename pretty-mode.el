@@ -49,6 +49,7 @@
   nil)
 
 (defvar pretty-current-keywords nil)
+(defvar pretty-composition-rules)
   
 (defvar pretty-interaction-mode-alist
   '((inferior-scheme-mode . scheme-mode)

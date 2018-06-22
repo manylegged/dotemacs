@@ -467,7 +467,7 @@ If TERMINATOR is non-nil and string is shortened,  append to the shortened strin
         (concat (substring str 0 (1- chr)) terminator)
       str)))
 
-(defun hap-find-prototype (&optional elt &optional buffer &optional pos)
+(defun hap-find-prototype (&optional elt buffer pos)
   "Grab and return the function prototype and any accompanying
 comments or relevant context around point. Prototype is returned
 as (MARKER CONTEXT COMMENT PROTOTYPE UNIQUE METHOD)
