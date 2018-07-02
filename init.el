@@ -52,6 +52,8 @@
   (with-no-warnings
     (setq mac-option-modifier 'meta)
     (setq mac-command-modifier 'super))
+  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+  (add-to-list 'default-frame-alist '(ns-appearance . dark))
   ;; (unless (frame-parameter nil 'fullscreen)
   ;;   (set-frame-parameter nil 'fullscreen 'maximized))
   )
@@ -120,7 +122,7 @@
 ;; allow c:/ paths on cygwin (load AFTER package-init)
 (when (eq system-type 'cygwin)
   (require 'windows-path)
-  (windows-path-activate))
+  (with-no-warnings (windows-path-activate)))
 
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
