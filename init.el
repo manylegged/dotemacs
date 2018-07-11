@@ -459,7 +459,7 @@
 (defun dont-munge-buffer-order-damnit ()
   (eval-when-compile
     (defvar ido-temp-list)
-    (defvar ido-default-item))
+    (defvar ido-default-item)
     (defvar ido-default-item)
     (defvar ido-temp-list))
   (let ((curname (buffer-name (current-buffer))))
