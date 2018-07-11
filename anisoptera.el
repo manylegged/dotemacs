@@ -47,17 +47,10 @@
   "Load all the tags files and set up paths for the project"
   (setq anisoptera-base (concat base "/")
         anisoptera-platform (concat base "/" platform-ext "/"))
-  (ignore-errors
-    (save-window-excursion
-      (find-file-noselect (concat anisoptera-platform "Makefile"))
-      (find-file-noselect (concat anisoptera-platform "BROWSE"))
-      (visit-tags-table (concat anisoptera-platform "TAGS")))
-    ;; (progn
-    ;;   (message "Loading source files... ")
-    ;;   (find-file (concat anisoptera-base "core/*.h") t)
-    ;;   (find-file (concat anisoptera-base "game/*.h") t)
-    ;;   (find-file (concat anisoptera-base "game/*.cpp") t))
-    )
+  (find-file-noselect (concat anisoptera-platform "Makefile"))
+  (find-file-noselect (concat anisoptera-platform "BROWSE"))
+  (setq tags-table-list nil)
+  (visit-tags-table (concat anisoptera-platform "TAGS"))
 
   (setq compile-makefile (concat anisoptera-platform "Makefile"))
   (add-hook 'compilation-finish-functions 'anisoptera-compilation-finish)
@@ -116,6 +109,17 @@
     (recenter (min (max 0 scroll-margin)
                    (truncate (/ (window-body-height) 4.0))))))
 
+(defun kill-buffers-file-matching (regexp)
+  (interactive "sKill buffers matching this string: \nP")
+  (let ((count 0))
+    (dolist (buffer (buffer-list))
+      (let ((name (buffer-file-name buffer)))
+        (when (and name (not (string-equal name ""))
+                   (string-match-p regexp name))
+          (kill-buffer buffer)
+          (setq count (1+ count)))))
+    (message "killed %d buffers" count)))
+
 (defun reassembly ()
   (interactive)
   (setq anisoptera-function 'reassembly)
@@ -136,6 +140,7 @@
    ((eq system-type 'cygwin) (anisoptera-setup "/cygdrive/c/Users/Arthur/Documents/helios" "platform/win32"))
    (t (error "unsupported system")))
   ;; (find-file (concat anisoptera-base "game/Helios.cpp"))
+  (kill-buffers-file-matching "/outlaws/")
   )
 
 (provide 'anisoptera)

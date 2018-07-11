@@ -456,15 +456,15 @@
 
 (defun dont-munge-buffer-order-damnit ()
   (eval-when-compile
-    (defvar ido-temp-list))
+    (defvar ido-temp-list)
+    (defvar ido-default-item))
   (let ((curname (buffer-name (current-buffer))))
     (setq ido-temp-list
           (sort (mapcar 'buffer-name (buffer-list (selected-frame)))
                 (lambda (a b) (or (equal b curname) (string-match "^ " b)))))
-    (with-no-warnings
-      (if default
-          (setq ido-temp-list
-                (cons default (delete default ido-temp-list)))))))
+    (if ido-default-item
+        (setq ido-temp-list
+              (cons ido-default-item (delete ido-default-item ido-temp-list))))))
 (add-hook 'ido-make-buffer-list-hook 'dont-munge-buffer-order-damnit)
 
 (defun other-window-prev ()
@@ -753,3 +753,6 @@
   (interactive "nTransparency Value 0 - 100 opaque:")
   (set-frame-parameter (selected-frame) 'alpha value))
 
+
+;; (setq twittering-icon-mode t
+      ;; twittering-convert-fix-size 100)

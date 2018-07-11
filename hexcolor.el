@@ -90,7 +90,7 @@ color they specify."
         (font-lock-add-keywords nil keywords)
       (font-lock-remove-keywords nil keywords))
     (when (called-interactively-p 'any)
-      (ignore-errors (font-lock-fontify-buffer)))))
+      (font-lock-flush))))
 
 
 (defvar facecolor-keywords
@@ -107,7 +107,7 @@ Facecolor mode highlights face names with the faces they specify"
       (font-lock-add-keywords nil facecolor-keywords)
     (font-lock-remove-keywords nil facecolor-keywords))
   (when (called-interactively-p 'any)
-    (ignore-errors (font-lock-fontify-buffer))))
+    (font-lock-flush)))
 
 
 (provide 'hexcolor)
