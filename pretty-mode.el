@@ -48,8 +48,8 @@
   ;; Return nil because we're not adding any face property.
   nil)
 
-(defvar pretty-current-keywords nil)
-(defvar pretty-composition-rules nil)
+(defvar pretty-current-keywords)
+(defvar pretty-composition-rules)
   
 (defvar pretty-interaction-mode-alist
   '((inferior-scheme-mode . scheme-mode)
