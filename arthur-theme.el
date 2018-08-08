@@ -124,6 +124,7 @@
     (font-lock-function-name-face ((t (:weight bold :foreground "#a0bb44"))))
 
     (font-lock-comment-face ((t (:slant unspecified :foreground "#606060" :background unspecified))))
+    (line-number ((t (:slant unspecified :foreground "#383838" :background unspecified))))
     (font-lock-comment-delimiter-face ((t (:foreground "#808080" :background unspecified))))
     (font-lock-doc-face ((t (:foreground "#80cc00" :background unspecified))))
     ))
@@ -362,6 +363,7 @@
 
 
 (defun arthur-theme ()
+  (interactive)
   (cond
    ((eq arthur-current-theme 'dark) (color-theme-arthur-dark))
    ((eq arthur-current-theme 'dark2) (color-theme-arthur-dark2))
