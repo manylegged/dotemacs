@@ -180,6 +180,7 @@
 
  indent-tabs-mode nil                    ; no tabs!
  vc-follow-symlinks t
+ vc-hg-diff-switches "-w"
  default-indicate-buffer-boundaries 'left
  default-indicate-empty-lines t  ; indicate end of file in fringe
  iswitchb-prompt-newbuffer nil   ; don't prompt to create a new buffer
@@ -210,7 +211,7 @@
  find-file-visit-truename nil           ; don't dereference symlinks
  disabled-command-function nil          ; enable all commands
  history-delete-duplicates t
- history-length 10000
+ history-length 500
  max-specpdl-size 10000
  max-lisp-eval-depth 10000
  backup-directory-alist '(("." . "~/.emacs-backups"))
