@@ -259,6 +259,7 @@
 (auto-compression-mode 1)
 (savehist-mode 1)
 (global-pretty-mode 1)
+(global-display-line-numbers-mode 1)
 
 ;; (server-start)
 ;; (setq server-window 'pop-to-buffer)
@@ -666,6 +667,8 @@
 (add-hook 'c-mode-common-hook 'my-c-common-hook)
 
 (defun my-c++-hook ()
+  (setq jit-lock-stealth-time 0.5)
+  
   (font-lock-add-keywords
    nil `(
          (,(regexp-opt
