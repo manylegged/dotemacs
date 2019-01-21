@@ -613,6 +613,7 @@ With argument ARG, do this that many times."
   "Do the same as `backward-delete-word' but on subwords.
 See the command `subword-mode' for a description of subwords."
   (interactive "p")
+  (require 'subword)
   (delete-region (point) (subword-forward (- arg))))
 
 ;; updated for osx-sierra

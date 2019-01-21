@@ -202,6 +202,7 @@
  print-length nil ; setting this lower breaks savehist!!
  tags-case-fold-search t
  tags-revert-without-query t
+ tags-add-tables t                      ; stop asking me to add tags tables repeatedly
  use-dialog-box nil                       ; no gui
  compilation-read-command t
  ;; compilation-scroll-output 'first-error
