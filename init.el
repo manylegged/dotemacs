@@ -260,7 +260,8 @@
 (auto-compression-mode 1)
 (savehist-mode 1)
 (global-pretty-mode 1)
-(global-display-line-numbers-mode 1)
+(when (functionp 'global-display-line-numbers-mode)
+  (global-display-line-numbers-mode 1))
 
 ;; (server-start)
 ;; (setq server-window 'pop-to-buffer)
