@@ -81,7 +81,7 @@
 
   (unless (require 'auto-complete nil t)
     (package-refresh-contents)
-    (dolist (el '(auto-complete color-theme lua-mode parenface hexrgb))
+    (dolist (el '(auto-complete color-theme lua-mode parenface hexrgb ag))
       (package-install el))))
 
 (when (require 'auto-complete nil t)
@@ -295,9 +295,15 @@
 (global-set-key (kbd "s-x") 'kill-region)
 (global-set-key (kbd "s-v") 'yank)
 (global-set-key (kbd "s-z") 'undo)
-(global-set-key (kbd "C-S-f") 'rgrep-defaults)
+(global-set-key (kbd "C-S-f") 'ag-project)
+(setq-default ag-highlight-search t
+              ag-reuse-buffers t)
 (define-key isearch-mode-map (kbd "M-w") 'isearch-toggle-word)
 (define-key isearch-mode-map (kbd "C-M-w") 'isearch-yank-symbol)
+
+;; unset scroll-left/right. I always hit these by mistake when trying to do C-c < in python mode
+(global-unset-key (kbd "C-x <"))
+(global-unset-key (kbd "C-x >"))
 
 (defun my-minibuffer-setup-hook ()
   (local-set-key (kbd "C-w") 'my-minibuffer-insert-word-at-point)
@@ -625,9 +631,11 @@
 (setq cc-other-file-alist
       '(("\\.c\\'" (".h"))
         ("\\.m\\'" (".h"))
-        ("\\.h\\'" (".c" ".cpp" ".m"))
+        ("\\.h\\'" (".c" ".cpp" ".m" ".cc"))
         ("\\.cpp\\'" (".hpp"".h"))
-        ("\\.hpp\\'" (".cpp"))))
+        ("\\.cc\\'" (".hh"".h"))
+        ("\\.hpp\\'" (".cpp" ".inl"))
+        ("\\.inl\\'" (".hpp"))))
 (defun my-c-common-hook ()
   (c-set-style "stroustrup")
   (c-set-offset 'statement-cont '(c-lineup-assignments +))
