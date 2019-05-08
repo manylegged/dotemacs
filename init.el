@@ -524,6 +524,8 @@
   (local-set-key (kbd "C-j") 'newline))
 (add-hook 'emacs-lisp-mode-hook 'my-elisp-hook)
 
+;; avoid random judgy "warning" face
+(advice-add 'lisp--match-hidden-arg :around (lambda (fun limit) nil))
 
 (defun my-help-hook ()
   (local-set-key [backspace] 'help-go-back)
@@ -698,8 +700,8 @@
             (list "float2" "float3" "float4" "vec2" "vec3" "vec4" "mat2" "mat3" "mat4"
                   "dmat2" "dmat3" "dmat4"
                   "double2" "double3" "double4" "f2" "f3" "f4" "d2" "d3" "d4" "i2" "i3" "i4"
-                  "uchar" "ushort" "uint" "uint64" "trit" "lstring" "int2" "int3" "int4"
-                  "id") 'symbols) . font-lock-type-face)
+                  "uchar" "ushort" "uint" "uint64" "trit" "lstring" "int2" "int3" "int4")
+            'symbols) . font-lock-type-face)
          (,(regexp-opt
             (list "nil" "YES" "NO" "epsilon") 'symbols). font-lock-constant-face)
          ;("~" (0 font-lock-negation-char-face prepend))
