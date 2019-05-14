@@ -133,6 +133,7 @@
 ;; window system
 (when window-system
   (add-to-list 'kill-emacs-query-functions 'my-really-kill-emacs)
+  (setq-default color-theme-obsolete nil)
   (ignore-errors
     (when (and (require 'color-theme nil t)
                (require 'arthur-theme))
@@ -370,7 +371,11 @@
     ;; (replace-buffer-in-windows buffer)
     ))
 (add-hook 'compilation-finish-functions 'my-compilation-finish-function)
-(setq compilation-error-regexp-alist '(ada aix bash python-tracebacks-and-caml comma msft gcc-include gnu))
+;; this regexp is for the new error message format in visual studio 2019 that includes the column number
+(add-to-list 'compilation-error-regexp-alist-alist
+             '(arthur "^\\([^ \n]+\\)(\\([0-9]+\\),\\([0-9]+\\)): \\(?:error\\|warnin\\(g\\)\\|messa\\(g\\)e\\)"
+                      1 2 3 (4 . 5)))
+(setq compilation-error-regexp-alist '(arthur ada aix bash python-tracebacks-and-caml comma msft gcc-include gnu))
 
 ;; this controls default file pattern for rgrep
 (setq grep-files-aliases

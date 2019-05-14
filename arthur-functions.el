@@ -413,28 +413,55 @@ unless BEGIN is greather than END, in which case it defaults to
           (backward-prefix-chars)
         (skip-syntax-backward ".")))))
 
+(defun align--cpp-helper ()
+  ;; (message "{%s}{%s}{%s}" (match-string 1) (match-string 2) (match-string 3))
+  (not (or (save-excursion
+             (goto-char (match-beginning 1))
+             (backward-word 1)
+             (looking-at
+              "\\(goto\\|return\\|new\\|delete\\|throw\\)"))
+           (if (and (boundp 'font-lock-mode) font-lock-mode)
+               (eq (get-text-property (point) 'face)
+                   'font-lock-comment-face)
+             (eq (caar (c-guess-basic-syntax)) 'c)))))
 
 (defvar my-align-rules-list 
-  `((c-case-statement
-     (regexp   . "\\(case ['\\ a-zA-Z0-9_]*\\|default\\):\\(\\s-*\\)[^;]*;")
-     (group    . 2)
-     (modes    . align-c++-modes)
-     (tab-stop . nil))
-    (c-else-if-block
-     ;; indent a block of if, else if statemenst where the body is on the same line
-     (regexp   . "if ([^;{}]*)\\(\\s-*\\){? *[^;{]")
-     (modes    . align-c++-modes)
-     (tab-stop . nil))
-    (c-ternary-chain
-     ;; chain of ? : expressions
-     (regexp   . "[^; ]\\(\\s-*\\)[?][^;\n{}]\+:$")
-     (modes    . align-c++-modes)
-     (tab-stop . nil))
-    (c-metamacro
-     ;; Macro data definition
-     (regexp   . "F([^,]*,\\(\\s-*\\).*\\\\$")
-     (modes    . align-c++-modes)
-     (tab-stop . nil))))
+  (append
+   `((c-case-statement
+      (regexp   . "\\(case ['\\ a-zA-Z0-9_]*\\|default\\):\\(\\s-*\\)[^;]*;")
+      (group    . 2)
+      (modes    . align-c++-modes)
+      (tab-stop . nil))
+     (c-else-if-block
+      ;; indent a block of if, else if statemenst where the body is on the same line
+      (regexp   . "if ([^;{}]*)\\(\\s-*\\){? *[^;{]")
+      (modes    . align-c++-modes)
+      (tab-stop . nil))
+     (c-ternary-chain
+      ;; chain of ? : expressions
+      (regexp   . "[^; ]\\(\\s-*\\)[?][^;\n{}]\+:$")
+      (modes    . align-c++-modes)
+      (tab-stop . nil))
+     (c-metamacro
+      ;; Macro data definition
+      (regexp   . "F([^,]*,\\(\\s-*\\).*\\\\$")
+      (modes    . align-c++-modes)
+      (tab-stop . nil))
+     ;; type name = foo
+     ;; modified from c-variable-declaration to support function<float()> and vector<vector<int>> 
+     (cpp-variable-declaration
+      (regexp   . ,(concat "[*&0-9A-Za-z_()>]>?[&*]*\\(\\s-+[*&]*\\)"
+                           "[A-Za-z_][0-9A-Za-z:_]*\\s-*\\(\\()\\|"
+                           "=[^=\n].*\\|(.*)\\|\\(\\[.*\\]\\)*\\)?"
+                           "\\s-*[;,]\\|)\\s-*$\\)"))
+      (group    . 1)
+      (modes    . align-c++-modes)
+      (justify  . t)
+      (valid    . align--cpp-helper))
+     )
+   align-rules-list
+   ;; (assoc-delete-all 'c-variable-declaration  align-rules-list)
+   ))
 
 ;; alignment
 (defun align-dwim ()
@@ -445,7 +472,7 @@ unless BEGIN is greather than END, in which case it defaults to
       (let ((align-region-separate 'entire))
         (align (region-beginning) (region-end) nil my-align-rules-list))
     (let ((align-region-separate 'group))
-      (align-current))))
+      (align-current my-align-rules-list))))
 
 
 (defun rgrep-defaults ()
