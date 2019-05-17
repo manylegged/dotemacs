@@ -81,7 +81,7 @@
 
   (unless (require 'auto-complete nil t)
     (package-refresh-contents)
-    (dolist (el '(auto-complete color-theme lua-mode parenface hexrgb ag))
+    (dolist (el '(auto-complete color-theme lua-mode parenface hexrgb ag unicode-fonts))
       (package-install el))))
 
 (when (require 'auto-complete nil t)
@@ -132,6 +132,7 @@
 
 ;; window system
 (when window-system
+  (unicode-fonts-setup)
   (add-to-list 'kill-emacs-query-functions 'my-really-kill-emacs)
   (setq-default color-theme-obsolete nil)
   (ignore-errors
