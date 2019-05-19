@@ -39,7 +39,8 @@
   (setq myfont "Consolas-11"))
  ((eq system-type 'darwin)
   ;; (setq myfont "Dejavu Sans Mono-9")
-  (set-frame-font (setq myfont "SF Mono-12"))
+  (or (ignore-errors (set-frame-font (setq myfont "SF Mono-12")))
+      (ignore-errors (set-frame-font (setq myfont "Menlo-12"))))
   ;; macports directory
   (add-to-list 'exec-path "/opt/local/bin")
   (setenv "PATH" (concat (getenv "PATH") ":" "/opt/local/bin"))
