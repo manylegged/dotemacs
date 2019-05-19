@@ -413,6 +413,17 @@ unless BEGIN is greather than END, in which case it defaults to
           (backward-prefix-chars)
         (skip-syntax-backward ".")))))
 
+(defun align--cpp-helper ()
+  (message "{%s}{%s}{%s}" (match-string 1) (match-string 2) (match-string 3))
+  (not (or (save-excursion
+             (goto-char (match-beginning 1))
+             (backward-word 1)
+             (looking-at
+              "\\(goto\\|return\\|new\\|delete\\|throw\\)"))
+           (if (and (boundp 'font-lock-mode) font-lock-mode)
+               (eq (get-text-property (point) 'face)
+                   'font-lock-comment-face)
+             (eq (caar (c-guess-basic-syntax)) 'c)))))
 
 (defvar my-align-rules-list 
   `((c-case-statement
@@ -434,18 +445,37 @@ unless BEGIN is greather than END, in which case it defaults to
      ;; Macro data definition
      (regexp   . "F([^,]*,\\(\\s-*\\).*\\\\$")
      (modes    . align-c++-modes)
-     (tab-stop . nil))))
+     (tab-stop . nil))
+    ;; type name = foo
+    ;; modified from c-variable-declaration to support function<float()> and vector<vector<int>> 
+    (cpp-variable-declaration
+     (regexp   . ,(concat "[*&0-9A-Za-z_)>]>?[&*]*\\(\\s-+[*&]*\\)"
+			  "[A-Za-z_][0-9A-Za-z:_]*\\s-*\\(\\()\\|"
+			  "=[^=\n].*\\|(.*)\\|\\(\\[.*\\]\\)*\\)?"
+			  "\\s-*[;,]\\|)\\s-*$\\)"))
+     (group    . 1)
+     (modes    . align-c++-modes)
+     (justify  . t)
+     (valid    . align--cpp-helper))
+    )
+   ;; align-rules-list
+   ;; (assoc-delete-all 'c-variable-declaration  align-rules-list)
+   )
 
 ;; alignment
 (defun align-dwim ()
   "Align region, or current block if region is not active"
   (interactive)
   (require 'align)
-  (if (use-region-p)
-      (let ((align-region-separate 'entire))
-        (align (region-beginning) (region-end) nil my-align-rules-list))
-    (let ((align-region-separate 'group))
-      (align-current))))
+  (let ((rules (append my-align-rules-list
+                       (assoc-delete-all 'c-variable-declaration align-rules-list)
+                       ;; nil ;; align-rules-list
+                       )))
+    (if (use-region-p)
+	(let ((align-region-separate 'entire))
+	  (align (region-beginning) (region-end) nil rules))
+      (let ((align-region-separate 'group))
+	(align-current rules)))))
 
 
 (defun rgrep-defaults ()
@@ -613,6 +643,7 @@ With argument ARG, do this that many times."
   "Do the same as `backward-delete-word' but on subwords.
 See the command `subword-mode' for a description of subwords."
   (interactive "p")
+  (require 'subword)
   (delete-region (point) (subword-forward (- arg))))
 
 ;; updated for osx-sierra

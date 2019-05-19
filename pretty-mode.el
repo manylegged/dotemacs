@@ -19,6 +19,10 @@
 
 (require 'cl)
 
+(when (not (functionp 'font-lock-flush))
+	(defun font-lock-flush () (font-lock-fontify-buffer)))
+
+
 (defsubst pretty-is-sym (chr)
   (setq chr (char-syntax chr))
   (or (eq chr ?_) (eq chr ?w)))
@@ -49,6 +53,7 @@
   nil)
 
 (defvar pretty-current-keywords nil)
+(defvar pretty-composition-rules nil)
   
 (defvar pretty-interaction-mode-alist
   '((inferior-scheme-mode . scheme-mode)

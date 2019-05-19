@@ -86,7 +86,7 @@ If BODY calls prompting functions, pick the default automatically"
   "Save the etags mark ring, last tag, etc so that etags
 functions run as part of BODY will not change globals state"
   `(let ((tags-location-ring (make-ring 1))
-         (find-tag-marker-ring (make-ring 1))
+         (xref--marker-ring (make-ring 1))
          (mark-ring (make-ring 1))
          last-tag find-tag-history)
      ,@body))
@@ -336,7 +336,7 @@ definition found using `hap-imenu-at-point-other-file'"
 
 (defun hap-semantic-jump ()
   (interactive)
-  (ring-insert find-tag-marker-ring (point-marker))
+  (ring-insert xref--marker-ring (point-marker))
   (with-no-warnings
     (semantic-ia-fast-jump (point))))
 
@@ -417,7 +417,7 @@ You can customize the way this works by changing
 `hippie-goto-try-functions-list'."
   (interactive)
   (push-mark nil t)
-  (ring-insert find-tag-marker-ring (point-marker))
+  (ring-insert xref--marker-ring (point-marker))
   (when (or (hap-do-current-entry 'switch-to-buffer)
             (hap-do-it hippie-goto-try-functions-list nil))
     (run-hooks 'xref-after-jump-hook)))
@@ -430,7 +430,7 @@ You can customize the way this works by changing
 `hippie-goto-try-functions-list'."
   (interactive "P")
   (push-mark nil t)
-  (ring-insert find-tag-marker-ring (point-marker))
+  (ring-insert xref--marker-ring (point-marker))
   (or (hap-do-current-entry 'hap-pop-to-buffer)
       (let (buf point)
         (save-window-excursion
@@ -467,7 +467,7 @@ If TERMINATOR is non-nil and string is shortened,  append to the shortened strin
         (concat (substring str 0 (1- chr)) terminator)
       str)))
 
-(defun hap-find-prototype (&optional elt &optional buffer &optional pos)
+(defun hap-find-prototype (&optional elt buffer pos)
   "Grab and return the function prototype and any accompanying
 comments or relevant context around point. Prototype is returned
 as (MARKER CONTEXT COMMENT PROTOTYPE UNIQUE METHOD)

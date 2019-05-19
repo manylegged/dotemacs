@@ -53,6 +53,8 @@
   (with-no-warnings
     (setq mac-option-modifier 'meta)
     (setq mac-command-modifier 'super))
+  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+  (add-to-list 'default-frame-alist '(ns-appearance . dark))
   ;; (unless (frame-parameter nil 'fullscreen)
   ;;   (set-frame-parameter nil 'fullscreen 'maximized))
   )
@@ -80,7 +82,7 @@
 
   (unless (require 'auto-complete nil t)
     (package-refresh-contents)
-    (dolist (el '(auto-complete color-theme lua-mode parenface hexrgb))
+    (dolist (el '(auto-complete color-theme lua-mode parenface hexrgb ag unicode-fonts))
       (package-install el))))
 
 (when (require 'auto-complete nil t)
@@ -121,7 +123,7 @@
 ;; allow c:/ paths on cygwin (load AFTER package-init)
 (when (eq system-type 'cygwin)
   (require 'windows-path)
-  (windows-path-activate))
+  (with-no-warnings (windows-path-activate)))
 
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
@@ -131,7 +133,9 @@
 
 ;; window system
 (when window-system
+  (unicode-fonts-setup)
   (add-to-list 'kill-emacs-query-functions 'my-really-kill-emacs)
+  (setq-default color-theme-obsolete nil)
   (ignore-errors
     (when (and (require 'color-theme nil t)
                (require 'arthur-theme))
@@ -179,6 +183,7 @@
 
  indent-tabs-mode nil                    ; no tabs!
  vc-follow-symlinks t
+ vc-hg-diff-switches "-w"
  default-indicate-buffer-boundaries 'left
  default-indicate-empty-lines t  ; indicate end of file in fringe
  iswitchb-prompt-newbuffer nil   ; don't prompt to create a new buffer
@@ -200,6 +205,7 @@
  print-length nil ; setting this lower breaks savehist!!
  tags-case-fold-search t
  tags-revert-without-query t
+ tags-add-tables t                      ; stop asking me to add tags tables repeatedly
  use-dialog-box nil                       ; no gui
  compilation-read-command t
  ;; compilation-scroll-output 'first-error
@@ -209,7 +215,7 @@
  find-file-visit-truename nil           ; don't dereference symlinks
  disabled-command-function nil          ; enable all commands
  history-delete-duplicates t
- history-length 10000
+ history-length 500
  max-specpdl-size 10000
  max-lisp-eval-depth 10000
  backup-directory-alist '(("." . "~/.emacs-backups"))
@@ -257,6 +263,8 @@
 (auto-compression-mode 1)
 (savehist-mode 1)
 (global-pretty-mode 1)
+(when (functionp 'global-display-line-numbers-mode)
+  (global-display-line-numbers-mode 1))
 
 ;; (server-start)
 ;; (setq server-window 'pop-to-buffer)
@@ -291,9 +299,15 @@
 (global-set-key (kbd "s-x") 'kill-region)
 (global-set-key (kbd "s-v") 'yank)
 (global-set-key (kbd "s-z") 'undo)
-(global-set-key (kbd "C-S-f") 'rgrep-defaults)
+(global-set-key (kbd "C-S-f") 'ag-project)
+(setq-default ag-highlight-search t
+              ag-reuse-buffers t)
 (define-key isearch-mode-map (kbd "M-w") 'isearch-toggle-word)
 (define-key isearch-mode-map (kbd "C-M-w") 'isearch-yank-symbol)
+
+;; unset scroll-left/right. I always hit these by mistake when trying to do C-c < in python mode
+(global-unset-key (kbd "C-x <"))
+(global-unset-key (kbd "C-x >"))
 
 (defun my-minibuffer-setup-hook ()
   (local-set-key (kbd "C-w") 'my-minibuffer-insert-word-at-point)
@@ -359,7 +373,11 @@
     ;; (replace-buffer-in-windows buffer)
     ))
 (add-hook 'compilation-finish-functions 'my-compilation-finish-function)
-(setq compilation-error-regexp-alist '(ada aix bash python-tracebacks-and-caml comma msft gcc-include gnu))
+;; this regexp is for the new error message format in visual studio 2019 that includes the column number
+(add-to-list 'compilation-error-regexp-alist-alist
+             '(arthur "^\\([^ \n]+\\)(\\([0-9]+\\),\\([0-9]+\\)): \\(?:error\\|warnin\\(g\\)\\|messa\\(g\\)e\\)"
+                      1 2 3 (4 . 5)))
+(setq compilation-error-regexp-alist '(arthur ada aix bash python-tracebacks-and-caml comma msft gcc-include gnu))
 
 ;; this controls default file pattern for rgrep
 (setq grep-files-aliases
@@ -457,15 +475,17 @@
 
 (defun dont-munge-buffer-order-damnit ()
   (eval-when-compile
+    (defvar ido-temp-list)
+    (defvar ido-default-item)
+    (defvar ido-default-item)
     (defvar ido-temp-list))
   (let ((curname (buffer-name (current-buffer))))
     (setq ido-temp-list
           (sort (mapcar 'buffer-name (buffer-list (selected-frame)))
                 (lambda (a b) (or (equal b curname) (string-match "^ " b)))))
-    (with-no-warnings
-      (if default
-          (setq ido-temp-list
-                (cons default (delete default ido-temp-list)))))))
+    (if ido-default-item
+        (setq ido-temp-list
+              (cons ido-default-item (delete ido-default-item ido-temp-list))))))
 (add-hook 'ido-make-buffer-list-hook 'dont-munge-buffer-order-damnit)
 
 (defun other-window-prev ()
@@ -511,6 +531,8 @@
   (local-set-key (kbd "C-j") 'newline))
 (add-hook 'emacs-lisp-mode-hook 'my-elisp-hook)
 
+;; avoid random judgy "warning" face
+(advice-add 'lisp--match-hidden-arg :around (lambda (fun limit) nil))
 
 (defun my-help-hook ()
   (local-set-key [backspace] 'help-go-back)
@@ -619,9 +641,11 @@
 (setq cc-other-file-alist
       '(("\\.c\\'" (".h"))
         ("\\.m\\'" (".h"))
-        ("\\.h\\'" (".c" ".cpp" ".m"))
+        ("\\.h\\'" (".c" ".cpp" ".m" ".cc"))
         ("\\.cpp\\'" (".hpp"".h"))
-        ("\\.hpp\\'" (".cpp"))))
+        ("\\.cc\\'" (".hh"".h"))
+        ("\\.hpp\\'" (".cpp" ".inl"))
+        ("\\.inl\\'" (".hpp"))))
 (defun my-c-common-hook ()
   (c-set-style "stroustrup")
   (c-set-offset 'statement-cont '(c-lineup-assignments +))
@@ -662,6 +686,8 @@
 (add-hook 'c-mode-common-hook 'my-c-common-hook)
 
 (defun my-c++-hook ()
+  (setq jit-lock-stealth-time 0.5)
+  
   (font-lock-add-keywords
    nil `(
          (,(regexp-opt
@@ -681,8 +707,8 @@
             (list "float2" "float3" "float4" "vec2" "vec3" "vec4" "mat2" "mat3" "mat4"
                   "dmat2" "dmat3" "dmat4"
                   "double2" "double3" "double4" "f2" "f3" "f4" "d2" "d3" "d4" "i2" "i3" "i4"
-                  "uchar" "ushort" "uint" "uint64" "trit" "lstring" "int2" "int3" "int4"
-                  "id") 'symbols) . font-lock-type-face)
+                  "uchar" "ushort" "uint" "uint64" "trit" "lstring" "int2" "int3" "int4")
+            'symbols) . font-lock-type-face)
          (,(regexp-opt
             (list "nil" "YES" "NO" "epsilon") 'symbols). font-lock-constant-face)
          ;("~" (0 font-lock-negation-char-face prepend))
@@ -754,3 +780,6 @@
   (interactive "nTransparency Value 0 - 100 opaque:")
   (set-frame-parameter (selected-frame) 'alpha value))
 
+
+;; (setq twittering-icon-mode t
+      ;; twittering-convert-fix-size 100)
