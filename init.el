@@ -84,34 +84,19 @@
     (dolist (el '(auto-complete color-theme lua-mode parenface hexrgb ag unicode-fonts))
       (package-install el))))
 
-(when (require 'auto-complete nil t)
-  (add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
-  (require 'auto-complete-config)
+;; (when (require 'auto-complete nil t)
+;;   (add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
+;;   (require 'auto-complete-config)
 
-  (defvar c++-ebrowse-source-table nil "Cached ebrowsed completion table")
-  ;; (ac-define-source c++-ebrowse
-  ;; 		    '((candidates
-  ;; 		       . (lambda ()
-  ;; 			   (unless c++-ebrowse-source-table
-  ;; 			     (setq c++-ebrowse-source-table (ebrowse-some-member-table)))
-  ;; 			   (all-completions ac-prefix c++-ebrowse-source-table)))
-  ;; 		      (requires . 0)
-  ;; 		      (symbol . "c++")))
+;;   (defvar c++-ebrowse-source-table nil "Cached ebrowsed completion table")
 
-  ;; (ac-define-source words-in-buffer
-  ;; 		    '((init . ac-update-word-index)
-  ;; 		      (candidates . (ac-word-candidates
-  ;; 				     (lambda (buffer)
-  ;; 				       (eq buffer (current-buffer)))))))
-
-  (setq-default ac-sources '(ac-source-imenu
-  			     ac-source-abbrev
-  			     ;;ac-source-words-in-buffer
-  			     ac-source-words-in-same-mode-buffers
-  			     ))
-  ;;(ac-set-trigger-key (kbd "TAB"))
-  (ac-set-trigger-key nil)
-  (global-auto-complete-mode t))
+;;   (setq-default ac-sources '(ac-source-imenu
+;;   			     ac-source-abbrev
+;;   			     ;;ac-source-words-in-buffer
+;;   			     ac-source-words-in-same-mode-buffers
+;;   			     ))
+;;   (ac-set-trigger-key nil)
+;;   (global-auto-complete-mode t))
 
 (global-auto-revert-mode 1)
 (add-to-list 'global-auto-revert-ignore-modes 'ebrowse-tree-mode)
@@ -529,6 +514,9 @@
   (local-set-key (kbd "C-M-j") 'eval-print-last-sexp)
   (local-set-key (kbd "C-j") 'newline))
 (add-hook 'emacs-lisp-mode-hook 'my-elisp-hook)
+
+;; indent :plists properly
+(setq-default lisp-indent-function 'common-lisp-indent-function)
 
 ;; avoid random judgy "warning" face
 (advice-add 'lisp--match-hidden-arg :around (lambda (fun limit) nil))
