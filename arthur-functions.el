@@ -432,9 +432,10 @@ unless BEGIN is greather than END, in which case it defaults to
      (modes    . align-c++-modes)
      (tab-stop . nil))
     (c-else-if-block
-     ;; indent a block of if, else if statemenst where the body is on the same line
-     (regexp   . "if ([^;{}]*)\\(\\s-*\\){? *[^;{]")
+     ;; if{}/else{} or a bunch of inline functions
+     (regexp   . "\\(const\\)?\\(\\s-*\\){[^;{]")
      (modes    . align-c++-modes)
+     (group    . 2)
      (tab-stop . nil))
     (c-ternary-chain
      ;; chain of ? : expressions

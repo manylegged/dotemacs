@@ -12,9 +12,10 @@
 (defun anisoptera-reload-hook ()
   (when anisoptera-function
     (funcall anisoptera-function)))
- 
-(add-hook 'desktop-after-read-hook 'anisoptera-reload-hook)
-(add-to-list 'desktop-globals-to-save 'anisoptera-function)
+
+(with-eval-after-load "desktop"
+  (add-hook 'desktop-after-read-hook 'anisoptera-reload-hook)
+  (add-to-list 'desktop-globals-to-save 'anisoptera-function))
 
 (defun anisoptera-compilation-finish (buffer status)
   (when (and (equal status "finished\n")

@@ -4,7 +4,7 @@
 
 (defvar arthur-dark
   '(color-theme-arthur-dark
-    ((background-color . "black")
+    ((background-color . "#1a1818")
      (foreground-color . "#a0a0a0")
      (background-mode . dark)
      (mouse-color . "white")
@@ -379,9 +379,10 @@
            arthur-theme-hue arthur-theme-saturation arthur-theme-value arthur-theme-invert arthur-theme-invert-hue)
   (arthur-theme))
 
-(add-to-list 'desktop-globals-to-save 'arthur-theme-hue)
-(add-to-list 'desktop-globals-to-save 'arthur-theme-invert-hue)
-(add-hook 'desktop-after-read-hook 'arthur-theme)
+(with-eval-after-load "desktop"
+  (add-to-list 'desktop-globals-to-save 'arthur-theme-hue)
+  (add-to-list 'desktop-globals-to-save 'arthur-theme-invert-hue)
+  (add-hook 'desktop-after-read-hook 'arthur-theme))
   
 (global-set-key (kbd "<f7>") (lambda () (interactive) (setq arthur-theme-invert-hue (not arthur-theme-invert-hue)) (arthur-theme-incr 'arthur-theme-hue 0.0)))
 (global-set-key (kbd "<f3>") (lambda () (interactive) (setq arthur-theme-invert (not arthur-theme-invert)) (arthur-theme-incr 'arthur-theme-hue 0.0)))
