@@ -431,10 +431,10 @@
          ((<= 0 arg) nil)))
   (message "Partial width windows: %s" (if truncate-partial-width-windows "Enabled" "Disabled")))
 
-(defun my-disable-partial-truncate ()
-  (toggle-partial-truncate -1))
+(defun my-enable-partial-truncate ()
+  (toggle-partial-truncate 1))
 
-(add-hooks '(compilation-mode-hook nxml-mode-hook) 'my-disable-partial-truncate)
+(add-hook 'compilation-mode-hook 'my-enable-partial-truncate)
 (add-hook 'markdown-mode-hook 'visual-line-mode)
 
 (defun my-temp-buffer-hook ()
@@ -704,7 +704,7 @@
          (;"\\(\\(\\_<\\|[.]\\)[0-9]+\\([eE][+-]?[0-9.]+\\)?\\)\\([.]?[lfLFuU]?\\)\\_>"
           "\\(\\([.]+\\|\\_<\\)[0-9]+\\([eE][+-]?[0-9.]+\\)?\\)\\([.]?[lfLFuU]?\\)\\_>"
           (1 font-lock-constant-face) (4 font-lock-comment-face)) ; dec floats and ints
-         ("\\_<\\([A-Z_][A-Z_0-9][A-Z_0-9]+\\)\\(f?\\)\\_>[^(]"
+         ("\\_<\\([A-Z_][A-Z_0-9][A-Z_0-9]*\\)\\(f?\\)\\_>[^(]"
           (1 font-lock-constant-face) (2 font-lock-comment-face)) ; preprocessor constants
          ("\\_<_[A-Za-z_][a-zA-Z_0-9]*\\_>" . font-lock-constant-face) ; preprocessor constants beginning with underscore
          ))
