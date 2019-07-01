@@ -78,11 +78,9 @@
   (package-initialize)
   (add-to-list 'package-archives
 	       '("melpa" . "http://melpa.org/packages/") t)
-
-  (unless (require 'auto-complete nil t)
-    (package-refresh-contents)
-    (dolist (el '(auto-complete color-theme lua-mode parenface hexrgb ag unicode-fonts))
-      (package-install el))))
+  ;; (package-refresh-contents)
+  (dolist (el '(auto-complete color-theme lua-mode ag unicode-fonts))
+    (package-install el)))
 
 ;; (when (require 'auto-complete nil t)
 ;;   (add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
@@ -358,10 +356,12 @@
     ))
 (add-hook 'compilation-finish-functions 'my-compilation-finish-function)
 ;; this regexp is for the new error message format in visual studio 2019 that includes the column number
-(add-to-list 'compilation-error-regexp-alist-alist
-             '(arthur "^\\([^ \n]+\\)(\\([0-9]+\\),\\([0-9]+\\)): \\(?:error\\|warnin\\(g\\)\\|messa\\(g\\)e\\)"
-                      1 2 3 (4 . 5)))
-(setq compilation-error-regexp-alist '(arthur ada aix bash python-tracebacks-and-caml comma msft gcc-include gnu))
+(with-eval-after-load "compile"
+  (add-to-list 'compilation-error-regexp-alist-alist
+               '(arthur "^\\([^ \n]+\\)(\\([0-9]+\\),\\([0-9]+\\)): \\(?:error\\|warnin\\(g\\)\\|messa\\(g\\)e\\)"
+                        1 2 3 (4 . 5)))
+  (setq compilation-error-regexp-alist '(arthur ada aix bash python-tracebacks-and-caml 
+                                                comma msft gcc-include gnu)))
 
 ;; this controls default file pattern for rgrep
 (setq grep-files-aliases
