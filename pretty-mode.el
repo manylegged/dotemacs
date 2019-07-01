@@ -113,8 +113,9 @@ displayed as λ in lisp modes."
     (when pretty-mode
       (set (make-local-variable 'pretty-current-keywords) (pretty-keywords))
       (font-lock-add-keywords nil pretty-current-keywords t)
-      (font-lock-flush)
-      ;; (font-lock-fontify-buffer)
+      (if (functionp 'font-lock-flush)
+	  (font-lock-flush)
+	(font-lock-fontify-buffer))
       )
     (restore-buffer-modified-p mod)))
 

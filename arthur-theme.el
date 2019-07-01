@@ -380,6 +380,7 @@
   (arthur-theme))
 
 (with-eval-after-load "desktop"
+  (add-to-list 'desktop-globals-to-save 'arthur-current-theme)
   (add-to-list 'desktop-globals-to-save 'arthur-theme-hue)
   (add-to-list 'desktop-globals-to-save 'arthur-theme-invert-hue)
   (add-hook 'desktop-after-read-hook 'arthur-theme))
