@@ -132,15 +132,21 @@ functions run as part of BODY will not change globals state"
         (let ((woman-use-topic-at-point t))
           (with-no-warnings (woman-file-name nil))))))
 
-(defun hap-find-buffer (name)
-  (or (get-file-buffer name)
-      (and (functionp 'cygwin-convert-file-name-from-windows)
-           (get-file-buffer (cygwin-convert-file-name-from-windows name)))))
 ;; find-buffer-visiting is really slow
-  ;; (or (find-buffer-visiting name)
-      ;; (and (functionp 'cygwin-convert-file-name-from-windows)
-      ;;      (find-buffer-visiting (cygwin-convert-file-name-from-windows name)))
-      ;; ))
+;; we skip the file-attribute stuff
+(defun hap-find-buffer (filename)
+  (when (functionp 'cygwin-convert-file-name-from-windows)
+    (setq filename (cygwin-convert-file-name-from-windows filename)))
+  (let ((truename (abbreviate-file-name (file-truename filename))))
+    (or (get-file-buffer filename)
+        (let ((list (buffer-list)) found)
+          (while (and (not found) list)
+            (with-current-buffer (car list)
+              (if (and buffer-file-name
+                       (string= buffer-file-truename truename))
+                  (setq found (car list))))
+            (setq list (cdr list)))
+          found))))
 
 (defun hap-truename (name)
   (when (and (functionp 'cygwin-convert-file-name-from-windows)

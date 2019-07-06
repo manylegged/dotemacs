@@ -434,14 +434,14 @@
   (setq truncate-partial-width-windows
         (cond
          ((not arg) (not truncate-partial-width-windows))
-         ((> 0 arg) t)
-         ((<= 0 arg) nil)))
+         ((> arg 0) t)
+         ((<= arg 0) nil)))
   (message "Partial width windows: %s" (if truncate-partial-width-windows "Enabled" "Disabled")))
 
-(defun my-enable-partial-truncate ()
-  (toggle-partial-truncate 1))
+(defun my-set-partial-truncate ()
+  (toggle-partial-truncate -1))
 
-(add-hook 'compilation-mode-hook 'my-enable-partial-truncate)
+(add-hook 'compilation-mode-hook 'my-set-partial-truncate)
 (add-hook 'markdown-mode-hook 'visual-line-mode)
 
 (defun my-temp-buffer-hook ()
