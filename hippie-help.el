@@ -8,6 +8,7 @@
 ;; May   2008 - ebrowse support, fix man support, cleanups
 ;; July  2013 - hippie-eldoc mode
 ;; June  2014 - hippie-eldoc-view, cycle through multiple definitions in eldoc
+;; July  2019 - improve performance
 ;; 
 ;;; Commentary:
 ;; 
@@ -132,9 +133,14 @@ functions run as part of BODY will not change globals state"
           (with-no-warnings (woman-file-name nil))))))
 
 (defun hap-find-buffer (name)
-  (or (find-buffer-visiting name)
+  (or (get-file-buffer name)
       (and (functionp 'cygwin-convert-file-name-from-windows)
-           (find-buffer-visiting (cygwin-convert-file-name-from-windows name)))))
+           (get-file-buffer (cygwin-convert-file-name-from-windows name)))))
+;; find-buffer-visiting is really slow
+  ;; (or (find-buffer-visiting name)
+      ;; (and (functionp 'cygwin-convert-file-name-from-windows)
+      ;;      (find-buffer-visiting (cygwin-convert-file-name-from-windows name)))
+      ;; ))
 
 (defun hap-truename (name)
   (when (and (functionp 'cygwin-convert-file-name-from-windows)
@@ -687,8 +693,10 @@ the default and don't actually prompt user"
 
 (defun hap-dup-key (x)
   (substring-no-properties
-   (concat (hap-collapse-spaces (hap-pretty-marker x))
+   (concat (hap-pretty-marker x)
            (hap-collapse-spaces (car (nth 4 x))))))
+
+(defvar hap-curline)
 
 (defun hap-sort-key (entry)
   (let ((file (hap-marker-filename (car entry)))
@@ -696,7 +704,7 @@ the default and don't actually prompt user"
     (+
      ;; current match last, current file forward
      (if (eq (current-buffer) buffer)
-         (if (< (abs (- (line-number-at-pos) (cdr (nth 4 entry)))) 4)
+         (if (< (abs (- hap-curline (cdr (nth 4 entry)))) 4)
              5 -1)
        0)
      ;; push definitions forward
@@ -704,12 +712,18 @@ the default and don't actually prompt user"
      ;; push loaded files forward
      (if buffer -2 0))))
 
+(defun hap-compare (a b)
+  (< (hap-sort-key a) (hap-sort-key b)))
+
 (defun hap-sort-filter-entries (entries &optional finalp)
   (when (or finalp (< (length entries) 4))
     (setq entries (mapcar 'hap-update-entry entries)))
   (with-no-warnings
-    (sort (delete-duplicates entries :key 'hap-dup-key :test 'hap-substr-equal)
-          (lambda (a b) (< (hap-sort-key a) (hap-sort-key b))))))
+    (let ((hap-curline (line-number-at-pos)))
+      (mapcar 'cdr (sort (mapcar (lambda (x) (cons (hap-sort-key x) x))
+                                 (delete-duplicates entries :key 'hap-dup-key :test 'hap-substr-equal))
+                         (lambda (a b) (< (car a) (car b))))))))
+            ;; 'hap-compare))))
 
 (defun hippie-eldoc-function ()
   "`hippie-eldoc' function for `eldoc-documentation-function'.

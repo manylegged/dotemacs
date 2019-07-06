@@ -10,9 +10,16 @@
 ;; os
 (defvar ispell-program-name)
 (defvar vc-hg-program)
-(with-eval-after-load 'vc-hooks 
+(with-eval-after-load 'vc-hooks
+  ;; avoid hanging when opening files
   (remove-hook 'find-file-hook 'vc-find-file-hook)
-  (remove-hook 'find-file-hook 'vc-refresh-state))
+  (remove-hook 'find-file-hook 'vc-refresh-state) )
+  ;; avoid hanging when doing tramp stuff
+(with-eval-after-load 'tramp
+  (setq vc-ignore-dir-regexp
+      (format "\\(%s\\)\\|\\(%s\\)"
+              vc-ignore-dir-regexp
+              tramp-file-name-regexp)))
 (declare-function grep-apply-setting "grep")
 
 (cond
