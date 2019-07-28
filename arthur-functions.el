@@ -469,7 +469,7 @@ unless BEGIN is greather than END, in which case it defaults to
   (interactive)
   (require 'align)
   (let ((rules (append my-align-rules-list
-                       (assoc-delete-all 'c-variable-declaration align-rules-list)
+                       (assq-delete-all 'c-variable-declaration align-rules-list)
                        ;; nil ;; align-rules-list
                        )))
     (if (use-region-p)
