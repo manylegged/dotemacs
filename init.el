@@ -366,10 +366,16 @@
     ))
 (add-hook 'compilation-finish-functions 'my-compilation-finish-function)
 ;; this regexp is for the new error message format in visual studio 2019 that includes the column number
-(add-to-list 'compilation-error-regexp-alist-alist
-             '(arthur "^\\([^ \n]+\\)(\\([0-9]+\\),\\([0-9]+\\)): \\(?:error\\|warnin\\(g\\)\\|messa\\(g\\)e\\)"
-                      1 2 3 (4 . 5)))
-(setq compilation-error-regexp-alist '(arthur ada aix bash python-tracebacks-and-caml comma msft gcc-include gnu))
+(setq compilation-error-regexp-alist-alist
+      (cons '(arthur "^[ \t\n>0-9]*\\([^>\n]+\\)(\\([0-9]+\\)\\(,\\([0-9]+\\)\\)?): \\(?:error\\|warnin\\(g\\)\\|messa\\(g\\)e\\)"
+              1 2 4 (5 . 6))
+            (assoc-delete-all 'arthur compilation-error-regexp-alist-alist)))
+(setq compilation-error-regexp-alist-alist
+      (cons '(arthur-edg-2 "at line \\([0-9]+\\) of \"\\([^\"\n]+\\)\"$" 2 1 nil 0)
+            (assoc-delete-all 'arthur-edg-2 compilation-error-regexp-alist-alist)))
+
+
+(setq compilation-error-regexp-alist '(arthur ada aix bash python-tracebacks-and-caml comma msft arthur-edg-2 gcc-include gnu))
 
 ;; this controls default file pattern for rgrep
 (setq grep-files-aliases
@@ -436,7 +442,8 @@
          ((not arg) (not truncate-partial-width-windows))
          ((> arg 0) t)
          ((<= arg 0) nil)))
-  (message "Partial width windows: %s" (if truncate-partial-width-windows "Enabled" "Disabled")))
+  (unless arg
+    (message "Partial width windows: %s" (if truncate-partial-width-windows "Enabled" "Disabled"))))
 
 (defun my-set-partial-truncate ()
   (toggle-partial-truncate -1))
