@@ -368,10 +368,10 @@
   (setq compilation-error-regexp-alist-alist
         (cons '(arthur "^[ \t\n>0-9]*\\([^>\n]+\\)(\\([0-9]+\\)\\(,\\([0-9]+\\)\\)?): \\(?:error\\|warnin\\(g\\)\\|messa\\(g\\)e\\)"
                 1 2 4 (5 . 6))
-              (assoc-delete-all 'arthur compilation-error-regexp-alist-alist)))
+              (assq-delete-all 'arthur compilation-error-regexp-alist-alist)))
   (setq compilation-error-regexp-alist-alist
         (cons '(arthur-edg-2 "at line \\([0-9]+\\) of \"\\([^\"\n]+\\)\"$" 2 1 nil 0)
-              (assoc-delete-all 'arthur-edg-2 compilation-error-regexp-alist-alist)))
+              (assq-delete-all 'arthur-edg-2 compilation-error-regexp-alist-alist)))
   
   (setq compilation-error-regexp-alist '(arthur ada aix bash python-tracebacks-and-caml comma msft arthur-edg-2 gcc-include gnu)))
   
