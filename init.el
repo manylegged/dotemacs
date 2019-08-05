@@ -86,11 +86,9 @@
   (package-initialize)
   (add-to-list 'package-archives
 	       '("melpa" . "http://melpa.org/packages/") t)
-
-  (unless (require 'auto-complete nil t)
-    (package-refresh-contents)
-    (dolist (el '(auto-complete color-theme lua-mode parenface hexrgb ag unicode-fonts))
-      (package-install el))))
+  ;; (package-refresh-contents)
+  (dolist (el '(auto-complete color-theme lua-mode ag unicode-fonts))
+    (package-install el)))
 
 ;; (when (require 'auto-complete nil t)
 ;;   (add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
@@ -366,16 +364,17 @@
     ))
 (add-hook 'compilation-finish-functions 'my-compilation-finish-function)
 ;; this regexp is for the new error message format in visual studio 2019 that includes the column number
-(setq compilation-error-regexp-alist-alist
-      (cons '(arthur "^[ \t\n>0-9]*\\([^>\n]+\\)(\\([0-9]+\\)\\(,\\([0-9]+\\)\\)?): \\(?:error\\|warnin\\(g\\)\\|messa\\(g\\)e\\)"
-              1 2 4 (5 . 6))
-            (assoc-delete-all 'arthur compilation-error-regexp-alist-alist)))
-(setq compilation-error-regexp-alist-alist
-      (cons '(arthur-edg-2 "at line \\([0-9]+\\) of \"\\([^\"\n]+\\)\"$" 2 1 nil 0)
-            (assoc-delete-all 'arthur-edg-2 compilation-error-regexp-alist-alist)))
-
-
-(setq compilation-error-regexp-alist '(arthur ada aix bash python-tracebacks-and-caml comma msft arthur-edg-2 gcc-include gnu))
+(with-eval-after-load "compile"
+  (setq compilation-error-regexp-alist-alist
+        (cons '(arthur "^[ \t\n>0-9]*\\([^>\n]+\\)(\\([0-9]+\\)\\(,\\([0-9]+\\)\\)?): \\(?:error\\|warnin\\(g\\)\\|messa\\(g\\)e\\)"
+                1 2 4 (5 . 6))
+              (assoc-delete-all 'arthur compilation-error-regexp-alist-alist)))
+  (setq compilation-error-regexp-alist-alist
+        (cons '(arthur-edg-2 "at line \\([0-9]+\\) of \"\\([^\"\n]+\\)\"$" 2 1 nil 0)
+              (assoc-delete-all 'arthur-edg-2 compilation-error-regexp-alist-alist)))
+  
+  (setq compilation-error-regexp-alist '(arthur ada aix bash python-tracebacks-and-caml comma msft arthur-edg-2 gcc-include gnu)))
+  
 
 ;; this controls default file pattern for rgrep
 (setq grep-files-aliases
