@@ -80,35 +80,20 @@
 (require 'anisoptera)
 (require 'generic-x)
 
-(global-pretty-mode 1)
-
 (when (require 'package nil t)
   (package-initialize)
   (add-to-list 'package-archives
 	       '("melpa" . "http://melpa.org/packages/") t)
   ;; (package-refresh-contents)
-  (dolist (el '(auto-complete color-theme lua-mode ag unicode-fonts))
+  (dolist (el '(auto-complete color-theme lua-mode ag unicode-fonts
+                idle-highlight-in-visible-buffers-mode))
     (package-install el)))
 
-;; (when (require 'auto-complete nil t)
-;;   (add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
-;;   (require 'auto-complete-config)
-
-;;   (defvar c++-ebrowse-source-table nil "Cached ebrowsed completion table")
-
-;;   (setq-default ac-sources '(ac-source-imenu
-;;   			     ac-source-abbrev
-;;   			     ;;ac-source-words-in-buffer
-;;   			     ac-source-words-in-same-mode-buffers
-;;   			     ))
-;;   (ac-set-trigger-key nil)
-;;   (global-auto-complete-mode t))
-
+(idle-highlight-in-visible-buffers-mode t)
+(global-pretty-mode 1)
 (global-auto-revert-mode 1)
 (add-to-list 'global-auto-revert-ignore-modes 'ebrowse-tree-mode)
-;(add-to-list 'global-auto-revert-ignore-modes 'tags-table-mode)
-;(ac-config-default)
-;(yas-global-mode 1)
+
 
 ;; allow c:/ paths on cygwin (load AFTER package-init)
 (when (eq system-type 'cygwin)
@@ -219,6 +204,7 @@
  split-width-threshold 140
  split-height-threshold 100
  frame-resize-pixelwise t
+ idle-highlight-in-visible-buffers-idle-time 0.1
  )
 
 ;(add-to-list 'warning-suppress-types '(undo discard-info))q
@@ -683,6 +669,12 @@
   ;; (setq cpp-edit-list '(("0" font-lock-comment-face default both)
   ;;                       ("1" default font-lock-comment-face both)))
   ;; (cpp-highlight-buffer t)
+
+  (make-local-variable 'idle-highlight-in-visible-buffers-exceptions)
+  (setq idle-highlight-in-visible-buffers-exceptions
+        (append idle-highlight-in-visible-buffers-exceptions
+                (list "if" "else" "while" "for" "do" "struct" "public" "private" "virtual"
+                      "return" "inline" "const" "override")))
   )
 (add-hook 'c-mode-common-hook 'my-c-common-hook)
 
@@ -698,7 +690,7 @@
              "noexcept" "nullptr" "static_assert" "thread_local"
              "override" "final"
              ;; things xcode thinks are keywords (objective-c keywords)
-             "in" "out" "inout" "oneway" "export";; "self"
+             "in" "out" "inout" "export";; "self"
              "super"
              ;; things I use
              "foreach" "for_" "unless" ;; "lambda"
