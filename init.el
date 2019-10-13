@@ -205,6 +205,7 @@
  split-height-threshold 100
  frame-resize-pixelwise t
  idle-highlight-in-visible-buffers-idle-time 0.1
+ dabbrev-case-fold-search nil
  )
 
 ;(add-to-list 'warning-suppress-types '(undo discard-info))q
@@ -336,6 +337,14 @@
 (global-set-key (kbd "C-x c") 'clock)
 
 (add-hook 'eval-expression-minibuffer-setup-hook 'eldoc-mode)
+
+(with-eval-after-load "hippie-exp"
+  (defvar dabbrev-case-fold-search)
+  (defun my-he-dabbrev-search-wrapper (fun &rest args)
+    (let ((case-fold-search dabbrev-case-fold-search))
+      (apply fun args)))
+  (advice-add 'he-dabbrev-search :around 'my-he-dabbrev-search-wrapper)
+  )
 
 ;; compiling
 
@@ -674,7 +683,8 @@
   (setq idle-highlight-in-visible-buffers-exceptions
         (append idle-highlight-in-visible-buffers-exceptions
                 (list "if" "else" "while" "for" "do" "struct" "public" "private" "virtual"
-                      "return" "inline" "const" "override")))
+                      "return" "inline" "const" "override" "static"
+                      "switch" "case" "break" "continue" "void" "this")))
   )
 (add-hook 'c-mode-common-hook 'my-c-common-hook)
 
