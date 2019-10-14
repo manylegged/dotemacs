@@ -735,7 +735,7 @@ the default and don't actually prompt user"
   "`hippie-eldoc' function for `eldoc-documentation-function'.
 return a string representing the prototype for the function under point"
   (unless (or (not (eq eldoc-documentation-function 'hippie-eldoc-function))
-              ac-completing                 ; suppress while autocomplete is enabled
+              (and (boundp 'ac-completing) ac-completing) ; suppress while autocomplete is enabled
               (minibuffer-selected-window)) ; suppress while minibuffer is in use
     (when (or hap-debug-enabled
               (not hap-eldoc-current-prototypes)

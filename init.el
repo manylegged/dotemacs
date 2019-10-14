@@ -75,6 +75,10 @@
 (setq desktop-globals-to-save
       '(tags-file-name tags-table-list))
 
+(defun my-desktop-read-hook ()
+    (unicode-fonts-setup))
+(add-hook 'desktop-after-read-hook 'my-desktop-read-hook)
+
 (require 'arthur-functions)
 (require 'arthur-autoload)
 (require 'anisoptera)
@@ -123,7 +127,6 @@
 
 ;; window system
 (when window-system
-  (unicode-fonts-setup)
   (add-to-list 'kill-emacs-query-functions 'my-really-kill-emacs)
   (setq-default color-theme-obsolete nil)
   (ignore-errors
@@ -366,7 +369,7 @@
 ;; this regexp is for the new error message format in visual studio 2019 that includes the column number
 (with-eval-after-load "compile"
   (setq compilation-error-regexp-alist-alist
-        (cons '(arthur "^[ \t\n>0-9]*\\([^>\n]+\\)(\\([0-9]+\\)\\(,\\([0-9]+\\)\\)?): \\(?:error\\|warnin\\(g\\)\\|messa\\(g\\)e\\)"
+        (cons '(arthur "^[ \t\n>0-9]*\\([^>\n]+\\)(\\([0-9]+\\)\\(,\\([0-9]+\\)\\)?) ?: \\(?:error\\|warnin\\(g\\)\\|messa\\(g\\)e\\)"
                 1 2 4 (5 . 6))
               (assoc-delete-all 'arthur compilation-error-regexp-alist-alist)))
   (setq compilation-error-regexp-alist-alist
@@ -721,8 +724,6 @@
           (1 font-lock-constant-face) (2 font-lock-comment-face)) ; preprocessor constants
          ("\\_<_[A-Za-z_][a-zA-Z_0-9]*\\_>" . font-lock-constant-face) ; preprocessor constants beginning with underscore
          ))
-  (when (and (featurep 'semantic) semantic-mode)
-    (add-to-list 'ac-sources 'ac-source-semantic))
   (let ((path (get-closest-pathname "BROWSE")))
     (when path
       (find-file-noselect path t)))
