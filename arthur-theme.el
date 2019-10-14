@@ -55,7 +55,7 @@
                                         ;     (paren-face ((t (:foreground "DarkGoldenrod4"))))
     (paren-face ((t (:foreground "grey40"))))
     (region ((t (:foreground "black" :background "#bbff04"))))
-    (highlight ((t (:background "midnight blue"))))
+    (highlight ((t (:background "#665"))))
     (isearch ((t (:foreground "black" :background "#04bbff"))))
     (lazy-highlight ((t (:foreground "black" :background "#726f99"))))
     (secondary-selection ((t (:background "navy"))))

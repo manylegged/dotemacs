@@ -84,35 +84,20 @@
 (require 'anisoptera)
 (require 'generic-x)
 
-(global-pretty-mode 1)
-
 (when (require 'package nil t)
   (package-initialize)
   (add-to-list 'package-archives
 	       '("melpa" . "http://melpa.org/packages/") t)
   ;; (package-refresh-contents)
-  (dolist (el '(auto-complete color-theme lua-mode ag unicode-fonts))
+  (dolist (el '(auto-complete color-theme lua-mode ag unicode-fonts
+                idle-highlight-in-visible-buffers-mode))
     (package-install el)))
 
-;; (when (require 'auto-complete nil t)
-;;   (add-to-list 'ac-dictionary-directories "~/.emacs.d/dict")
-;;   (require 'auto-complete-config)
-
-;;   (defvar c++-ebrowse-source-table nil "Cached ebrowsed completion table")
-
-;;   (setq-default ac-sources '(ac-source-imenu
-;;   			     ac-source-abbrev
-;;   			     ;;ac-source-words-in-buffer
-;;   			     ac-source-words-in-same-mode-buffers
-;;   			     ))
-;;   (ac-set-trigger-key nil)
-;;   (global-auto-complete-mode t))
-
+(idle-highlight-in-visible-buffers-mode t)
+(global-pretty-mode 1)
 (global-auto-revert-mode 1)
 (add-to-list 'global-auto-revert-ignore-modes 'ebrowse-tree-mode)
-;(add-to-list 'global-auto-revert-ignore-modes 'tags-table-mode)
-;(ac-config-default)
-;(yas-global-mode 1)
+
 
 ;; allow c:/ paths on cygwin (load AFTER package-init)
 (when (eq system-type 'cygwin)
@@ -222,6 +207,8 @@
  split-width-threshold 140
  split-height-threshold 100
  frame-resize-pixelwise t
+ idle-highlight-in-visible-buffers-idle-time 0.1
+ dabbrev-case-fold-search nil
  )
 
 ;(add-to-list 'warning-suppress-types '(undo discard-info))q
@@ -354,6 +341,14 @@
 
 (add-hook 'eval-expression-minibuffer-setup-hook 'eldoc-mode)
 
+(with-eval-after-load "hippie-exp"
+  (defvar dabbrev-case-fold-search)
+  (defun my-he-dabbrev-search-wrapper (fun &rest args)
+    (let ((case-fold-search dabbrev-case-fold-search))
+      (apply fun args)))
+  (advice-add 'he-dabbrev-search :around 'my-he-dabbrev-search-wrapper)
+  )
+
 ;; compiling
 
 (defvar compilation-autohide-window nil)
@@ -371,10 +366,10 @@
   (setq compilation-error-regexp-alist-alist
         (cons '(arthur "^[ \t\n>0-9]*\\([^>\n]+\\)(\\([0-9]+\\)\\(,\\([0-9]+\\)\\)?) ?: \\(?:error\\|warnin\\(g\\)\\|messa\\(g\\)e\\)"
                 1 2 4 (5 . 6))
-              (assoc-delete-all 'arthur compilation-error-regexp-alist-alist)))
+              (assq-delete-all 'arthur compilation-error-regexp-alist-alist)))
   (setq compilation-error-regexp-alist-alist
         (cons '(arthur-edg-2 "at line \\([0-9]+\\) of \"\\([^\"\n]+\\)\"$" 2 1 nil 0)
-              (assoc-delete-all 'arthur-edg-2 compilation-error-regexp-alist-alist)))
+              (assq-delete-all 'arthur-edg-2 compilation-error-regexp-alist-alist)))
   
   (setq compilation-error-regexp-alist '(arthur ada aix bash python-tracebacks-and-caml comma msft arthur-edg-2 gcc-include gnu)))
   
@@ -686,6 +681,13 @@
   ;; (setq cpp-edit-list '(("0" font-lock-comment-face default both)
   ;;                       ("1" default font-lock-comment-face both)))
   ;; (cpp-highlight-buffer t)
+
+  (make-local-variable 'idle-highlight-in-visible-buffers-exceptions)
+  (setq idle-highlight-in-visible-buffers-exceptions
+        (append idle-highlight-in-visible-buffers-exceptions
+                (list "if" "else" "while" "for" "do" "struct" "public" "private" "virtual"
+                      "return" "inline" "const" "override" "static"
+                      "switch" "case" "break" "continue" "void" "this")))
   )
 (add-hook 'c-mode-common-hook 'my-c-common-hook)
 
@@ -701,7 +703,7 @@
              "noexcept" "nullptr" "static_assert" "thread_local"
              "override" "final"
              ;; things xcode thinks are keywords (objective-c keywords)
-             "in" "out" "inout" "oneway" "export";; "self"
+             "in" "out" "inout" "export";; "self"
              "super"
              ;; things I use
              "foreach" "for_" "unless" ;; "lambda"
