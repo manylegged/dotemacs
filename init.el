@@ -89,10 +89,10 @@
   (add-to-list 'package-archives
 	       '("melpa" . "http://melpa.org/packages/") t)
   ;; (package-refresh-contents)
-  (dolist (el '(auto-complete color-theme lua-mode ag unicode-fonts
-                idle-highlight-in-visible-buffers-mode))
+  (dolist (el '(auto-complete color-theme lua-mode ag unicode-fonts))
     (package-install el)))
 
+(require 'idle-highlight-in-visible-buffers-mode)
 (idle-highlight-in-visible-buffers-mode t)
 (global-pretty-mode 1)
 (global-auto-revert-mode 1)
