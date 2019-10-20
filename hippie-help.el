@@ -348,7 +348,7 @@ definition found using `hap-imenu-at-point-other-file'"
 
 (defun hap-semantic-jump ()
   (interactive)
-  (ring-insert xref--marker-ring (point-marker))
+  (hap-save-location)
   (with-no-warnings
     (semantic-ia-fast-jump (point))))
 
@@ -420,6 +420,13 @@ definition found using `hap-imenu-at-point-other-file'"
   (interactive)
   (hap-pop-to-buffer (hap-find-buffer "Resources.cpp"))
   )
+
+(defun hap-save-location ()
+  (push-mark nil t)
+  (ring-insert (if (boundp 'xref--marker-ring)
+                   xref--marker-ring
+                   find-tag-marker-ring)
+               (point-marker)))
   
 ;;;###autoload
 (defun hippie-goto ()
@@ -428,8 +435,7 @@ You can return with \\[pop-tag-mark] or C-u \\[set-mark-command].
 You can customize the way this works by changing
 `hippie-goto-try-functions-list'."
   (interactive)
-  (push-mark nil t)
-  (ring-insert xref--marker-ring (point-marker))
+  (hap-save-location)
   (when (or (hap-do-current-entry 'switch-to-buffer)
             (hap-do-it hippie-goto-try-functions-list nil))
     (run-hooks 'xref-after-jump-hook)))
@@ -441,8 +447,7 @@ You can return with \\[pop-tag-mark] or C-u \\[set-mark-command].
 You can customize the way this works by changing
 `hippie-goto-try-functions-list'."
   (interactive "P")
-  (push-mark nil t)
-  (ring-insert xref--marker-ring (point-marker))
+  (hap-save-location)
   (or (hap-do-current-entry 'hap-pop-to-buffer)
       (let (buf point)
         (save-window-excursion
