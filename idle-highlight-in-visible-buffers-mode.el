@@ -78,9 +78,9 @@
 
 (defun idle-highlight-in-visible-buffers-highlight-word-at-point ()
   "Highlight the word under the point in all visible buffers."
-  (let* ((target-symbol (symbol-at-point))
-         (target (symbol-name target-symbol)))
-    (when (and target-symbol
+  (let ((target (thing-at-point 'symbol)))
+    (when (and target
+               (not (string-match-p "[0-9].*" target))
                (not (member target idle-highlight-in-visible-buffers-exceptions)))
       (let ((regexp (concat "\\_<" (regexp-quote target) "\\_>")))
         (save-window-excursion

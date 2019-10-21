@@ -36,14 +36,16 @@
     (add-to-list 'Info-default-directory-list (concat cygroot "usr/info/"))
     (setenv "SHELL" shell-file-name)
     (setenv "PATH" (concat (getenv "PATH") ";" (replace-regexp-in-string "/" "\\\\" cygbin)))
-    (setq myfont "Consolas-11")
+    ;; (setq myfont "Consolas-11")
+    (setq myfont "PragmataPro Liga")
     (set-fontset-font "fontset-default" nil (font-spec :name "FreeMono"))
     ))
  ((eq system-type 'cygwin)
   (require 'grep)
   (grep-apply-setting
    'grep-find-command '("/usr/bin/find . -type f -exec grep -n  {} /dev/null \\;" . 30))
-  (setq myfont "Consolas-11"))
+  (setq myfont "PragmataPro Liga")
+  ;; (setq myfont "Consolas-11"))
  ((eq system-type 'darwin)
   ;; (setq myfont "Dejavu Sans Mono-9")
   (or (ignore-errors (set-frame-font (setq myfont "SF Mono-12")))
@@ -687,7 +689,7 @@
         (append idle-highlight-in-visible-buffers-exceptions
                 (list "if" "else" "while" "for" "do" "struct" "public" "private" "virtual"
                       "return" "inline" "const" "override" "static"
-                      "switch" "case" "break" "continue" "void" "this")))
+                      "switch" "case" "break" "continue" "void" "this" "true" "false")))
   )
 (add-hook 'c-mode-common-hook 'my-c-common-hook)
 
