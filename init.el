@@ -46,8 +46,10 @@
   (setq myfont "Consolas-11"))
  ((eq system-type 'darwin)
   ;; (setq myfont "Dejavu Sans Mono-9")
-  (or (ignore-errors (set-frame-font (setq myfont "SF Mono-12")))
-      (ignore-errors (set-frame-font (setq myfont "Menlo-12"))))
+  (or
+   (ignore-errors (set-frame-font (setq myfont "PragmataPro-13")) t)
+   (ignore-errors (set-frame-font (setq myfont "SF Mono-12")) t)
+   (ignore-errors (set-frame-font (setq myfont "Menlo-12")) t))
   ;; macports directory
   (add-to-list 'exec-path "/opt/local/bin")
   (setenv "PATH" (concat (getenv "PATH") ":" "/opt/local/bin"))
@@ -282,6 +284,8 @@
 (global-set-key (kbd "C-S-f") 'ag-project)
 (setq-default ag-highlight-search t
               ag-reuse-buffers t)
+(with-eval-after-load 'ag
+  (add-to-list 'ag-arguments "--search-zip"))
 (define-key isearch-mode-map (kbd "M-w") 'isearch-toggle-word)
 (define-key isearch-mode-map (kbd "C-M-w") 'isearch-yank-symbol)
 

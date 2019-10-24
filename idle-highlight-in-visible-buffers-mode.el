@@ -58,6 +58,7 @@
 
 (defvar idle-highlight-in-visible-buffers-regexp nil
   "Buffer-local regexp to be idle-highlighted.")
+(make-variable-buffer-local 'idle-highlight-in-visible-buffers-regexp)
 
 (defvar idle-highlight-in-visible-buffers-global-timer nil
   "Timer to trigger highlighting.")
@@ -73,24 +74,23 @@
     (dolist (buffer (idle-highlight-in-visible-buffers-buffers-list))
       (switch-to-buffer buffer)
       (when idle-highlight-in-visible-buffers-regexp
-        (unhighlight-regexp idle-highlight-in-visible-buffers-regexp)))
-    (setq idle-highlight-in-visible-buffers-regexp nil)))
+        (unhighlight-regexp idle-highlight-in-visible-buffers-regexp)
+        (setq idle-highlight-in-visible-buffers-regexp nil)))))
 
 (defun idle-highlight-in-visible-buffers-highlight-word-at-point ()
   "Highlight the word under the point in all visible buffers."
-  (let* ((target-symbol (symbol-at-point))
-         (target (symbol-name target-symbol)))
-    (when (and target-symbol
-               (not (member target idle-highlight-in-visible-buffers-exceptions)))
-      (let ((regexp (concat "\\_<" (regexp-quote target) "\\_>")))
-        (save-window-excursion
-          (dolist (buffer (idle-highlight-in-visible-buffers-buffers-list))
-            (switch-to-buffer buffer)
-            (unless (string= regexp idle-highlight-in-visible-buffers-regexp)
-              (when idle-highlight-in-visible-buffers-regexp
-                (unhighlight-regexp idle-highlight-in-visible-buffers-regexp))
-              (setq idle-highlight-in-visible-buffers-regexp regexp)
-              (highlight-regexp regexp 'idle-highlight-in-visible-buffers))))))))
+  (let ((target (thing-at-point 'symbol)))
+    (if (and target (not (member target idle-highlight-in-visible-buffers-exceptions)))
+        (let ((regexp (concat "\\_<" (regexp-quote target) "\\_>")))
+          (save-window-excursion
+            (dolist (buffer (idle-highlight-in-visible-buffers-buffers-list))
+              (switch-to-buffer buffer)
+              (unless (string= regexp idle-highlight-in-visible-buffers-regexp)
+                (when idle-highlight-in-visible-buffers-regexp
+                  (unhighlight-regexp idle-highlight-in-visible-buffers-regexp))
+                (setq idle-highlight-in-visible-buffers-regexp regexp)
+                (highlight-regexp regexp 'idle-highlight-in-visible-buffers)))))
+      (idle-highlight-in-visible-buffers-unhighlight-word))))
 
 ;;;###autoload
 (define-minor-mode idle-highlight-in-visible-buffers-mode
@@ -101,7 +101,7 @@
                (setq idle-highlight-in-visible-buffers-global-timer
                      (run-with-idle-timer idle-highlight-in-visible-buffers-idle-time
                                           :repeat 'idle-highlight-in-visible-buffers-highlight-word-at-point)))
-             (set (make-local-variable 'idle-highlight-in-visible-buffers-regexp) nil))
+             (setq idle-highlight-in-visible-buffers-regexp nil))
     (idle-highlight-in-visible-buffers-unhighlight-word)))
 
 (provide 'idle-highlight-in-visible-buffers-mode)
