@@ -92,6 +92,7 @@
                 (highlight-regexp regexp 'idle-highlight-in-visible-buffers)))))
       (idle-highlight-in-visible-buffers-unhighlight-word))))
 
+
 ;;;###autoload
 (define-minor-mode idle-highlight-in-visible-buffers-mode
   "Idle-Highlight-In-Visible-Buffers Minor Mode"
