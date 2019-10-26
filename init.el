@@ -136,12 +136,12 @@
   (if (featurep 'scroll-bar) (scroll-bar-mode -1))
   (if (featurep 'tooltip) (tooltip-mode -1))
 
-  (when (not (eq system-type 'darwin))
-    (ignore-errors
-      (set-frame-font myfont)
-      (add-to-list 'default-frame-alist (cons 'font myfont)))
-    (if (featurep 'menu-bar) (menu-bar-mode -1))
-    )
+  ;; (when (not (eq system-type 'darwin))
+  (ignore-errors
+    (set-frame-font myfont)
+    (add-to-list 'default-frame-alist (cons 'font myfont)))
+  (if (featurep 'menu-bar) (menu-bar-mode -1))
+    ;; )
 
   (setq-default
    select-active-regions t
