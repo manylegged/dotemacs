@@ -45,6 +45,7 @@
   (grep-apply-setting
    'grep-find-command '("/usr/bin/find . -type f -exec grep -n  {} /dev/null \\;" . 30))
   (setq myfont "PragmataPro Liga")
+  )
   ;; (setq myfont "Consolas-11"))
  ((eq system-type 'darwin)
   ;; (setq myfont "Dejavu Sans Mono-9")
