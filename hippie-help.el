@@ -132,28 +132,29 @@ functions run as part of BODY will not change globals state"
         (let ((woman-use-topic-at-point t))
           (with-no-warnings (woman-file-name nil))))))
 
+(defun hap-truename (name)
+  (when (and (functionp 'cygwin-convert-file-name-from-windows)
+             (eq (elt name 1) ?:))
+    (setq name (cygwin-convert-file-name-from-windows name)))
+  (abbreviate-file-name name)
+  ;; file-truename is really slow
+  ;; (abbreviate-file-name (file-truename name))
+  )
+
 ;; find-buffer-visiting is really slow
 ;; we skip the file-attribute stuff
 (defun hap-find-buffer (filename)
-  (when (functionp 'cygwin-convert-file-name-from-windows)
-    (setq filename (cygwin-convert-file-name-from-windows filename)))
-  (let ((truename (abbreviate-file-name (file-truename filename))))
-    (or (get-file-buffer filename)
-        (let ((list (buffer-list)) found)
+  (or (get-file-buffer filename)
+      (let ((list (buffer-list)) found
+            (truename (hap-truename filename)))
+        (when (not (string= truename filename))
           (while (and (not found) list)
             (with-current-buffer (car list)
               (if (and buffer-file-name
                        (string= buffer-file-truename truename))
                   (setq found (car list))))
-            (setq list (cdr list)))
-          found))))
-
-(defun hap-truename (name)
-  (when (and (functionp 'cygwin-convert-file-name-from-windows)
-             (eq (elt name 1) ?:))
-    (setq name (cygwin-convert-file-name-from-windows name)))
-  (abbreviate-file-name
-   (file-truename name)))
+            (setq list (cdr list))))
+        found)))
 
 (defun forward-c++-symbol (arg)
   "Called from `thing-at-point' c++-symbol"
@@ -425,7 +426,7 @@ definition found using `hap-imenu-at-point-other-file'"
   (push-mark nil t)
   (ring-insert (if (boundp 'xref--marker-ring)
                    xref--marker-ring
-                   find-tag-marker-ring)
+                   (with-no-warnings find-tag-marker-ring))
                (point-marker)))
   
 ;;;###autoload

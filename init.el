@@ -287,6 +287,7 @@
 (global-set-key (kbd "C-S-f") 'ag-project)
 (setq-default ag-highlight-search t
               ag-reuse-buffers t)
+(defvar ag-arguments)
 (with-eval-after-load 'ag
   (add-to-list 'ag-arguments "--search-zip"))
 (define-key isearch-mode-map (kbd "M-w") 'isearch-toggle-word)
