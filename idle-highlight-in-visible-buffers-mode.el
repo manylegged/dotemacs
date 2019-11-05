@@ -99,12 +99,14 @@
 (define-minor-mode idle-highlight-in-visible-buffers-mode
   "Idle-Highlight-In-Visible-Buffers Minor Mode"
   :group 'idle-highlight-in-visible-buffers
+  :global t
   (if idle-highlight-in-visible-buffers-mode
       (progn (unless idle-highlight-in-visible-buffers-global-timer
                (setq idle-highlight-in-visible-buffers-global-timer
                      (run-with-idle-timer idle-highlight-in-visible-buffers-idle-time
                                           :repeat 'idle-highlight-in-visible-buffers-highlight-word-at-point)))
              (setq idle-highlight-in-visible-buffers-regexp nil))
+    (cancel-timer idle-highlight-in-visible-buffers-global-timer)
     (idle-highlight-in-visible-buffers-unhighlight-word)))
 
 (provide 'idle-highlight-in-visible-buffers-mode)
