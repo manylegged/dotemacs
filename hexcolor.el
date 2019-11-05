@@ -1,4 +1,4 @@
-
+;;; -*- lexical-binding: t; -*-
 (require 'hexrgb)
 
 (defvar hexcolor-increment (/ 2.0 255.0))

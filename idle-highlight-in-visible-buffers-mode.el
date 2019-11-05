@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t; -*-
 ;;; idle-highlight-in-visible-buffers-mode.el --- highlight the word the point is on
 
 ;; Copyright (C) 2018  Ignacy Moryc

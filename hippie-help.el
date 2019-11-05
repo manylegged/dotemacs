@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t; -*-
 ;;; hippie-help.el - Intelligent help and navigation
 ;;
 ;;; History:
@@ -66,16 +67,16 @@
 (defmacro with-no-interactivity (&rest body)
   "Run BODY with interactive functions overridden to not prompt user, not change windows, etc.
 If BODY calls prompting functions, pick the default automatically"
-  `(flet ((read-from-minibuffer (prompt init &rest args) init)
+  `(flet ((read-from-minibuffer (_prompt init &rest _args) init)
           (completing-read (&rest args) (apply 'hap-silent-completing-read args))
-          (y-or-n-p (prompt) nil)
-          (yes-or-no-p (prompt) nil)
-          (switch-to-buffer (buf-or-name &rest args) (set-buffer buf-or-name))
-          (pop-to-buffer (buffer &rest args) (set-buffer buffer))
-          (select-window (win &optional norec) (set-buffer (window-buffer win)) win)
-          (push-mark (&rest args) nil)
-          (message (fmt &rest args) nil)
-          (find-file-noselect (name &rest args) (set-buffer (hap-find-buffer name))))
+          (y-or-n-p (_prompt) nil)
+          (yes-or-no-p (_prompt) nil)
+          (switch-to-buffer (buf-or-name &rest _args) (set-buffer buf-or-name))
+          (pop-to-buffer (buffer &rest _args) (set-buffer buffer))
+          (select-window (win &optional _norec) (set-buffer (window-buffer win)) win)
+          (push-mark (&rest _args) nil)
+          (message (_fmt &rest _args) nil)
+          (find-file-noselect (name &rest _args) (set-buffer (hap-find-buffer name))))
      ,@body))
 
 (defun call-interactively-no-prompt (func)
@@ -284,7 +285,7 @@ Return in same format as `hap-find-prototype'."
                            (list sym) nil nil nil nil sym)
           (cdr item))))
 
-(defun hap-imenu (&optional sym marker)
+(defun hap-imenu (&optional _sym marker)
   "Interactively, prompt for Imenu symbol and go to the marker position"
   (interactive (hap-imenu-read "Imenu" (hap-imenu-at-point)))
   (unless marker
@@ -295,8 +296,7 @@ Return in same format as `hap-find-prototype'."
 (defun hap-imenu-at-point-other-file ()
   "return (SYMBOL . MARKER) for the symbol at point using `imenu',
 in the file returned by `ff-find-other-file'"
-  (let ((sym (hap-symbol-at-point))
-        (buf (current-buffer)))
+  (let ((buf (current-buffer)))
     (save-current-buffer
       (with-no-interactivity
        (unless (catch 'hap-ff-not-found
@@ -306,7 +306,7 @@ in the file returned by `ff-find-other-file'"
          (unless (eq buf (current-buffer))
            (hap-imenu-at-point 'imenu-other-file)))))))
 
-(defun hap-imenu-other-file (sym marker)
+(defun hap-imenu-other-file (_sym marker)
   "Interactively prompt for confirmation, then go to the
 definition found using `hap-imenu-at-point-other-file'"
   (interactive (hap-imenu-read "Imenu other file" (hap-imenu-at-point-other-file)))
@@ -442,7 +442,7 @@ You can customize the way this works by changing
     (run-hooks 'xref-after-jump-hook)))
 
 ;;;###autoload
-(defun hippie-goto-other-window (&optional arg)
+(defun hippie-goto-other-window (&optional _arg)
   "Intelligently go to the definition of the thing at point, in another window.
 You can return with \\[pop-tag-mark] or C-u \\[set-mark-command].
 You can customize the way this works by changing
@@ -564,11 +564,11 @@ The rest are strings"
             ))
 
          ((eq major-mode 'python-mode)
-          (let ((type (intern (save-excursion (beginning-of-line) (symbol-at-point)))))
+          ;; (let ((type (intern (save-excursion (beginning-of-line) (symbol-at-point)))))
             (setq proto (hap-collapse-spaces
                          (buffer-substring (line-beginning-position)
                                            (save-excursion
-                                             (re-search-forward ":$" (point-max))))))))
+                                             (re-search-forward ":$" (point-max)))))))
           )
         ;; return prototype
         (list start
@@ -578,7 +578,7 @@ The rest are strings"
               (cons line-str start-line)
               elt)))))
 
-(defun hap-silent-completing-read (prompt collect &optional pred req init hist def)
+(defun hap-silent-completing-read (_prompt collect &optional pred _req init _hist def)
   "Same arguments and return as `completing-read', but just pick
 the default and don't actually prompt user"
   (setq unread-command-events nil)      ; ebrowse inserts a '?' with this!
@@ -600,8 +600,7 @@ the default and don't actually prompt user"
       entry)))
 
 (defun hap-get-context (entry)
-  (let ((ctx (nth 1 entry))
-        (loc (car entry)))
+  (let ((ctx (nth 1 entry)))
     (concat
      (or ctx
          (concat (hap-pretty-marker entry)))
@@ -704,15 +703,13 @@ the default and don't actually prompt user"
      (t (string-match-p (regexp-quote a) b)))))
 
 (defun hap-dup-key (x)
-  (substring-no-properties
-   (concat (hap-pretty-marker x)
-           (hap-collapse-spaces (car (nth 4 x))))))
+  (concat (hap-pretty-marker x)
+          (hap-collapse-spaces (substring-no-properties (car (nth 4 x))))))
 
 (defvar hap-curline)
 
 (defun hap-sort-key (entry)
-  (let ((file (hap-marker-filename (car entry)))
-        (buffer (hap-marker-buffer (car entry) 'hap-find-buffer)))
+  (let ((buffer (hap-marker-buffer (car entry) 'hap-find-buffer)))
     (+
      ;; current match last, current file forward
      (if (eq (current-buffer) buffer)
@@ -748,8 +745,7 @@ return a string representing the prototype for the function under point"
               (not (string-equal (hap-symbol-at-point) hap-eldoc-last-symbol)))
       (setq hap-eldoc-last-symbol (hap-symbol-at-point))
       ;; try to move out of an argument list onto the function name
-      (let ((start (point))
-            (search-start (or (save-excursion (re-search-backward "[;{}#]" (point-min) t))
+      (let ((search-start (or (save-excursion (re-search-backward "[;{}#]" (point-min) t))
                               (line-beginning-position)))
             forward-sexp-function                     ; work around bug in up-list
             ebrowse-position-stack                    ; save ebrowse stack

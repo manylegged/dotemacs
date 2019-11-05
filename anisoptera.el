@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t; -*-
 ;; Anisoptera Games
 ;; project oriented stuff
 
@@ -5,9 +6,10 @@
 (require 'desktop)
 
 (defvar anisoptera-function nil)
-(defvar anisoptera-base)
-(defvar anisoptera-platform)
+(defvar anisoptera-base nil)
+(defvar anisoptera-platform nil)
 
+(defvar c++-ebrowse-source-table)
 
 (defun anisoptera-reload-hook ()
   (when anisoptera-function
@@ -16,6 +18,7 @@
 (with-eval-after-load "desktop"
   (add-hook 'desktop-after-read-hook 'anisoptera-reload-hook)
   (add-to-list 'desktop-globals-to-save 'anisoptera-function))
+
 
 (defun anisoptera-compilation-finish (buffer status)
   (when (and (equal status "finished\n")

@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t; -*-
 ;;; hexrgb.el --- Functions to manipulate colors, including RGB hex strings.
 ;;
 ;; Filename: hexrgb.el
@@ -293,6 +294,8 @@ are lowercased, whitespace is removed, and there are no duplicates."
       hexrgb-defined-colors-no-dups-alist
     hexrgb-defined-colors-alist))
 
+(defvar icicle-color-completing-p)
+
 ;; RMS added this function to Emacs (23) as `read-color', with some feature loss.
 ;;;###autoload
 (defun hexrgb-read-color (&optional prompt convert-to-RGB-p allow-empty-name-p msgp)
@@ -509,7 +512,7 @@ Returns a list of HSV components of value 0.0 to 1.0, inclusive."
   "Convert HUE, SATURATION, VALUE components to RGB (red, green, blue).
 Each input component is 0.0 to 1.0, inclusive.
 Returns a list of RGB components of value 0.0 to 1.0, inclusive."
-  (let (red green blue int-hue fract pp qq tt ww)
+  (let (red green blue int-hue fract pp qq ww)
     (if (hexrgb-approx-equal 0.0 saturation)
         (setq red    value
               green  value

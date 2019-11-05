@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t; -*-
 ;;; u-mandelbrot.el --- A simple fractal browser.
 ;;
 ;;  Copyright (C) 2001 by Ulf Jasper
@@ -136,7 +137,7 @@
 
 (defun u-mandelbrot-create-faces (num)
   "Create NUM faces for u-mandelbrot."
-  (let ((i 0)
+  (let (
         (u-color "")
         (c-face (make-face 'u-mandelbrot-face-set))
         (r-val 0)
@@ -218,7 +219,7 @@ Argument Z complex number."
       (setq i (* i u-mandelbrot-font-ratio)))
     (list r i)))
 
-(defun u-mandelbrot-zoom (step &rest args)
+(defun u-mandelbrot-zoom (step &rest _args)
   (interactive "p")
   (setq step (* step 1.5))
   (if (< step 0)

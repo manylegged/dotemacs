@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t; -*-
 ;; arthur-functions.el
 ;;
 ;; misc functions that were cluttering up my .emacs
@@ -24,7 +25,7 @@
 ;; emacs 22
 (eval-when-compile
   (unless (fboundp 'declare-function)
-    (defun declare-function (&rest args)
+    (defun declare-function (&rest _args)
       nil)))
 
 ;; (defun in-string-p (face)

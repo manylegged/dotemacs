@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t; -*-
 ;;; windows-path.el -- Teach cygwin EMACS about windows styles path
 
 ;; Copyright (C) 2009 Victor Ren

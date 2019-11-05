@@ -1,4 +1,4 @@
-;;; -*- coding: utf-8 -*-
+;;; -*- coding: utf-8; lexical-binding: t -*-
 ;;; pretty-mode.el
 ;; 
 ;; Minor mode for redisplaying parts of the buffer as pretty symbols
@@ -17,11 +17,10 @@
 ;; (add-hook 'my-pretty-language-hook 'turn-on-pretty-mode)
 ;; 
 
-(require 'cl)
-
-(when (not (functionp 'font-lock-flush))
-	(defun font-lock-flush () (font-lock-fontify-buffer)))
-
+(with-no-warnings
+  (require 'cl)
+  (when (not (functionp 'font-lock-flush))
+    (defun font-lock-flush () (font-lock-fontify-buffer))))
 
 (defsubst pretty-is-sym (chr)
   (setq chr (char-syntax chr))
@@ -106,17 +105,14 @@ keywords, it replaces them with symbols. For example, lambda is
 displayed as λ in lisp modes."
   :group 'pretty
                                         ;  :lighter " λ"
-  (let (mod (buffer-modified-p))
+  (let ((mod (buffer-modified-p)))
     (when pretty-current-keywords
       (font-lock-remove-keywords nil pretty-current-keywords)
       (remove-text-properties (point-min) (point-max) '(composition nil)))
     (when pretty-mode
       (set (make-local-variable 'pretty-current-keywords) (pretty-keywords))
       (font-lock-add-keywords nil pretty-current-keywords t)
-      (if (functionp 'font-lock-flush)
-	  (font-lock-flush)
-	(font-lock-fontify-buffer))
-      )
+      (font-lock-flush))
     (restore-buffer-modified-p mod)))
 
 (defun turn-on-pretty-if-desired ()

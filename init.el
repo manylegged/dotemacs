@@ -212,7 +212,8 @@
  split-width-threshold 140
  split-height-threshold 100
  frame-resize-pixelwise t
- idle-highlight-in-visible-buffers-idle-time 0.1
+ eldoc-idle-delay 0.25
+ idle-highlight-in-visible-buffers-idle-time 0.5
  dabbrev-case-fold-search nil
  )
 

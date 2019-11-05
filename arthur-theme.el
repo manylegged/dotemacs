@@ -1,5 +1,4 @@
-;;  -*- mode: emacs-lisp; -*-
-
+;;  -*- lexical-binding: t; -*-
 (defvar arthur-current-theme 'nil)
 
 (defvar arthur-dark
