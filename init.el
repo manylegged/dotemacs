@@ -397,6 +397,14 @@
 
 
 ;; (global-set-key (kbd "<f8>") 'next-error) ; visual studio
+
+(defun my-mouse-goto (event)
+  (interactive "e")
+  (mouse-set-point event)
+  (hippie-goto))
+
+(global-set-key (kbd "<C-s-mouse-1>") 'my-mouse-goto)
+(global-set-key (kbd "<C-s-left>") 'xref-pop-marker-stack)
 (global-set-key (kbd "s-'") 'next-error)  ; xcode 
 (global-set-key (kbd "s-\"") 'previous-error)  ; xcode 
 (global-set-key (kbd "M-'") 'next-error)

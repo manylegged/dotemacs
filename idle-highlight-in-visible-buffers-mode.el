@@ -107,6 +107,7 @@
                                           :repeat 'idle-highlight-in-visible-buffers-highlight-word-at-point)))
              (setq idle-highlight-in-visible-buffers-regexp nil))
     (cancel-timer idle-highlight-in-visible-buffers-global-timer)
+    (setq idle-highlight-in-visible-buffers-global-timer nil)
     (idle-highlight-in-visible-buffers-unhighlight-word)))
 
 (provide 'idle-highlight-in-visible-buffers-mode)
