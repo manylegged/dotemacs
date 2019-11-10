@@ -92,7 +92,7 @@
 (when (require 'package nil t)
   (package-initialize)
   (add-to-list 'package-archives
-	       '("melpa" . "http://melpa.org/packages/") t)
+	       '("melpa" . "https://melpa.org/packages/") t)
   ;; (package-refresh-contents)
   (dolist (el '(auto-complete color-theme lua-mode ag unicode-fonts))
     (package-install el)))

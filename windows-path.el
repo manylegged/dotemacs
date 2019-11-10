@@ -89,21 +89,22 @@ determined at activation-time of windows-path \(see
 `x:/' to `/cygdrive/x/'.
 NOTE: \"/cygdrive/\" is only an example for the cygdrive-prefix \(see
 `windows-path-cygdrive-prefix')."
-  (cond ((string-match windows-path-style1-regexp name)
-         (setq filename
-               (replace-match (concat windows-path-cygdrive-prefix
-                                      (downcase (substring (match-string 2 name) 0 1)))
-                              t nil name 2))
-         (while (string-match "\\\\" filename)
+  (let (filename)
+    (cond ((string-match windows-path-style1-regexp name)
            (setq filename
-                 (replace-match "/" t nil filename)))
-         filename) 
-        ((string-match windows-path-style2-regexp name)
-         (replace-match (concat windows-path-cygdrive-prefix
-                                (downcase (substring (match-string 2 name) 0 1)))
-                        t nil name 2))
+                 (replace-match (concat windows-path-cygdrive-prefix
+                                        (downcase (substring (match-string 2 name) 0 1)))
+                                t nil name 2))
+           (while (string-match "\\\\" filename)
+             (setq filename
+                   (replace-match "/" t nil filename)))
+           filename) 
+          ((string-match windows-path-style2-regexp name)
+           (replace-match (concat windows-path-cygdrive-prefix
+                                  (downcase (substring (match-string 2 name) 0 1)))
+                          t nil name 2))
 
-        (t name)))
+          (t name))))
 
 ;; (string-match windows-path-style2-regexp "/sd/c:/xpd/file.txt")
 ;; (windows-path-convert-file-name "sd/c:/xpd/file.txt")
