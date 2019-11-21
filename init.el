@@ -75,15 +75,6 @@
   (setq ispell-program-name "/usr/bin/aspell")
   ))
 
-; stop Fing up my history
-(defvar desktop-globals-to-save)
-(setq desktop-globals-to-save
-      '(tags-file-name tags-table-list))
-
-(defun my-desktop-read-hook ()
-    (unicode-fonts-setup))
-(add-hook 'desktop-after-read-hook 'my-desktop-read-hook)
-
 (require 'arthur-functions)
 (require 'arthur-autoload)
 (require 'anisoptera)
@@ -96,6 +87,16 @@
   ;; (package-refresh-contents)
   (dolist (el '(auto-complete color-theme lua-mode ag unicode-fonts))
     (package-install el)))
+
+; stop Fing up my history
+(defvar desktop-globals-to-save)
+(setq desktop-globals-to-save
+      '(tags-file-name tags-table-list))
+
+(defun my-desktop-read-hook ()
+    (unicode-fonts-setup))
+(add-hook 'desktop-after-read-hook 'my-desktop-read-hook)
+
 
 (require 'idle-highlight-in-visible-buffers-mode)
 (idle-highlight-in-visible-buffers-mode t)
