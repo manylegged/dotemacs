@@ -45,6 +45,8 @@
   (grep-apply-setting
    'grep-find-command '("/usr/bin/find . -type f -exec grep -n  {} /dev/null \\;" . 30))
   (setq myfont "PragmataPro Liga")
+  (ignore-errors (set-frame-font (setq myfont "PragmataPro-12")) t)
+
   )
   ;; (setq myfont "Consolas-11"))
  ((eq system-type 'darwin)
@@ -85,7 +87,7 @@
   (add-to-list 'package-archives
 	       '("melpa" . "https://melpa.org/packages/") t)
   ;; (package-refresh-contents)
-  (dolist (el '(auto-complete color-theme lua-mode ag unicode-fonts))
+  (dolist (el '(auto-complete color-theme lua-mode ag unicode-fonts glsl-mode))
     (package-install el)))
 
 ; stop Fing up my history
