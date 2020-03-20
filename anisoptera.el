@@ -49,6 +49,7 @@
 
 (defun anisoptera-setup (folder base platform-ext)
   "Load all the tags files and set up paths for the project"
+  (setq base (file-truename base))
   (when (not (file-exists-p base))
     (setq base (catch 'found (dolist (buffer (buffer-list))
                                (with-current-buffer buffer
@@ -133,20 +134,20 @@
   (interactive)
   (setq anisoptera-function 'reassembly)
   (cond
-   ((eq system-type 'darwin) (anisoptera-setup "outlaws" "/Users/arthur/Documents/outlaws" "osx"))
-   ((eq system-type 'gnu/linux) (anisoptera-setup "outlaws" "/home/arthur/outlaws" "linux"))
-   ((eq system-type 'windows-nt) (anisoptera-setup "outlaws" "C:/Users/Arthur/Documents/outlaws" "win32"))
-   ((eq system-type 'cygwin) (anisoptera-setup "outlaws" "/cygdrive/c/Users/Arthur/Documents/outlaws" "win32"))
+   ((eq system-type 'darwin) (anisoptera-setup "outlaws" "~/Documents/outlaws" "osx"))
+   ((eq system-type 'gnu/linux) (anisoptera-setup "outlaws" "~/outlaws" "linux"))
+   ((eq system-type 'windows-nt) (anisoptera-setup "outlaws" "~/Documents/outlaws" "win32"))
+   ((eq system-type 'cygwin) (anisoptera-setup "outlaws" "~/outlaws" "win32"))
    (t (error "unsupported system"))))
 
 (defun helios ()
   (interactive)
   (setq anisoptera-function 'helios)
   (cond
-   ((eq system-type 'darwin) (anisoptera-setup "helios" "/Users/arthur/Documents/helios" "platform/osx"))
-   ((eq system-type 'gnu/linux) (anisoptera-setup "helios" "/home/arthur/helios" "platform/linux"))
-   ((eq system-type 'windows-nt) (anisoptera-setup "helios" "C:/Users/Arthur/Documents/helios" "platform/win32"))
-   ((eq system-type 'cygwin) (anisoptera-setup "helios" "/cygdrive/c/Users/Arthur/Documents/helios" "platform/win32"))
+   ((eq system-type 'darwin) (anisoptera-setup "helios" "~/Documents/helios" "platform/osx"))
+   ((eq system-type 'gnu/linux) (anisoptera-setup "helios" "~/helios" "platform/linux"))
+   ((eq system-type 'windows-nt) (anisoptera-setup "helios" "~/Documents/helios" "platform/win32"))
+   ((eq system-type 'cygwin) (anisoptera-setup "helios" "~/helios" "platform/win32"))
    (t (error "unsupported system")))
   ;; (find-file (concat anisoptera-base "game/Helios.cpp"))
   (kill-buffers-file-matching "/outlaws/")
