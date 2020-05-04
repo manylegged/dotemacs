@@ -245,7 +245,7 @@
 (temp-buffer-resize-mode)      ; make temp buffers small
 (winner-mode 1)		       ; C-c left/right to undo window changes
 (line-number-mode 1)
-(which-function-mode 1)
+(which-function-mode 0)
 (column-number-mode 1)
 (auto-compression-mode 1)
 (savehist-mode 1)
