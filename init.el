@@ -45,6 +45,8 @@
   (grep-apply-setting
    'grep-find-command '("/usr/bin/find . -type f -exec grep -n  {} /dev/null \\;" . 30))
   (setq myfont "PragmataPro Liga")
+  (ignore-errors (set-frame-font (setq myfont "PragmataPro-11")) t)
+
   )
   ;; (setq myfont "Consolas-11"))
  ((eq system-type 'darwin)
@@ -85,7 +87,7 @@
   (add-to-list 'package-archives
 	       '("melpa" . "https://melpa.org/packages/") t)
   ;; (package-refresh-contents)
-  (dolist (el '(auto-complete color-theme lua-mode ag unicode-fonts))
+  (dolist (el '(auto-complete color-theme lua-mode ag unicode-fonts glsl-mode))
     (package-install el)))
 
 ; stop Fing up my history
@@ -152,8 +154,10 @@
 
   (setq initial-frame-alist
         '((vertical-scroll-bars)
-          (width . 160)
-          (height . 60)))
+          (left . 1)
+          (top . 1)
+          (width . 100)
+          (height . 45)))
   )
 
 ;; variables
@@ -370,9 +374,29 @@
     ;; (bury-buffer buffer)
     ;; (replace-buffer-in-windows buffer)
     ))
-(add-hook 'compilation-finish-functions 'my-compilation-finish-function)
-;; this regexp is for the new error message format in visual studio 2019 that includes the column number
+
+;; https://endlessparentheses.com/ansi-colors-in-the-compilation-buffer-output.html
+(defun endless/colorize-compilation ()
+  "Colorize from `compilation-filter-start' to `point'."
+  (let ((inhibit-read-only t)
+        (end (point)))
+    (ansi-color-apply-on-region compilation-filter-start (point))
+    (goto-char compilation-filter-start)
+    (while (re-search-forward "\n+" end t)
+      (replace-match "\n"))
+    (goto-char end)
+    (while (re-search-backward "^\\([^\n]\\{78,80\\}\\)\n" compilation-filter-start t)
+      (replace-match "\\1"))
+    (goto-char end)
+    ))
+
 (with-eval-after-load "compile"
+
+  (require 'ansi-color)
+  (add-hook 'compilation-filter-hook 'endless/colorize-compilation)
+  (add-hook 'compilation-finish-functions 'my-compilation-finish-function)
+
+  ;; this regexp is for the new error message format in visual studio 2019 that includes the column number
   (setq compilation-error-regexp-alist-alist
         (cons '(arthur "^[ \t\n>0-9]*\\([^>\n]+\\)(\\([0-9]+\\)\\(,\\([0-9]+\\)\\)?) ?: \\(?:error\\|warnin\\(g\\)\\|messa\\(g\\)e\\)"
                 1 2 4 (5 . 6))
@@ -381,7 +405,8 @@
         (cons '(arthur-edg-2 "at line \\([0-9]+\\) of \"\\([^\"\n]+\\)\"$" 2 1 nil 0)
               (assq-delete-all 'arthur-edg-2 compilation-error-regexp-alist-alist)))
   
-  (setq compilation-error-regexp-alist '(arthur ada aix bash python-tracebacks-and-caml comma msft arthur-edg-2 gcc-include gnu)))
+  (setq compilation-error-regexp-alist '(arthur ada aix bash python-tracebacks-and-caml comma msft arthur-edg-2 gcc-include gnu))
+  )
   
 
 ;; this controls default file pattern for rgrep
@@ -628,6 +653,9 @@
 (add-to-list 'auto-mode-alist '("\\.fp\\'" . glsl-mode))
 (add-to-list 'auto-mode-alist '("\\.vp\\'" . glsl-mode))
 
+(defun my-glsl-hook ()
+  (font-lock-add-keywords nil '(("#include" . font-lock-preprocessor-face))))
+(add-hook 'glsl-mode-hook 'my-glsl-hook)
 
 (define-derived-mode squirrel-mode javascript-mode "Sq"
   (font-lock-add-keywords
@@ -736,7 +764,9 @@
          (,(regexp-opt
             (list "nil" "YES" "NO" "epsilon") 'symbols). font-lock-constant-face)
          ;("~" (0 font-lock-negation-char-face prepend))
-         ("\\_<0[xX][0-9a-fA-f]+\\_>" . font-lock-constant-face) ; hex
+         ("\\_<\\(0[xX]\\)\\([0-9a-fA-f]+\\)\\([ulUL]*\\)\\_>"
+          (1 font-lock-comment-face) (2 font-lock-constant-face) (3 font-lock-comment-face)) ; hex
+         ("[^.]\\_<\\(0\\)\\([0-9]+[ulUL]*\\)\\_>" (1 font-lock-negation-char-face) (2 font-lock-constant-face)) ; octal
          (;"\\(\\(\\_<\\|[.]\\)[0-9]+\\([eE][+-]?[0-9.]+\\)?\\)\\([.]?[lfLFuU]?\\)\\_>"
           "\\(\\([.]+\\|\\_<\\)[0-9]+\\([eE][+-]?[0-9.]+\\)?\\)\\([.]?[lfLFuU]?\\)\\_>"
           (1 font-lock-constant-face) (4 font-lock-comment-face)) ; dec floats and ints
