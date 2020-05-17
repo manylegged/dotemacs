@@ -148,13 +148,11 @@ functions run as part of BODY will not change globals state"
   (or (get-file-buffer filename)
       (let ((list (buffer-list)) found
             (truename (hap-truename filename)))
-        (when (not (string= truename filename))
-          (while (and (not found) list)
-            (with-current-buffer (car list)
-              (if (and buffer-file-name
-                       (string= buffer-file-truename truename))
-                  (setq found (car list))))
-            (setq list (cdr list))))
+        (while (and (not found) list)
+          (with-current-buffer (car list)
+            (if (and buffer-file-truename (string= buffer-file-truename truename))
+                (setq found (car list))))
+          (setq list (cdr list)))
         found)))
 
 (defun forward-c++-symbol (arg)
@@ -707,14 +705,17 @@ the default and don't actually prompt user"
           (hap-collapse-spaces (substring-no-properties (car (nth 4 x))))))
 
 (defvar hap-curline)
+(defvar hap-curfile)
 
+;; tag entries don't have a buffer! compare filename
 (defun hap-sort-key (entry)
-  (let ((buffer (hap-marker-buffer (car entry) 'hap-find-buffer)))
+  (let ((buffer (hap-marker-buffer (car entry) 'hap-find-buffer))
+        (fname (intern (file-name-nondirectory (hap-marker-filename (car entry))))))
     (+
      ;; current match last, current file forward
-     (if (eq (current-buffer) buffer)
+     (if (eq fname hap-curfile)
          (if (< (abs (- hap-curline (cdr (nth 4 entry)))) 4)
-             5 -1)
+             5 -3)
        0)
      ;; push definitions forward
      (if (string-match-p "{" (nth 3 entry)) -1 0)
@@ -728,7 +729,8 @@ the default and don't actually prompt user"
   (when (or finalp (< (length entries) 4))
     (setq entries (mapcar 'hap-update-entry entries)))
   (with-no-warnings
-    (let ((hap-curline (line-number-at-pos)))
+    (let ((hap-curline (line-number-at-pos))
+          (hap-curfile (intern (file-name-nondirectory buffer-file-name))))
       (mapcar 'cdr (sort (mapcar (lambda (x) (cons (hap-sort-key x) x))
                                  (delete-duplicates entries :key 'hap-dup-key :test 'hap-substr-equal))
                          (lambda (a b) (< (car a) (car b))))))))
