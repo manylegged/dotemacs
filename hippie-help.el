@@ -718,7 +718,8 @@ the default and don't actually prompt user"
              5 -3)
        0)
      ;; push definitions forward
-     (if (string-match-p "{" (nth 3 entry)) -1 0)
+     (let ((line (nth 3 entry)))
+       (if (and line (string-match-p "{" line)) -1 0))
      ;; push loaded files forward
      (if buffer -2 0))))
 

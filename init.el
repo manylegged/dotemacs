@@ -365,35 +365,30 @@
 
 ;; compiling
 
-(defvar compilation-autohide-window nil)
+(defvar compilation-autohide-window t)
 (defun my-compilation-finish-function (buffer exit)
   (when (and compilation-autohide-window
              (equal exit "finished\n")
-             (not (equal (buffer-name buffer) "*grep*")))
+             (equal (buffer-name buffer) "*compilation*"))
     (quit-window nil (get-buffer-window buffer))
     ;; (bury-buffer buffer)
     ;; (replace-buffer-in-windows buffer)
-    ))
-
-;; https://endlessparentheses.com/ansi-colors-in-the-compilation-buffer-output.html
-(defun endless/colorize-compilation ()
-  "Colorize from `compilation-filter-start' to `point'."
-  (let ((inhibit-read-only t)
-        (end (point)))
-    (ansi-color-apply-on-region compilation-filter-start (point))
-    (goto-char compilation-filter-start)
-    (while (re-search-forward "\n+" end t)
-      (replace-match "\n"))
-    (goto-char end)
-    (while (re-search-backward "^\\([^\n]\\{78,80\\}\\)\n" compilation-filter-start t)
-      (replace-match "\\1"))
-    (goto-char end)
-    ))
+    ) )
 
 (with-eval-after-load "compile"
 
-  (require 'ansi-color)
-  (add-hook 'compilation-filter-hook 'endless/colorize-compilation)
+  (when (require 'xterm-color nil t)
+    (setq compilation-environment '("TERM=xterm-256color"))
+    (defun comint-term-environment () (list))
+    (defun my/advice-compilation-filter (f proc string)
+      (funcall f proc ;;(replace-regexp-in-string "\n+" "\n" 
+                                                (xterm-color-filter string)))
+      ;; (funcall f proc (xterm-color-filter
+                       ;; (replace-regexp-in-string "[][0-9XC]*\n" "" string)))
+    (advice-add 'compilation-filter :around #'my/advice-compilation-filter)
+    ;; (advice-remove 'compilation-filter 'my/advice-compilation-filter)
+    )
+  
   (add-hook 'compilation-finish-functions 'my-compilation-finish-function)
 
   ;; this regexp is for the new error message format in visual studio 2019 that includes the column number
