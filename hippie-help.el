@@ -563,10 +563,15 @@ The rest are strings"
 
          ((eq major-mode 'python-mode)
           ;; (let ((type (intern (save-excursion (beginning-of-line) (symbol-at-point)))))
-            (setq proto (hap-collapse-spaces
-                         (buffer-substring (line-beginning-position)
-                                           (save-excursion
-                                             (re-search-forward ":$" (point-max)))))))
+          (setq proto (hap-collapse-spaces
+                       (buffer-substring (line-beginning-position)
+                                         (save-excursion
+                                           (re-search-forward ":$" (point-max)))))))
+
+         (t
+          (setq proto (hap-collapse-spaces
+                       (buffer-substring (line-beginning-position)
+                                         (line-end-position)))))
           )
         ;; return prototype
         (list start
