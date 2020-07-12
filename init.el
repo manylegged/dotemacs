@@ -692,6 +692,7 @@
   (c-set-offset 'inline-open 0)
   (c-set-offset 'inextern-lang 0)
   (c-set-offset 'innamespace 0)
+  (c-set-offset 'inlambda 0)
   (local-set-key [remap newline-and-indent] 'c-context-line-break)
   (local-set-key (kbd "C-c o") 'ff-get-other-file)
   (local-set-key (kbd "TAB") 'c-indent-line-or-region)
