@@ -378,7 +378,7 @@
            arthur-theme-hue arthur-theme-saturation arthur-theme-value arthur-theme-invert arthur-theme-invert-hue)
   (arthur-theme))
 
-(with-eval-after-load "desktop"
+(with-eval-after-load 'desktop
   (add-to-list 'desktop-globals-to-save 'arthur-current-theme)
   (add-to-list 'desktop-globals-to-save 'arthur-theme-hue)
   (add-to-list 'desktop-globals-to-save 'arthur-theme-invert-hue)

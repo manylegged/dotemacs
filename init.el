@@ -90,15 +90,13 @@
   (dolist (el '(auto-complete color-theme lua-mode ag unicode-fonts glsl-mode))
     (package-install el)))
 
-; stop Fing up my history
-(defvar desktop-globals-to-save)
-(setq desktop-globals-to-save
-      '(tags-file-name tags-table-list))
-
-(defun my-desktop-read-hook ()
+(with-eval-after-load 'desktop
+  ;; stop Fing up my history
+  (setq desktop-globals-to-save (delq 'file-name-history desktop-globals-to-save))
+  
+  (defun my-desktop-read-hook ()
     (unicode-fonts-setup))
-(add-hook 'desktop-after-read-hook 'my-desktop-read-hook)
-
+  (add-hook 'desktop-after-read-hook 'my-desktop-read-hook))
 
 (require 'idle-highlight-in-visible-buffers-mode)
 (idle-highlight-in-visible-buffers-mode t)
@@ -355,7 +353,7 @@
 
 (add-hook 'eval-expression-minibuffer-setup-hook 'eldoc-mode)
 
-(with-eval-after-load "hippie-exp"
+(with-eval-after-load 'hippie-exp
   (defvar dabbrev-case-fold-search)
   (defun my-he-dabbrev-search-wrapper (fun &rest args)
     (let ((case-fold-search dabbrev-case-fold-search))
@@ -375,7 +373,7 @@
     ;; (replace-buffer-in-windows buffer)
     ) )
 
-(with-eval-after-load "compile"
+(with-eval-after-load 'compile
 
   (when (require 'xterm-color nil t)
     (setq compilation-environment '("TERM=xterm-256color"))

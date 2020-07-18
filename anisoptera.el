@@ -3,7 +3,7 @@
 ;; project oriented stuff
 
 (require 'arthur-functions)
-(require 'desktop)
+;; (require 'desktop)
 
 (defvar anisoptera-function nil)
 (defvar anisoptera-base nil)
@@ -15,7 +15,7 @@
   (when anisoptera-function
     (funcall anisoptera-function)))
 
-(with-eval-after-load "desktop"
+(with-eval-after-load 'desktop
   (add-hook 'desktop-after-read-hook 'anisoptera-reload-hook)
   (add-to-list 'desktop-globals-to-save 'anisoptera-function))
 
