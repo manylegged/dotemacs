@@ -178,7 +178,7 @@
  focus-follows-mouse nil         ; behavior of window manager
  describe-char-unidata-list '(name general-category
                                    digit-value numeric-value)
- save-place t                           ; remember my place in files
+ ;; save-place t                           ; remember my place in files
  show-paren-delay 0.0
  sentence-end-double-space nil
  kill-read-only-ok t
