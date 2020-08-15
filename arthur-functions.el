@@ -699,4 +699,14 @@ The following %-sequences are provided:
 	  (cons ?m (or minutes "N/A"))
 	  (cons ?t (or remaining-time "N/A")))))
 
+;; https://www.emacswiki.org/emacs/NoTabs#toc2
+(defun infer-indentation-style ()
+  (interactive)
+  ;; if our source file uses tabs, we use tabs, if spaces spaces, and if        
+  ;; neither, we use the current indent-tabs-mode                               
+  (let ((space-count (how-many "^  " (point-min) (point-max)))
+        (tab-count (how-many "^\t" (point-min) (point-max))))
+    (if (> space-count tab-count) (setq indent-tabs-mode nil))
+    (if (> tab-count space-count) (setq indent-tabs-mode t))))
+
 (provide 'arthur-functions)

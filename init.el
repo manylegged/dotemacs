@@ -123,7 +123,7 @@
   (ignore-errors
     (when (and (require 'color-theme nil t)
                (require 'arthur-theme))
-      (unless arthur-current-theme
+      (unless (eq arthur-current-theme 'dark2)
         (color-theme-arthur-dark2))
       ;; (let ((color-theme-legal-variables "\\(color\\|face\\)")
       ;;       (hour (string-to-number (format-time-string "%H"))))
@@ -216,7 +216,7 @@
  split-height-threshold 100
  frame-resize-pixelwise t
  eldoc-idle-delay 0.25
- idle-highlight-in-visible-buffers-idle-time 0.5
+ idle-highlight-in-visible-buffers-idle-time 0.25
  dabbrev-case-fold-search nil
  )
 
@@ -732,8 +732,6 @@
 (add-hook 'c-mode-common-hook 'my-c-common-hook)
 
 (defun my-c++-hook ()
-  (setq jit-lock-stealth-time 0.5)
-  
   (font-lock-add-keywords
    nil `(
          (,(regexp-opt
