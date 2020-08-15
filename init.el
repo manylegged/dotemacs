@@ -82,7 +82,8 @@
 (require 'anisoptera)
 (require 'generic-x)
 
-(when (require 'package nil t)
+(when (and (< emacs-major-version 27)
+           (require 'package nil t))
   (package-initialize)
   (add-to-list 'package-archives
 	       '("melpa" . "https://melpa.org/packages/") t)
