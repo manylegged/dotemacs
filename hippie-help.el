@@ -373,8 +373,8 @@ definition found using `hap-imenu-at-point-other-file'"
     (hap-imenu-at-point-other-file . hap-imenu-other-file)
     (hap-semantic-at-point . hap-semantic-jump)
     (hap-tag-at-point . hap-find-tag)
-    (hap-ebrowse-at-point . ebrowse-tags-find-definition)
-    (hap-ebrowse-at-point . ebrowse-tags-find-declaration)
+    ;; (hap-ebrowse-at-point . ebrowse-tags-find-definition)
+    ;; (hap-ebrowse-at-point . ebrowse-tags-find-declaration)
     (hap-variable-at-point . find-variable)
     (hap-function-at-point . find-function)
     ;; (ffap-file-at-point . find-file-at-point)
@@ -468,8 +468,12 @@ customize the way this works by changing
   (hap-do-it hippie-help-try-functions-list nil))
 
 (defun hap-collapse-spaces (str)
-  (setq str (replace-regexp-in-string "^[ \n\t]+" "" str))
-  (replace-regexp-in-string "[ \n\t]+" " " str))
+  (save-match-data
+    (when (string-match "^[ \n\t]+" str)
+      (setq str (substring str (match-end 0)))))
+  (when (string-match-p "[ \n\t]+" str)
+    (setq str (replace-regexp-in-string "[ \n\t]+" " " str)))
+  str)
 
 (defun hap-trim-to-max-lines (str maxlines &optional terminator)
   "Return the first MAXLINES of STR.
@@ -701,9 +705,12 @@ the default and don't actually prompt user"
 (defun hap-substr-equal (a b)
   (let ((la (length a)) (lb (length b)))
     (cond
-     ((eq la lb) (string-equal a b))
-     ((> la lb) (string-match-p (regexp-quote b) a))
-     (t (string-match-p (regexp-quote a) b)))))
+      ((eq la lb) (string-equal a b))
+      ((> la lb) (string-equal (substring a 0 lb) b))
+      (t (string-equal (substring b 0 la) a))
+     ;; ((> la lb) (string-match-p (regexp-quote b) a))
+     ;; (t (string-match-p (regexp-quote a) b))
+     )))
 
 (defun hap-dup-key (x)
   (concat (hap-pretty-marker x)
@@ -747,7 +754,8 @@ the default and don't actually prompt user"
 return a string representing the prototype for the function under point"
   (unless (or (not (eq eldoc-documentation-function 'hippie-eldoc-function))
               (and (boundp 'ac-completing) ac-completing) ; suppress while autocomplete is enabled
-              (minibuffer-selected-window)) ; suppress while minibuffer is in use
+              (minibuffer-selected-window)                ; suppress while minibuffer is in use
+              (not (hap-symbol-at-point)))                ; early exit if not looking at anything
     (when (or hap-debug-enabled
               (not hap-eldoc-current-prototypes)
               (not (string-equal (hap-symbol-at-point) hap-eldoc-last-symbol)))
@@ -759,7 +767,7 @@ return a string representing the prototype for the function under point"
             ebrowse-position-stack                    ; save ebrowse stack
             prototypes (scanok t)
             (hap-eldoc-in-progress t))
-        (save-excursion 
+        (save-excursion
           (while (and (not prototypes) scanok (> (point) search-start))
             (setq prototypes (hap-do-it hippie-goto-try-functions-list 'hap-find-prototype))
             (unless prototypes

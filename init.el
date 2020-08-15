@@ -218,6 +218,7 @@
  eldoc-idle-delay 0.25
  idle-highlight-in-visible-buffers-idle-time 0.25
  dabbrev-case-fold-search nil
+ gc-cons-threshold 1600000
  )
 
 ;(add-to-list 'warning-suppress-types '(undo discard-info))q

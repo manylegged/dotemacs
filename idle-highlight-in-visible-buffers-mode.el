@@ -57,43 +57,43 @@
   :group 'idle-highlight-in-visible-buffers
   :type 'float)
 
-(defvar idle-highlight-in-visible-buffers-regexp nil
+(defvar ihivb-regexp nil
   "Buffer-local regexp to be idle-highlighted.")
-(make-variable-buffer-local 'idle-highlight-in-visible-buffers-regexp)
+(make-variable-buffer-local 'ihivb-regexp)
 
-(defvar idle-highlight-in-visible-buffers-global-timer nil
+(defvar ihivb-global-timer nil
   "Timer to trigger highlighting.")
 
-(defun idle-highlight-in-visible-buffers-buffers-list ()
+(defun ihivb-buffers-list ()
   "Given a list of buffers, return buffers which are currently visible."
   (let ((buffers '()))
     (walk-windows (lambda (w) (push (window-buffer w) buffers))) buffers))
 
-(defun idle-highlight-in-visible-buffers-unhighlight-word ()
+(defun ihivb-unhighlight-word ()
   "Remove highlighting from all visible buffers."
-  (save-window-excursion
-    (dolist (buffer (idle-highlight-in-visible-buffers-buffers-list))
-      (switch-to-buffer buffer)
-      (when idle-highlight-in-visible-buffers-regexp
-        (unhighlight-regexp idle-highlight-in-visible-buffers-regexp)
-        (setq idle-highlight-in-visible-buffers-regexp nil)))))
+  (save-excursion
+    (dolist (buffer (ihivb-buffers-list))
+      (set-buffer buffer)
+      (when ihivb-regexp
+        (unhighlight-regexp ihivb-regexp)
+        (setq ihivb-regexp nil)))))
 
-(defun idle-highlight-in-visible-buffers-highlight-word-at-point ()
+(defun ihivb-highlight-word-at-point ()
   "Highlight the word under the point in all visible buffers."
   (let ((target (thing-at-point 'symbol)))
     (if (and target
              (not (member target idle-highlight-in-visible-buffers-exceptions))
              (not (string-match-p "[0-9].*" target)))
         (let ((regexp (concat "\\_<" (regexp-quote target) "\\_>")))
-          (save-window-excursion
-            (dolist (buffer (idle-highlight-in-visible-buffers-buffers-list))
-              (switch-to-buffer buffer)
-              (unless (string= regexp idle-highlight-in-visible-buffers-regexp)
-                (when idle-highlight-in-visible-buffers-regexp
-                  (unhighlight-regexp idle-highlight-in-visible-buffers-regexp))
-                (setq idle-highlight-in-visible-buffers-regexp regexp)
+          (save-excursion
+            (dolist (buffer (ihivb-buffers-list))
+              (set-buffer buffer)
+              (unless (string= regexp ihivb-regexp)
+                (when ihivb-regexp
+                  (unhighlight-regexp ihivb-regexp))
+                (setq ihivb-regexp regexp)
                 (highlight-regexp regexp 'idle-highlight-in-visible-buffers)))))
-      (idle-highlight-in-visible-buffers-unhighlight-word))))
+      (ihivb-unhighlight-word))))
 
 ;;;###autoload
 (define-minor-mode idle-highlight-in-visible-buffers-mode
@@ -101,14 +101,14 @@
   :group 'idle-highlight-in-visible-buffers
   :global t
   (if idle-highlight-in-visible-buffers-mode
-      (progn (unless idle-highlight-in-visible-buffers-global-timer
-               (setq idle-highlight-in-visible-buffers-global-timer
+      (progn (unless ihivb-global-timer
+               (setq ihivb-global-timer
                      (run-with-idle-timer idle-highlight-in-visible-buffers-idle-time
-                                          :repeat 'idle-highlight-in-visible-buffers-highlight-word-at-point)))
-             (setq idle-highlight-in-visible-buffers-regexp nil))
-    (cancel-timer idle-highlight-in-visible-buffers-global-timer)
-    (setq idle-highlight-in-visible-buffers-global-timer nil)
-    (idle-highlight-in-visible-buffers-unhighlight-word)))
+                                          :repeat 'ihivb-highlight-word-at-point)))
+             (setq ihivb-regexp nil))
+    (cancel-timer ihivb-global-timer)
+    (setq ihivb-global-timer nil)
+    (ihivb-unhighlight-word)))
 
 (provide 'idle-highlight-in-visible-buffers-mode)
 ;;; idle-highlight-in-visible-buffers-mode.el ends here
