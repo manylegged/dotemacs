@@ -47,6 +47,10 @@
   (setq myfont "PragmataPro Liga")
   (ignore-errors (set-frame-font (setq myfont "PragmataPro-11")) t)
 
+  ;; this function breaks etags by mysteriously  replacing : with !
+  (defun convert-standard-filename (filename)
+    filename)
+
   )
   ;; (setq myfont "Consolas-11"))
  ((eq system-type 'darwin)
