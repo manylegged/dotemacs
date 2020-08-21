@@ -785,6 +785,8 @@ return a string representing the prototype for the function under point"
           (setq hap-eldoc-prototype-index 0)))
       (hap-get-current-message))))
 
+
+
 ;;;###autoload
 (defun hippie-eldoc (&optional arg)
   "Enable `eldoc-mode' using the same mechanism as `hippie-goto' to find function prototypes.
@@ -795,6 +797,9 @@ Particularly useful for c/c++, where it can use ebrowse, imenu, and or tag data"
   (if (or (and (not (and (boundp 'eldoc-mode) eldoc-mode)) (null arg))
           (and (numberp arg) (> arg 0)))
       (progn
+        ;; remove all advice
+        (let ((sym eldoc-documentation-function))
+          (advice-mapc (lambda (advice _props) (advice-remove sym advice)) sym))
         (setq eldoc-documentation-function 'hippie-eldoc-function)
         (eldoc-add-command 'hippie-eldoc-next)
         (eldoc-add-command 'hippie-eldoc-previous)

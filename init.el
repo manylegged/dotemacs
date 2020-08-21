@@ -312,7 +312,10 @@
   (local-set-key (kbd "C-M-w") 'my-minibuffer-insert-symbol-at-point))
 (add-hook 'minibuffer-setup-hook 'my-minibuffer-setup-hook)
 
-(global-set-key (kbd "M-/") 'hippie-expand)
+(defun my-do-nothing () (interactive) nil)
+(global-set-key [remap set-goal-column] 'my-do-nothing)
+;; (global-set-key (kbd "M-/") 'hippie-expand)
+(global-set-key [remap cdabbrev] 'hippie-expand)
 ;; (global-set-key (kbd "M-,") 'hippie-expand-line)
 (global-set-key (kbd "M-,") 'xref-pop-marker-stack)
 (global-set-key (kbd "M-*") 'xref-pop-marker-stack)
