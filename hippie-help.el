@@ -703,14 +703,16 @@ the default and don't actually prompt user"
   (hippie-eldoc-next -1))
 
 (defun hap-substr-equal (a b)
-  (let ((la (length a)) (lb (length b)))
-    (cond
-      ((eq la lb) (string-equal a b))
-      ((> la lb) (string-equal (substring a 0 lb) b))
-      (t (string-equal (substring b 0 la) a))
+  (let ((lmin (min (length a) (length b))))
+    (eq t (compare-strings a nil lmin b nil lmin))))
+  ;; (let ((la (length a)) (lb (length b)))
+    ;; (cond
+      ;; ((eq la lb) (string-equal a b))
+      ;; ((> la lb) (string-equal (substring a 0 lb) b))
+      ;; (t (string-equal (substring b 0 la) a))
      ;; ((> la lb) (string-match-p (regexp-quote b) a))
      ;; (t (string-match-p (regexp-quote a) b))
-     )))
+     ;; )))
 
 (defun hap-dup-key (x)
   (concat (hap-pretty-marker x)
@@ -749,13 +751,19 @@ the default and don't actually prompt user"
                          (lambda (a b) (< (car a) (car b))))))))
             ;; 'hap-compare))))
 
+(defun hap-in-function-proto ()
+  (let ((i (point)))
+    (while (seq-contains " \n\t" (char-after i))
+      (setq i (- i 1)))
+    (seq-contains ",(" (char-after i))))
+
 (defun hippie-eldoc-function ()
   "`hippie-eldoc' function for `eldoc-documentation-function'.
 return a string representing the prototype for the function under point"
   (unless (or (not (eq eldoc-documentation-function 'hippie-eldoc-function))
               (and (boundp 'ac-completing) ac-completing) ; suppress while autocomplete is enabled
               (minibuffer-selected-window)                ; suppress while minibuffer is in use
-              (not (hap-symbol-at-point)))                ; early exit if not looking at anything
+              (not (or (hap-symbol-at-point) (hap-in-function-proto)))) ; early exit if not looking at anything
     (when (or hap-debug-enabled
               (not hap-eldoc-current-prototypes)
               (not (string-equal (hap-symbol-at-point) hap-eldoc-last-symbol)))
