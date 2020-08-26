@@ -47,6 +47,10 @@
   (setq myfont "PragmataPro Liga")
   (ignore-errors (set-frame-font (setq myfont "PragmataPro-11")) t)
 
+  ;; this function breaks etags by mysteriously  replacing : with !
+  (defun convert-standard-filename (filename)
+    filename)
+
   )
   ;; (setq myfont "Consolas-11"))
  ((eq system-type 'darwin)
@@ -308,7 +312,10 @@
   (local-set-key (kbd "C-M-w") 'my-minibuffer-insert-symbol-at-point))
 (add-hook 'minibuffer-setup-hook 'my-minibuffer-setup-hook)
 
-(global-set-key (kbd "M-/") 'hippie-expand)
+(defun my-do-nothing () (interactive) nil)
+(global-set-key [remap set-goal-column] 'my-do-nothing)
+;; (global-set-key (kbd "M-/") 'hippie-expand)
+(global-set-key [remap cdabbrev] 'hippie-expand)
 ;; (global-set-key (kbd "M-,") 'hippie-expand-line)
 (global-set-key (kbd "M-,") 'xref-pop-marker-stack)
 (global-set-key (kbd "M-*") 'xref-pop-marker-stack)

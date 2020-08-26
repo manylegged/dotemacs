@@ -4,12 +4,13 @@
 ;;; History:
 ;; 
 ;; Released under the GPL. No implied warranties, etc. Use at your own risk.
-;; Copyright 2008-2014 Arthur Danskin <arthurdanskin@gmail.com>
+;; Copyright 2008-2020 Arthur Danskin <arthurdanskin@gmail.com>
 ;; April 2008 - initial version 
 ;; May   2008 - ebrowse support, fix man support, cleanups
 ;; July  2013 - hippie-eldoc mode
 ;; June  2014 - hippie-eldoc-view, cycle through multiple definitions in eldoc
 ;; July  2019 - improve performance
+;; August 2020 - emacs 27 update, reduce consing
 ;; 
 ;;; Commentary:
 ;; 
@@ -371,7 +372,7 @@ definition found using `hap-imenu-at-point-other-file'"
 (defvar hippie-goto-try-functions-list
   '((hap-imenu-at-point . hap-imenu)
     (hap-imenu-at-point-other-file . hap-imenu-other-file)
-    (hap-semantic-at-point . hap-semantic-jump)
+    ;; (hap-semantic-at-point . hap-semantic-jump)
     (hap-tag-at-point . hap-find-tag)
     ;; (hap-ebrowse-at-point . ebrowse-tags-find-definition)
     ;; (hap-ebrowse-at-point . ebrowse-tags-find-declaration)
@@ -469,7 +470,7 @@ customize the way this works by changing
 
 (defun hap-collapse-spaces (str)
   (save-match-data
-    (when (string-match "^[ \n\t]+" str)
+    (when (string-match "\\`[ \n\t]+" str)
       (setq str (substring str (match-end 0)))))
   (when (string-match-p "[ \n\t]+" str)
     (setq str (replace-regexp-in-string "[ \n\t]+" " " str)))
@@ -751,41 +752,42 @@ the default and don't actually prompt user"
                          (lambda (a b) (< (car a) (car b))))))))
             ;; 'hap-compare))))
 
-(defun hap-in-function-proto ()
-  (let ((i (point)))
-    (while (seq-contains " \n\t" (char-after i))
-      (setq i (- i 1)))
-    (seq-contains ",(" (char-after i))))
+(defun hap-current-sym ()
+  (let ((sym (hap-symbol-at-point)))
+    (unless sym
+      (let ((search-start (or (save-excursion (re-search-backward "[;{}#]" (point-min) t))
+                              (line-beginning-position)))
+            forward-sexp-function       ; work around bug in up-list
+            ebrowse-position-stack)     ; save ebrowse stack
+        (save-excursion
+          (while (and (not sym)
+                      (ignore-errors (up-list -1) (backward-char 1) t)
+                      (> (point) search-start))
+            (setq sym (hap-symbol-at-point))))))
+    sym))
 
 (defun hippie-eldoc-function ()
   "`hippie-eldoc' function for `eldoc-documentation-function'.
 return a string representing the prototype for the function under point"
-  (unless (or (not (eq eldoc-documentation-function 'hippie-eldoc-function))
-              (and (boundp 'ac-completing) ac-completing) ; suppress while autocomplete is enabled
-              (minibuffer-selected-window)                ; suppress while minibuffer is in use
-              (not (or (hap-symbol-at-point) (hap-in-function-proto)))) ; early exit if not looking at anything
-    (when (or hap-debug-enabled
-              (not hap-eldoc-current-prototypes)
-              (not (string-equal (hap-symbol-at-point) hap-eldoc-last-symbol)))
-      (setq hap-eldoc-last-symbol (hap-symbol-at-point))
-      ;; try to move out of an argument list onto the function name
-      (let ((search-start (or (save-excursion (re-search-backward "[;{}#]" (point-min) t))
-                              (line-beginning-position)))
-            forward-sexp-function                     ; work around bug in up-list
-            ebrowse-position-stack                    ; save ebrowse stack
-            prototypes (scanok t)
-            (hap-eldoc-in-progress t))
-        (save-excursion
-          (while (and (not prototypes) scanok (> (point) search-start))
-            (setq prototypes (hap-do-it hippie-goto-try-functions-list 'hap-find-prototype))
-            (unless prototypes
-              (setq scanok (ignore-errors (up-list -1) (backward-char 1) t)))))
-        (setq prototypes (hap-sort-filter-entries prototypes))
+  (let ((sym (hap-current-sym))
+        prototypes
+        (hap-eldoc-in-progress t))
+    (unless (or (not (eq eldoc-documentation-function 'hippie-eldoc-function))
+                (and (boundp 'ac-completing) ac-completing) ; suppress while autocomplete is enabled
+                (minibuffer-selected-window)                ; suppress while minibuffer is in use
+                (not sym))                                  ; early exit if not looking at anything
+      (when (or hap-debug-enabled
+                (not hap-eldoc-current-prototypes)
+                (not (string-equal sym hap-eldoc-last-symbol)))
+        (setq hap-eldoc-last-symbol sym)
+        (setq prototypes (hap-sort-filter-entries
+                          (hap-do-it hippie-goto-try-functions-list 'hap-find-prototype)))
         (unless (equal prototypes hap-eldoc-current-prototypes)
           (setq hap-eldoc-current-prototypes prototypes)
-          (setq hap-eldoc-prototype-index 0))))
-    (hap-get-current-message)
-    ))
+          (setq hap-eldoc-prototype-index 0)))
+      (hap-get-current-message))))
+
+
 
 ;;;###autoload
 (defun hippie-eldoc (&optional arg)
@@ -797,6 +799,9 @@ Particularly useful for c/c++, where it can use ebrowse, imenu, and or tag data"
   (if (or (and (not (and (boundp 'eldoc-mode) eldoc-mode)) (null arg))
           (and (numberp arg) (> arg 0)))
       (progn
+        ;; remove all advice
+        (let ((sym eldoc-documentation-function))
+          (advice-mapc (lambda (advice _props) (advice-remove sym advice)) sym))
         (setq eldoc-documentation-function 'hippie-eldoc-function)
         (eldoc-add-command 'hippie-eldoc-next)
         (eldoc-add-command 'hippie-eldoc-previous)
