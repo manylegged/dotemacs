@@ -86,9 +86,9 @@
 (require 'anisoptera)
 (require 'generic-x)
 
-(when (and (< emacs-major-version 27)
-           (require 'package nil t))
-  (package-initialize)
+(when (require 'package nil t)
+  (when (< emacs-major-version 27)
+    (package-initialize))
   (add-to-list 'package-archives
 	       '("melpa" . "https://melpa.org/packages/") t)
   ;; (package-refresh-contents)
@@ -813,6 +813,8 @@
   (modify-syntax-entry ?\; "."))
 (add-hook 'asm-mode-hook 'my-asm-hook)
 
+(setq graphviz-dot-preview-extension "pdf"
+      graphviz-dot-indent-width 4)
 
 ;; python
 (add-to-list 'auto-mode-alist '("SCons\\(truct\\|script\\)\\'" . python-mode))
