@@ -129,17 +129,10 @@
     (when (and (require 'color-theme nil t)
                (require 'arthur-theme))
       (unless (eq arthur-current-theme 'dark2)
-        (color-theme-arthur-dark2))
-      ;; (let ((color-theme-legal-variables "\\(color\\|face\\)")
-      ;;       (hour (string-to-number (format-time-string "%H"))))
-      ;;   (if (and (< 8 hour ) (< hour 21))
-      ;;       (color-theme-arthur-light)
-      ;;     (color-theme-arthur-dark))
-      ;;   )
-      ))
+        (color-theme-arthur-dark2))))
   
   (blink-cursor-mode 0)
-  (if (featurep 'tool-bar) (tool-bar-mode -1))
+  (if (and (featurep 'tool-bar) tool-bar-mode) (tool-bar-mode -1))
   (if (featurep 'scroll-bar) (scroll-bar-mode -1))
   (if (featurep 'tooltip) (tooltip-mode -1))
 
@@ -224,6 +217,7 @@
  idle-highlight-in-visible-buffers-idle-time 0.25
  dabbrev-case-fold-search nil
  gc-cons-threshold 1600000
+ find-file-suppress-same-file-warnings t
  )
 
 ;(add-to-list 'warning-suppress-types '(undo discard-info))q
@@ -704,6 +698,7 @@
   (local-set-key (kbd "C-c o") 'ff-get-other-file)
   (local-set-key (kbd "TAB") 'c-indent-line-or-region)
   (local-set-key (kbd "C-c C-l") 'align-dwim)
+  (local-set-key (kbd "C-c n") 'my-renumber-list)
   (imenu-add-menubar-index)
   (hexcolor-mode 1)
   (subword-mode 1)

@@ -66,8 +66,9 @@
 
 (defun ihivb-buffers-list ()
   "Given a list of buffers, return buffers which are currently visible."
-  (let ((buffers '()))
-    (walk-windows (lambda (w) (push (window-buffer w) buffers))) buffers))
+  (let (buffers)
+    (walk-windows (lambda (w) (push (window-buffer w) buffers)) nil t)
+    buffers))
 
 (defun ihivb-unhighlight-word ()
   "Remove highlighting from all visible buffers."
