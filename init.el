@@ -217,6 +217,7 @@
  idle-highlight-in-visible-buffers-idle-time 0.25
  dabbrev-case-fold-search nil
  gc-cons-threshold 1600000
+ find-file-suppress-same-file-warnings t
  )
 
 ;(add-to-list 'warning-suppress-types '(undo discard-info))q

@@ -64,6 +64,7 @@
 (defvar hap-eldoc-prototype-index 0)
 (defvar hap-eldoc-last-symbol nil)
 (defvar hap-eldoc-in-progress nil)
+(defvar hap-current-sym nil)
 
 (defmacro with-no-interactivity (&rest body)
   "Run BODY with interactive functions overridden to not prompt user, not change windows, etc.
@@ -75,6 +76,7 @@ If BODY calls prompting functions, pick the default automatically"
           (switch-to-buffer (buf-or-name &rest _args) (set-buffer buf-or-name))
           (pop-to-buffer (buffer &rest _args) (set-buffer buffer))
           (select-window (win &optional _norec) (set-buffer (window-buffer win)) win)
+          (recursive-edit () nil)
           (push-mark (&rest _args) nil)
           (message (_fmt &rest _args) nil)
           (find-file-noselect (name &rest _args) (set-buffer (hap-find-buffer name))))
@@ -169,7 +171,7 @@ functions run as part of BODY will not change globals state"
 
 (defun hap-symbol-at-point ()
   "same as `symbol-at-point', but properly handles C++ destructors"
-  (hap-filter-symbol (thing-at-point 'c++-symbol)))
+  (or hap-current-sym (hap-filter-symbol (thing-at-point 'c++-symbol))))
 
 (defun hap-tag-at-point ()
   "Return non-nil if point is contained in an etags tag."
@@ -264,18 +266,18 @@ Return in same format as `hap-find-prototype'."
   '((c++-mode . hap-imenu-c++-comparator)
     (python-mode . hap-imenu-python-comparator)))
 
-(defun hap-imenu-at-point (&optional method)
+(defun hap-imenu-at-point (&optional method sym)
   "return (SYMBOL . MARKER) for SYM or the symbol at point with `imenu', else nil"
-  (let ((sym (hap-symbol-at-point)))
-    (and sym
-         (let* ((imenu-auto-rescan t)
-                (imenu-name-lookup-function (cdr-safe (assoc major-mode hap-imenu-comparator-alist)))
-                (val (ignore-errors (imenu--in-alist sym (imenu--make-index-alist t)))))
-           (if (and hap-eldoc-in-progress (markerp (cdr-safe val)))
-               (list (hap-find-prototype (or method 'imenu)
-                                         (marker-buffer (cdr val))
-                                         (marker-position (cdr val))))
-             val)))))
+  (setq sym (or sym (hap-symbol-at-point)))
+  (and sym
+       (let* ((imenu-auto-rescan t)
+              (imenu-name-lookup-function (cdr-safe (assoc major-mode hap-imenu-comparator-alist)))
+              (val (ignore-errors (imenu--in-alist sym (imenu--make-index-alist t)))))
+         (if (and hap-eldoc-in-progress (markerp (cdr-safe val)))
+             (list (hap-find-prototype (or method 'imenu)
+                                       (marker-buffer (cdr val))
+                                       (marker-position (cdr val))))
+           val))))
 
 (defun hap-imenu-read (str item)
   ;; TODO improve me
@@ -295,15 +297,13 @@ Return in same format as `hap-find-prototype'."
 (defun hap-imenu-at-point-other-file ()
   "return (SYMBOL . MARKER) for the symbol at point using `imenu',
 in the file returned by `ff-find-other-file'"
-  (let ((buf (current-buffer)))
-    (save-current-buffer
-      (with-no-interactivity
-       (unless (catch 'hap-ff-not-found
-                 (let ((ff-not-found-hook (lambda () (throw 'hap-ff-not-found t))))
-                   (ff-find-other-file))
-                 nil)
-         (unless (eq buf (current-buffer))
-           (hap-imenu-at-point 'imenu-other-file)))))))
+  (with-no-warnings
+    (let* ((oname (expand-file-name (flet ((message (&rest _) nil)) (ff-other-file-name))))
+           (obuf (and oname (hap-find-buffer oname)))
+           (sym (hap-symbol-at-point)))
+      (when (and obuf (not (eq (current-buffer) obuf)))
+        (with-current-buffer obuf
+          (hap-imenu-at-point 'imenu-other-file sym))))))
 
 (defun hap-imenu-other-file (_sym marker)
   "Interactively prompt for confirmation, then go to the
@@ -769,17 +769,17 @@ the default and don't actually prompt user"
 (defun hippie-eldoc-function ()
   "`hippie-eldoc' function for `eldoc-documentation-function'.
 return a string representing the prototype for the function under point"
-  (let ((sym (hap-current-sym))
+  (let ((hap-current-sym (hap-current-sym))
         prototypes
         (hap-eldoc-in-progress t))
     (unless (or (not (eq eldoc-documentation-function 'hippie-eldoc-function))
                 (and (boundp 'ac-completing) ac-completing) ; suppress while autocomplete is enabled
                 (minibuffer-selected-window)                ; suppress while minibuffer is in use
-                (not sym))                                  ; early exit if not looking at anything
+                (not hap-current-sym))                                  ; early exit if not looking at anything
       (when (or hap-debug-enabled
                 (not hap-eldoc-current-prototypes)
-                (not (string-equal sym hap-eldoc-last-symbol)))
-        (setq hap-eldoc-last-symbol sym)
+                (not (string-equal hap-current-sym hap-eldoc-last-symbol)))
+        (setq hap-eldoc-last-symbol hap-current-sym)
         (setq prototypes (hap-sort-filter-entries
                           (hap-do-it hippie-goto-try-functions-list 'hap-find-prototype)))
         (unless (equal prototypes hap-eldoc-current-prototypes)

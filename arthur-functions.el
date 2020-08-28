@@ -631,9 +631,10 @@ Works on member functions (including constructors, etc) as well as regular funct
 
 (defun my-renumber-list ()
   (interactive)
-  (let ((end (min (save-excursion (re-search-forward "DEFINE_ENUM" nil t))
-                  (save-excursion (re-search-forward "COUNT" nil t))))
+  (let ((end (min (or (save-excursion (re-search-forward "DEFINE_ENUM" nil t)) (point-max))
+                  (or (save-excursion (re-search-forward "COUNT" nil t) (end-of-line) (point)) (point-max))))
         (num 0))
+    (beginning-of-line)
     (while (re-search-forward ", *\\([0-9]*\\))" end t)
       (when (= num 0)
         (setq num (string-to-number (match-string 1))))
