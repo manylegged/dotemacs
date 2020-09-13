@@ -389,6 +389,7 @@
 (global-set-key (kbd "<f3>") (lambda () (interactive) (setq arthur-theme-invert (not arthur-theme-invert)) (arthur-theme-incr 'arthur-theme-hue 0.0)))
 (global-set-key (kbd "<f5>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-hue -1.0)))
 (global-set-key (kbd "<f6>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-hue 1.0)))
+(global-set-key (kbd "<f8>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-hue (/ 0.1 hexcolor-increment))))
 (global-set-key (kbd "<f9>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-saturation -1.0)))
 (global-set-key (kbd "<f10>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-saturation 1.0)))
 ;; (global-set-key (kbd "<f9>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-value -1.0)))
