@@ -172,6 +172,7 @@
  indent-tabs-mode nil                    ; no tabs!
  vc-follow-symlinks t
  vc-hg-diff-switches "-w"
+ vc-hg-symbolic-revision-styles '("{rev}")
  default-indicate-buffer-boundaries 'left
  default-indicate-empty-lines t  ; indicate end of file in fringe
  iswitchb-prompt-newbuffer nil   ; don't prompt to create a new buffer
@@ -214,7 +215,7 @@
  ring-bell-function (lambda () nil); suppress annoying beeps
  switch-to-buffer-preserve-window-point 'already-displayed
  imenu-auto-rescan-maxout 120000
- split-width-threshold 140
+ split-width-threshold 160
  split-height-threshold 100
  frame-resize-pixelwise t
  eldoc-idle-delay 0.25
@@ -380,13 +381,10 @@
   (when (require 'xterm-color nil t)
     (setq compilation-environment '("TERM=xterm-256color"))
     (defun comint-term-environment () (list))
-    (defun my/advice-compilation-filter (f proc string)
-      (funcall f proc ;;(replace-regexp-in-string "\n+" "\n" 
-                                                (xterm-color-filter string)))
-      ;; (funcall f proc (xterm-color-filter
-                       ;; (replace-regexp-in-string "[][0-9XC]*\n" "" string)))
-    (advice-add 'compilation-filter :around #'my/advice-compilation-filter)
-    ;; (advice-remove 'compilation-filter 'my/advice-compilation-filter)
+    (with-no-warnings
+      (defun my/advice-compilation-filter (f proc string)
+        (funcall f proc (xterm-color-filter string)))
+      (advice-add 'compilation-filter :around #'my/advice-compilation-filter))
     )
   
   (add-hook 'compilation-finish-functions 'my-compilation-finish-function)
