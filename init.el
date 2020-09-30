@@ -47,6 +47,10 @@
   (setq myfont "PragmataPro Liga")
   (ignore-errors (set-frame-font (setq myfont "PragmataPro-11")) t)
 
+  ;; this function breaks etags by mysteriously  replacing : with !
+  (defun convert-standard-filename (filename)
+    filename)
+
   )
   ;; (setq myfont "Consolas-11"))
  ((eq system-type 'darwin)
@@ -83,22 +87,21 @@
 (require 'generic-x)
 
 (when (require 'package nil t)
-  (package-initialize)
+  (when (< emacs-major-version 27)
+    (package-initialize))
   (add-to-list 'package-archives
 	       '("melpa" . "https://melpa.org/packages/") t)
   ;; (package-refresh-contents)
   (dolist (el '(auto-complete color-theme lua-mode ag unicode-fonts glsl-mode))
     (package-install el)))
 
-; stop Fing up my history
-(defvar desktop-globals-to-save)
-(setq desktop-globals-to-save
-      '(tags-file-name tags-table-list))
-
-(defun my-desktop-read-hook ()
+(with-eval-after-load 'desktop
+  ;; stop Fing up my history
+  (setq desktop-globals-to-save (delq 'file-name-history desktop-globals-to-save))
+  
+  (defun my-desktop-read-hook ()
     (unicode-fonts-setup))
-(add-hook 'desktop-after-read-hook 'my-desktop-read-hook)
-
+  (add-hook 'desktop-after-read-hook 'my-desktop-read-hook))
 
 (require 'idle-highlight-in-visible-buffers-mode)
 (idle-highlight-in-visible-buffers-mode t)
@@ -125,18 +128,11 @@
   (ignore-errors
     (when (and (require 'color-theme nil t)
                (require 'arthur-theme))
-      (unless arthur-current-theme
-        (color-theme-arthur-dark2))
-      ;; (let ((color-theme-legal-variables "\\(color\\|face\\)")
-      ;;       (hour (string-to-number (format-time-string "%H"))))
-      ;;   (if (and (< 8 hour ) (< hour 21))
-      ;;       (color-theme-arthur-light)
-      ;;     (color-theme-arthur-dark))
-      ;;   )
-      ))
+      (unless (eq arthur-current-theme 'dark2)
+        (color-theme-arthur-dark2))))
   
   (blink-cursor-mode 0)
-  (if (featurep 'tool-bar) (tool-bar-mode -1))
+  (if (and (featurep 'tool-bar) tool-bar-mode) (tool-bar-mode -1))
   (if (featurep 'scroll-bar) (scroll-bar-mode -1))
   (if (featurep 'tooltip) (tooltip-mode -1))
 
@@ -180,7 +176,7 @@
  focus-follows-mouse nil         ; behavior of window manager
  describe-char-unidata-list '(name general-category
                                    digit-value numeric-value)
- save-place t                           ; remember my place in files
+ ;; save-place t                           ; remember my place in files
  show-paren-delay 0.0
  sentence-end-double-space nil
  kill-read-only-ok t
@@ -219,8 +215,10 @@
  split-height-threshold 100
  frame-resize-pixelwise t
  eldoc-idle-delay 0.25
- idle-highlight-in-visible-buffers-idle-time 0.5
+ idle-highlight-in-visible-buffers-idle-time 0.25
  dabbrev-case-fold-search nil
+ gc-cons-threshold 1600000
+ find-file-suppress-same-file-warnings t
  )
 
 ;(add-to-list 'warning-suppress-types '(undo discard-info))q
@@ -309,7 +307,10 @@
   (local-set-key (kbd "C-M-w") 'my-minibuffer-insert-symbol-at-point))
 (add-hook 'minibuffer-setup-hook 'my-minibuffer-setup-hook)
 
-(global-set-key (kbd "M-/") 'hippie-expand)
+(defun my-do-nothing () (interactive) nil)
+(global-set-key [remap set-goal-column] 'my-do-nothing)
+;; (global-set-key (kbd "M-/") 'hippie-expand)
+(global-set-key [remap dabbrev-expand] 'hippie-expand)
 ;; (global-set-key (kbd "M-,") 'hippie-expand-line)
 (global-set-key (kbd "M-,") 'xref-pop-marker-stack)
 (global-set-key (kbd "M-*") 'xref-pop-marker-stack)
@@ -356,7 +357,7 @@
 
 (add-hook 'eval-expression-minibuffer-setup-hook 'eldoc-mode)
 
-(with-eval-after-load "hippie-exp"
+(with-eval-after-load 'hippie-exp
   (defvar dabbrev-case-fold-search)
   (defun my-he-dabbrev-search-wrapper (fun &rest args)
     (let ((case-fold-search dabbrev-case-fold-search))
@@ -376,7 +377,7 @@
     ;; (replace-buffer-in-windows buffer)
     ) )
 
-(with-eval-after-load "compile"
+(with-eval-after-load 'compile
 
   (when (require 'xterm-color nil t)
     (setq compilation-environment '("TERM=xterm-256color"))
@@ -690,10 +691,12 @@
   (c-set-offset 'inline-open 0)
   (c-set-offset 'inextern-lang 0)
   (c-set-offset 'innamespace 0)
+  (c-set-offset 'inlambda 0)
   (local-set-key [remap newline-and-indent] 'c-context-line-break)
   (local-set-key (kbd "C-c o") 'ff-get-other-file)
   (local-set-key (kbd "TAB") 'c-indent-line-or-region)
   (local-set-key (kbd "C-c C-l") 'align-dwim)
+  (local-set-key (kbd "C-c n") 'my-renumber-list)
   (imenu-add-menubar-index)
   (hexcolor-mode 1)
   (subword-mode 1)
@@ -731,8 +734,6 @@
 (add-hook 'c-mode-common-hook 'my-c-common-hook)
 
 (defun my-c++-hook ()
-  (setq jit-lock-stealth-time 0.5)
-  
   (font-lock-add-keywords
    nil `(
          (,(regexp-opt
@@ -805,6 +806,8 @@
   (modify-syntax-entry ?\; "."))
 (add-hook 'asm-mode-hook 'my-asm-hook)
 
+(setq graphviz-dot-preview-extension "pdf"
+      graphviz-dot-indent-width 4)
 
 ;; python
 (add-to-list 'auto-mode-alist '("SCons\\(truct\\|script\\)\\'" . python-mode))

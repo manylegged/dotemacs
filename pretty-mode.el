@@ -34,20 +34,22 @@
 (defun pretty-font-lock-compose-symbol (alist)
   "Compose a sequence of ascii chars into a symbol."
   (let* ((beg (match-beginning 0))
-	 (end (match-end 0))
+         (end (match-end 0))
          (str (match-string 0))
-         (mod (buffer-modified-p)))
-    (if (or 
-         ;;(pretty-is-sym (char-before beg))
-            ;;(pretty-is-sym (char-after end))
-            (memq (get-text-property beg 'face)
-                  '(font-lock-doc-face font-lock-string-face ;; font-lock-comment-face
-                                       )))
-        (remove-text-properties beg end '(composition))
-      (compose-region beg end (cdr (assoc str alist)))
-      (restore-buffer-modified-p mod)
+         (mod (buffer-modified-p))
+         (sym (cdr (assoc str alist))))
+    (when sym
+      (if (or 
+           ;;(pretty-is-sym (char-before beg))
+           ;;(pretty-is-sym (char-after end))
+           (memq (get-text-property beg 'face)
+                 '(font-lock-doc-face font-lock-string-face ;; font-lock-comment-face
+                   )))
+          (remove-text-properties beg end '(composition))
+        (compose-region beg end sym)
+        (restore-buffer-modified-p mod)
 ;;;       (add-text-properties beg end `(display ,repl)))
-      ))
+        )))
   ;; Return nil because we're not adding any face property.
   nil)
 

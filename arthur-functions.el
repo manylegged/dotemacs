@@ -629,6 +629,18 @@ Works on member functions (including constructors, etc) as well as regular funct
         (goto-char first-point))
       (message "Yanked: %s {...}" (substring-no-properties (replace-regexp-in-string "\n.*" "" yank))))))
 
+(defun my-renumber-list ()
+  (interactive)
+  (let ((end (min (or (save-excursion (re-search-forward "DEFINE_ENUM" nil t)) (point-max))
+                  (or (save-excursion (re-search-forward "COUNT" nil t) (end-of-line) (point)) (point-max))))
+        (num 0))
+    (beginning-of-line)
+    (while (re-search-forward ", *\\([0-9]*\\))" end t)
+      (when (= num 0)
+        (setq num (string-to-number (match-string 1))))
+      (replace-match (format "%d" num) t t nil 1)
+      (setq num (+ num 1)))))
+
 (defun delete-word (arg)
   "Delete characters forward until encountering the end of a word.
 With argument ARG, do this that many times."
@@ -698,5 +710,15 @@ The following %-sequences are provided:
 	  (cons ?h (or hours "N/A"))
 	  (cons ?m (or minutes "N/A"))
 	  (cons ?t (or remaining-time "N/A")))))
+
+;; https://www.emacswiki.org/emacs/NoTabs#toc2
+(defun infer-indentation-style ()
+  (interactive)
+  ;; if our source file uses tabs, we use tabs, if spaces spaces, and if        
+  ;; neither, we use the current indent-tabs-mode                               
+  (let ((space-count (how-many "^  " (point-min) (point-max)))
+        (tab-count (how-many "^\t" (point-min) (point-max))))
+    (if (> space-count tab-count) (setq indent-tabs-mode nil))
+    (if (> tab-count space-count) (setq indent-tabs-mode t))))
 
 (provide 'arthur-functions)

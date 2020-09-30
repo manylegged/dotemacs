@@ -20,6 +20,7 @@
     ;; general
     (default ((t (nil))))
     (fringe ((t (:background "#0d0715"))))
+    (line-number ((t (:slant unspecified :foreground "#383838" :background unspecified))))
     (mode-line ((t (:background "#aa0825" :foreground "black"))))
     (mode-line-inactive ((t (:background "#0d0715" :foreground "#555e6e"))))
     (mode-line-highlight ((t (:background "grey60" :foreground "black"))))
@@ -48,7 +49,6 @@
     (tuareg-font-lock-operator-face ((t (:foreground "SeaGreen"))))
 
     (highline-face ((t (:background "grey12"))))
-    (setnu-line-number-face ((t (:background "grey15" :foreground "white" :weight bold))))
     (show-paren-match ((t (:foreground "black" :background "#04bbff" :weight unspecified))))
     (show-paren-mismatch-face ((t (:weight unspecified :foreground "red"))))
                                         ;     (paren-face ((t (:foreground "DarkGoldenrod4"))))
@@ -123,7 +123,6 @@
     (font-lock-function-name-face ((t (:weight bold :foreground "#a0bb44"))))
 
     (font-lock-comment-face ((t (:slant unspecified :foreground "#606060" :background unspecified))))
-    (line-number ((t (:slant unspecified :foreground "#383838" :background unspecified))))
     (font-lock-comment-delimiter-face ((t (:foreground "#808080" :background unspecified))))
     (font-lock-doc-face ((t (:foreground "#80cc00" :background unspecified))))
     ))
@@ -378,9 +377,11 @@
            arthur-theme-hue arthur-theme-saturation arthur-theme-value arthur-theme-invert arthur-theme-invert-hue)
   (arthur-theme))
 
-(with-eval-after-load "desktop"
+(with-eval-after-load 'desktop
   (add-to-list 'desktop-globals-to-save 'arthur-current-theme)
   (add-to-list 'desktop-globals-to-save 'arthur-theme-hue)
+  (add-to-list 'desktop-globals-to-save 'arthur-theme-saturation)
+  (add-to-list 'desktop-globals-to-save 'arthur-theme-value)
   (add-to-list 'desktop-globals-to-save 'arthur-theme-invert-hue)
   (add-hook 'desktop-after-read-hook 'arthur-theme))
   
@@ -388,8 +389,9 @@
 (global-set-key (kbd "<f3>") (lambda () (interactive) (setq arthur-theme-invert (not arthur-theme-invert)) (arthur-theme-incr 'arthur-theme-hue 0.0)))
 (global-set-key (kbd "<f5>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-hue -1.0)))
 (global-set-key (kbd "<f6>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-hue 1.0)))
-;; (global-set-key (kbd "<f7>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-saturation -1.0)))
-;; (global-set-key (kbd "<f8>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-saturation 1.0)))
+(global-set-key (kbd "<f8>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-hue (/ 0.1 hexcolor-increment))))
+(global-set-key (kbd "<f9>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-saturation -1.0)))
+(global-set-key (kbd "<f10>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-saturation 1.0)))
 ;; (global-set-key (kbd "<f9>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-value -1.0)))
 ;; (global-set-key (kbd "<f10>") (lambda () (interactive) (arthur-theme-incr 'arthur-theme-value 1.0)))
 

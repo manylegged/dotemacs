@@ -4,12 +4,14 @@
 ;;; History:
 ;; 
 ;; Released under the GPL. No implied warranties, etc. Use at your own risk.
-;; Copyright 2008-2014 Arthur Danskin <arthurdanskin@gmail.com>
+;; Copyright 2008-2020 Arthur Danskin <arthurdanskin@gmail.com>
 ;; April 2008 - initial version 
 ;; May   2008 - ebrowse support, fix man support, cleanups
 ;; July  2013 - hippie-eldoc mode
 ;; June  2014 - hippie-eldoc-view, cycle through multiple definitions in eldoc
 ;; July  2019 - improve performance
+;; August 2020 - emacs 27 update, reduce consing
+;; September 2020 - cleanup
 ;; 
 ;;; Commentary:
 ;; 
@@ -18,11 +20,6 @@
 ;; etc. and `hippie-help' is a generalized `describe-function' / `describe-variable' /
 ;; `python-describe-symbol' / etc. `hippie-eldoc' uses the machinery of `hippie-goto' to show the
 ;; definition of the function at point in the minibuffer.
-;;
-;; The implementation of this is really messy because we need to be able to tell if we should ask
-;; a function for help before we actually call it. This generally requires dipping into internal
-;; functions and/or overriding `completing-read' to prevent the user from being annoyed. The
-;; macro `with-no-interactivity' encapsulates most of this.
 ;;
 ;;; Installation:
 ;; (autoload 'hippie-help "hippie-help" "Display help for the thing at point." t)
@@ -63,26 +60,7 @@
 (defvar hap-eldoc-prototype-index 0)
 (defvar hap-eldoc-last-symbol nil)
 (defvar hap-eldoc-in-progress nil)
-
-(defmacro with-no-interactivity (&rest body)
-  "Run BODY with interactive functions overridden to not prompt user, not change windows, etc.
-If BODY calls prompting functions, pick the default automatically"
-  `(flet ((read-from-minibuffer (_prompt init &rest _args) init)
-          (completing-read (&rest args) (apply 'hap-silent-completing-read args))
-          (y-or-n-p (_prompt) nil)
-          (yes-or-no-p (_prompt) nil)
-          (switch-to-buffer (buf-or-name &rest _args) (set-buffer buf-or-name))
-          (pop-to-buffer (buffer &rest _args) (set-buffer buffer))
-          (select-window (win &optional _norec) (set-buffer (window-buffer win)) win)
-          (push-mark (&rest _args) nil)
-          (message (_fmt &rest _args) nil)
-          (find-file-noselect (name &rest _args) (set-buffer (hap-find-buffer name))))
-     ,@body))
-
-(defun call-interactively-no-prompt (func)
-  "Like `call-interactively', but automatically use default for any prompts"
-  (with-no-interactivity
-   (call-interactively func)))
+(defvar hap-current-sym nil)
 
 (defmacro save-etags-state (&rest body)
   "Save the etags mark ring, last tag, etc so that etags
@@ -116,22 +94,8 @@ functions run as part of BODY will not change globals state"
   ;; maybe I can use flet to override completing-read-multiple
   (memq (intern-soft (hap-symbol-at-point)) (face-list)))
 
-(defun hap-doxygen-at-point ()
-  (and (boundp 'doxymacs-mode) doxymacs-mode
-       ;; This is such a bad hack
-       (let ((code (cadr (interactive-form 'doxymacs-lookup))))
-         (with-no-interactivity
-          (car (eval code))))))
-
 (defun hap-opengl-at-point ()
   (and (functionp 'opengl-function-at-point) (with-no-warnings (opengl-function-at-point))))
-
-(defun hap-man-page-at-point ()
-  ;; TODO this adds a tab to the man prompt, for some reason...
-  (and (require 'woman nil t)
-       (with-no-interactivity
-        (let ((woman-use-topic-at-point t))
-          (with-no-warnings (woman-file-name nil))))))
 
 (defun hap-truename (name)
   (when (and (functionp 'cygwin-convert-file-name-from-windows)
@@ -168,7 +132,7 @@ functions run as part of BODY will not change globals state"
 
 (defun hap-symbol-at-point ()
   "same as `symbol-at-point', but properly handles C++ destructors"
-  (hap-filter-symbol (thing-at-point 'c++-symbol)))
+  (or hap-current-sym (hap-filter-symbol (thing-at-point 'c++-symbol))))
 
 (defun hap-tag-at-point ()
   "Return non-nil if point is contained in an etags tag."
@@ -193,10 +157,10 @@ functions run as part of BODY will not change globals state"
       (goto-char pos)
       (beginning-of-line)
       (save-match-data
-        (or (and (search-forward prototype (point-max) t)
+        (or (and (search-forward prototype nil t)
                  (match-beginning 0))
             (and (goto-char pos)
-                 (search-backward prototype (point-min) t)
+                 (search-backward prototype nil t)
                  (match-beginning 0))
             pos)))))
 
@@ -263,18 +227,18 @@ Return in same format as `hap-find-prototype'."
   '((c++-mode . hap-imenu-c++-comparator)
     (python-mode . hap-imenu-python-comparator)))
 
-(defun hap-imenu-at-point (&optional method)
+(defun hap-imenu-at-point (&optional method sym)
   "return (SYMBOL . MARKER) for SYM or the symbol at point with `imenu', else nil"
-  (let ((sym (hap-symbol-at-point)))
-    (and sym
-         (let* ((imenu-auto-rescan t)
-                (imenu-name-lookup-function (cdr-safe (assoc major-mode hap-imenu-comparator-alist)))
-                (val (ignore-errors (imenu--in-alist sym (imenu--make-index-alist t)))))
-           (if (and hap-eldoc-in-progress (markerp (cdr-safe val)))
-               (list (hap-find-prototype (or method 'imenu)
-                                         (marker-buffer (cdr val))
-                                         (marker-position (cdr val))))
-             val)))))
+  (setq sym (or sym (hap-symbol-at-point)))
+  (and sym
+       (let* ((imenu-auto-rescan t)
+              (imenu-name-lookup-function (cdr-safe (assoc major-mode hap-imenu-comparator-alist)))
+              (val (ignore-errors (imenu--in-alist sym (imenu--make-index-alist t)))))
+         (if (and hap-eldoc-in-progress (markerp (cdr-safe val)))
+             (list (hap-find-prototype (or method 'imenu)
+                                       (marker-buffer (cdr val))
+                                       (marker-position (cdr val))))
+           val))))
 
 (defun hap-imenu-read (str item)
   ;; TODO improve me
@@ -294,15 +258,15 @@ Return in same format as `hap-find-prototype'."
 (defun hap-imenu-at-point-other-file ()
   "return (SYMBOL . MARKER) for the symbol at point using `imenu',
 in the file returned by `ff-find-other-file'"
-  (let ((buf (current-buffer)))
-    (save-current-buffer
-      (with-no-interactivity
-       (unless (catch 'hap-ff-not-found
-                 (let ((ff-not-found-hook (lambda () (throw 'hap-ff-not-found t))))
-                   (ff-find-other-file))
-                 nil)
-         (unless (eq buf (current-buffer))
-           (hap-imenu-at-point 'imenu-other-file)))))))
+  (with-no-warnings
+    (let* ((oname (expand-file-name (let ((inhibit-message -t)
+                                          (message-log-max nil))
+                                      (ff-other-file-name))))
+           (obuf (and oname (hap-find-buffer oname)))
+           (sym (hap-symbol-at-point)))
+      (when (and obuf (not (eq (current-buffer) obuf)))
+        (with-current-buffer obuf
+          (hap-imenu-at-point 'imenu-other-file sym))))))
 
 (defun hap-imenu-other-file (_sym marker)
   "Interactively prompt for confirmation, then go to the
@@ -357,12 +321,12 @@ definition found using `hap-imenu-at-point-other-file'"
 
 (defvar hippie-help-try-functions-list
   '((hap-opengl-at-point . describe-opengl-function)
-    (hap-doxygen-at-point . doxymacs-lookup)
+    ;; (hap-doxygen-at-point . doxymacs-lookup)
     (hap-octave-help2-at-point . octave-help2)
     (hap-python-at-point . python-describe-symbol)
     (hap-variable-at-point . describe-variable)
     (hap-function-at-point . describe-function)
-    (hap-man-page-at-point . man)
+    ;; (hap-man-page-at-point . man)
     (hap-face-at-point . describe-face))
   "*Alist of functions to use for `hippie-help'. The car of each
   pair is a predicate that returns non-nil if we can use the cdr
@@ -371,10 +335,10 @@ definition found using `hap-imenu-at-point-other-file'"
 (defvar hippie-goto-try-functions-list
   '((hap-imenu-at-point . hap-imenu)
     (hap-imenu-at-point-other-file . hap-imenu-other-file)
-    (hap-semantic-at-point . hap-semantic-jump)
+    ;; (hap-semantic-at-point . hap-semantic-jump)
     (hap-tag-at-point . hap-find-tag)
-    (hap-ebrowse-at-point . ebrowse-tags-find-definition)
-    (hap-ebrowse-at-point . ebrowse-tags-find-declaration)
+    ;; (hap-ebrowse-at-point . ebrowse-tags-find-definition)
+    ;; (hap-ebrowse-at-point . ebrowse-tags-find-declaration)
     (hap-variable-at-point . find-variable)
     (hap-function-at-point . find-function)
     ;; (ffap-file-at-point . find-file-at-point)
@@ -436,7 +400,7 @@ You can customize the way this works by changing
   (interactive)
   (hap-save-location)
   (when (or (hap-do-current-entry 'switch-to-buffer)
-            (hap-do-it hippie-goto-try-functions-list nil))
+            (hap-do-it hippie-goto-try-functions-list))
     (run-hooks 'xref-after-jump-hook)))
 
 ;;;###autoload
@@ -449,11 +413,10 @@ You can customize the way this works by changing
   (hap-save-location)
   (or (hap-do-current-entry 'hap-pop-to-buffer)
       (let (buf point)
-        (save-window-excursion
-          (save-excursion
-            (when (with-no-interactivity (hap-do-it hippie-goto-try-functions-list nil))
-              (setq buf (current-buffer))
-              (setq point (point)))))
+        (save-excursion
+          (when (hap-do-it hippie-goto-try-functions-list)
+            (setq buf (current-buffer))
+            (setq point (point))))
         (when buf
           (hap-pop-to-buffer buf)
           (goto-char point)
@@ -465,11 +428,15 @@ You can customize the way this works by changing
 customize the way this works by changing
 `hippie-help-try-functions-list'."
   (interactive)
-  (hap-do-it hippie-help-try-functions-list nil))
+  (hap-do-it hippie-help-try-functions-list))
 
 (defun hap-collapse-spaces (str)
-  (setq str (replace-regexp-in-string "^[ \n\t]+" "" str))
-  (replace-regexp-in-string "[ \n\t]+" " " str))
+  (save-match-data
+    (when (string-match "\\`[ \n\t]+" str)
+      (setq str (substring str (match-end 0)))))
+  (when (string-match-p "[ \n\t]+" str)
+    (setq str (replace-regexp-in-string "[ \n\t]+" " " str)))
+  str)
 
 (defun hap-trim-to-max-lines (str maxlines &optional terminator)
   "Return the first MAXLINES of STR.
@@ -563,10 +530,15 @@ The rest are strings"
 
          ((eq major-mode 'python-mode)
           ;; (let ((type (intern (save-excursion (beginning-of-line) (symbol-at-point)))))
-            (setq proto (hap-collapse-spaces
-                         (buffer-substring (line-beginning-position)
-                                           (save-excursion
-                                             (re-search-forward ":$" (point-max)))))))
+          (setq proto (hap-collapse-spaces
+                       (buffer-substring (line-beginning-position)
+                                         (save-excursion
+                                           (re-search-forward ":$" (point-max)))))))
+
+         (t
+          (setq proto (hap-collapse-spaces
+                       (buffer-substring (line-beginning-position)
+                                         (line-end-position)))))
           )
         ;; return prototype
         (list start
@@ -694,11 +666,16 @@ the default and don't actually prompt user"
   (hippie-eldoc-next -1))
 
 (defun hap-substr-equal (a b)
-  (let ((la (length a)) (lb (length b)))
-    (cond
-     ((eq la lb) (string-equal a b))
-     ((> la lb) (string-match-p (regexp-quote b) a))
-     (t (string-match-p (regexp-quote a) b)))))
+  (let ((lmin (min (length a) (length b))))
+    (eq t (compare-strings a nil lmin b nil lmin))))
+  ;; (let ((la (length a)) (lb (length b)))
+    ;; (cond
+      ;; ((eq la lb) (string-equal a b))
+      ;; ((> la lb) (string-equal (substring a 0 lb) b))
+      ;; (t (string-equal (substring b 0 la) a))
+     ;; ((> la lb) (string-match-p (regexp-quote b) a))
+     ;; (t (string-match-p (regexp-quote a) b))
+     ;; )))
 
 (defun hap-dup-key (x)
   (concat (hap-pretty-marker x)
@@ -737,34 +714,43 @@ the default and don't actually prompt user"
                          (lambda (a b) (< (car a) (car b))))))))
             ;; 'hap-compare))))
 
+(defun hap-current-sym ()
+  (let ((sym (hap-symbol-at-point)))
+    (unless sym
+      (let ((search-start (or (save-excursion (re-search-backward "[;{}#]" (point-min) t))
+                              (line-beginning-position)))
+            forward-sexp-function       ; work around bug in up-list
+            ebrowse-position-stack)     ; save ebrowse stack
+        (save-excursion
+          (while (and (not sym)
+                      (ignore-errors (up-list -1) (backward-char 1) t)
+                      (> (point) search-start))
+            (setq sym (hap-symbol-at-point))))))
+    sym))
+
 (defun hippie-eldoc-function ()
   "`hippie-eldoc' function for `eldoc-documentation-function'.
 return a string representing the prototype for the function under point"
-  (unless (or (not (eq eldoc-documentation-function 'hippie-eldoc-function))
-              (and (boundp 'ac-completing) ac-completing) ; suppress while autocomplete is enabled
-              (minibuffer-selected-window)) ; suppress while minibuffer is in use
-    (when (or hap-debug-enabled
-              (not hap-eldoc-current-prototypes)
-              (not (string-equal (hap-symbol-at-point) hap-eldoc-last-symbol)))
-      (setq hap-eldoc-last-symbol (hap-symbol-at-point))
-      ;; try to move out of an argument list onto the function name
-      (let ((search-start (or (save-excursion (re-search-backward "[;{}#]" (point-min) t))
-                              (line-beginning-position)))
-            forward-sexp-function                     ; work around bug in up-list
-            ebrowse-position-stack                    ; save ebrowse stack
-            prototypes (scanok t)
-            (hap-eldoc-in-progress t))
-        (save-excursion 
-          (while (and (not prototypes) scanok (> (point) search-start))
-            (setq prototypes (hap-do-it hippie-goto-try-functions-list 'hap-find-prototype))
-            (unless prototypes
-              (setq scanok (ignore-errors (up-list -1) (backward-char 1) t)))))
-        (setq prototypes (hap-sort-filter-entries prototypes))
+  (let ((hap-current-sym (hap-current-sym))
+        prototypes
+        (pos (point))
+        (hap-eldoc-in-progress t))
+    (unless (or (not (eq eldoc-documentation-function 'hippie-eldoc-function))
+                (and (boundp 'ac-completing) ac-completing) ; suppress while autocomplete is enabled
+                (minibuffer-selected-window)                ; suppress while minibuffer is in use
+                (not hap-current-sym))                      ; early exit if not looking at anything
+      (when (or hap-debug-enabled
+                (not hap-eldoc-current-prototypes)
+                (not (string-equal hap-current-sym hap-eldoc-last-symbol)))
+        (setq hap-eldoc-last-symbol hap-current-sym)
+        (setq prototypes (hap-sort-filter-entries
+                          (hap-collect-prototypes hippie-goto-try-functions-list)))
         (unless (equal prototypes hap-eldoc-current-prototypes)
           (setq hap-eldoc-current-prototypes prototypes)
-          (setq hap-eldoc-prototype-index 0))))
-    (hap-get-current-message)
-    ))
+          (setq hap-eldoc-prototype-index 0)))
+      (assert (eq pos (point)))
+      (hap-get-current-message))))
+
 
 ;;;###autoload
 (defun hippie-eldoc (&optional arg)
@@ -776,13 +762,16 @@ Particularly useful for c/c++, where it can use ebrowse, imenu, and or tag data"
   (if (or (and (not (and (boundp 'eldoc-mode) eldoc-mode)) (null arg))
           (and (numberp arg) (> arg 0)))
       (progn
+        ;; remove all advice
+        (let ((sym eldoc-documentation-function))
+          (advice-mapc (lambda (advice _props) (advice-remove sym advice)) sym))
         (setq eldoc-documentation-function 'hippie-eldoc-function)
         (eldoc-add-command 'hippie-eldoc-next)
         (eldoc-add-command 'hippie-eldoc-previous)
         (eldoc-mode 1))
     (eldoc-mode -1)))
 
-(defun hap-get-all-buffers-point ()
+(defun hap-get-wincfg ()
   "Save current buffer and point for each buffer, for future
 restore with `hap-set-all-buffers-point'"
   (let (lst)
@@ -793,64 +782,56 @@ restore with `hap-set-all-buffers-point'"
                     (string-match-p "^\\*" (buffer-name buf)))
           (set-buffer buf)
           (setq lst (cons (point-marker) lst)))))
-    (cons (current-buffer) lst)))
+    (list (current-window-configuration)
+          (window-point)
+          (cons (current-buffer) lst))))
 
-(defun hap-set-all-buffers-point (config)
+(defun hap-set-wincfg (wincfg)
   "Restore current buffer and point for buffers previously saved
 with `hap-get-all-buffers-point'"
-  (let ((curbuf (car config))
-        (markers (cdr config)))
+  (let ((curbuf (car (nth 3 wincfg)))
+        (markers (cdr (nth 3 wincfg))))
     (dolist (marker markers)
       (set-buffer (marker-buffer marker))
       (goto-char marker))
-    (set-buffer curbuf)))
+    (set-buffer curbuf))
+  (set-window-configuration (nth 1 wincfg))
+  ;; (set-window-point (nth 2 wincfg))
+  )
 
-(defun hap-do-it (list mapfun)
+
+(defun hap-do-it (list)
   "If you don't like the first option you get, you can
 \\[keyboard-quit] to try more options. This works by evaluating
 the first function in each pair of LIST. If it returns non-nil,
 then it calls the second function."
   (catch 'done
-    (let ((window-config (current-window-configuration))
-          (bufpoint (hap-get-all-buffers-point))
-          quit? errorMsg mapresult res)
+    (let ((wincfg (hap-get-wincfg))
+          quit? errorMsg res)
       (dolist (el list)
         (setq errorMsg nil)
         ;; call first function to detect presence of symbol
         (setq res (hap-filter-symbol (ignore-errors (funcall (car el)))))
-        (cond
-         ((consp (car-safe res))
-          (setq mapresult (append res mapresult)))
-         (res
+        (when res
           (condition-case e
               ;; call second function to operate on symbol (i.e. change buffer)
-              (if mapfun
-                  (call-interactively-no-prompt (cdr el))
-                (call-interactively (cdr el)))
+              (call-interactively (cdr el))
             (quit (setq quit? t))             ; keyboard quit
             (error (setq errorMsg (nth 1 e))  ; error / exception
-                   (hap-set-all-buffers-point bufpoint)
-                   (set-window-configuration window-config)))
-          (when (and (not mapfun) hap-debug-enabled)
-            (when errorMsg
-              (setq mapresult (cons (list "error" el errorMsg) mapresult)))
-            (when quit?
-              (setq mapresult (cons (list "quit" el) mapresult))))
+                   (hap-set-wincfg wincfg)))
           (unless (or quit? errorMsg)
-            (if mapfun
-                (progn
-                  ;; call mapfun to collect result
-                  (setq res (funcall mapfun (cdr el)))
-                  (when res
-                    (setq mapresult (cons res mapresult)))
-                  (hap-set-all-buffers-point bufpoint))
-              (throw 'done t))))))
-      (unless mapfun
-        (cond (quit? (message "No more help"))
-              (errorMsg (message "An error occured: %s" errorMsg))
-              (t (message "No help, sorry"))))
-      (setq mapresult (nreverse mapresult))
-      mapresult)))
+            (throw 'done t))))
+      (cond (quit? (message "No more help"))
+            (errorMsg (message "An error occured: %s" errorMsg))
+            (t (message "No help, sorry")))
+      nil)))
+
+(defun hap-collect-prototypes (list)
+  (let (mapresult)
+    (dolist (el list)
+      (setq mapresult (append (ignore-errors (funcall (car el))) mapresult)))
+    (nreverse mapresult)))
+
 
 (defvar hippie-help-mode-map
   (let ((map (make-sparse-keymap)))
