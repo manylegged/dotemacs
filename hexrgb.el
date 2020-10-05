@@ -194,7 +194,7 @@
 ;;
 ;;; Code:
 
-(eval-when-compile (require 'cl)) ;; case
+(eval-when-compile (require 'cl-lib)) ;; case
 
 ;; Unless you first load `hexrgb.el', then either `palette.el' or `eyedropper.el', you will get
 ;; warnings about variables and functions with prefix `eyedrop-' when you byte-compile
@@ -523,7 +523,7 @@ Returns a list of RGB components of value 0.0 to 1.0, inclusive."
             pp       (* value (- 1 saturation))
             qq       (* value (- 1 (* saturation fract)))
             ww       (* value (- 1 (* saturation (- 1 (- hue int-hue))))))
-      (case int-hue
+      (cl-case int-hue
         ((0 6) (setq red    value
                      green  ww
                      blue   pp))

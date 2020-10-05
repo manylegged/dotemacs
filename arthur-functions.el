@@ -3,8 +3,7 @@
 ;;
 ;; misc functions that were cluttering up my .emacs
 
-(with-no-warnings
-  (require 'cl))
+(require 'cl-lib)
 
 (defun toggle-debug ()
   (interactive)
@@ -484,7 +483,6 @@ unless BEGIN is greather than END, in which case it defaults to
   "Call `rgrep', using all the default prompt values, in parent of current directory"
   (interactive)
   (require 'grep)
-  (require 'hippie-help)                ; with-no-interactivity
   (declare-function grep-tag-default "grep")
   (declare-function grep-read-files "grep")
   (grep-compute-defaults)
@@ -494,7 +492,8 @@ unless BEGIN is greather than END, in which case it defaults to
     (when (eq (length sym) 0)
       (error "No current symbol"))
     (rgrep sym
-           (with-no-interactivity (grep-read-files sym))
+           (grep-read-files sym)
+           ;; (with-no-interactivity (grep-read-files sym))
            default-directory
            ;; (expand-file-name ".." default-directory)
            nil)))
