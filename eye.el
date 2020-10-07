@@ -97,8 +97,7 @@
 
 (require 'image-mode)
 (require 'dired)
-(with-no-warnings
-  (require 'cl))
+(require 'cl-lib)
 (require 'ffap)
 
 (defsubst eye-emacs-has-imagemagick () nil)
@@ -136,7 +135,8 @@ Images are displayed left to right, unless `eye-manga' is non-nil")
 Keep in mind that this will be rm -rf ed when we clear the cache.")
 (defvar eye-temp-dir nil)
 (defvar eye-convert-program (executable-find "convert"))
-(defvar eye-convert-args '(-filter "Quadratic"))
+;; (defvar eye-convert-args '(-filter "Quadratic"))
+(defvar eye-convert-args nil)
 
 
 (defconst eye-image-types
@@ -436,7 +436,7 @@ extension."
   "Return a vector of files below PATH matching `eye-image-type-regexp'."
   (let* ((files (process-lines
                  "find" (expand-file-name path) "-type" "f"))
-         (imgfiles (delete-if-not (lambda (x) (string-match eye-image-type-regexp x)) files)))
+         (imgfiles (cl-delete-if-not (lambda (x) (string-match eye-image-type-regexp x)) files)))
     (funcall callback (sort imgfiles 'string<))))
 
 
@@ -464,7 +464,7 @@ to the directory backend."
 
 (defun eye-zip-list-files (zipf callback)
   (funcall callback
-           (sort (delete-if-not
+           (sort (cl-delete-if-not
                   'eye-image-name-p
                   (process-lines eye-zipinfo "-1" (expand-file-name zipf)))
                  'string<)))
@@ -483,7 +483,7 @@ to the directory backend."
 (defun eye-rar-list-files (rarf callback)
   ;; FIXME unrar lists files without directories !!!
   (funcall callback
-           (sort (delete-if-not
+           (sort (cl-delete-if-not
                   'eye-image-name-p
                   (process-lines eye-unrar "lb" (expand-file-name rarf)))
                  'string<)))

@@ -17,8 +17,9 @@
 ;; (add-hook 'my-pretty-language-hook 'turn-on-pretty-mode)
 ;; 
 
+(require 'cl-lib)
+
 (with-no-warnings
-  (require 'cl)
   (when (not (functionp 'font-lock-flush))
     (defun font-lock-flush () (font-lock-fontify-buffer))))
 

@@ -233,7 +233,7 @@ Return in same format as `hap-find-prototype'."
   "return (SYMBOL . MARKER) for SYM or the symbol at point with `imenu', else nil"
   (setq sym (or sym (hap-symbol-at-point)))
   (and sym
-       (let* ((imenu-auto-rescan t)
+       (let* (;;(imenu-auto-rescan t)
               (imenu-name-lookup-function (cdr-safe (assoc major-mode hap-imenu-comparator-alist)))
               (val (ignore-errors (imenu--in-alist sym (imenu--make-index-alist t)))))
          (if (and hap-eldoc-in-progress (markerp (cdr-safe val)))
@@ -735,8 +735,6 @@ the default and don't actually prompt user"
   "`hippie-eldoc' function for `eldoc-documentation-function'.
 return a string representing the prototype for the function under point"
   (let ((hap-current-sym (hap-current-sym))
-        prototypes
-        (pos (point))
         (hap-eldoc-in-progress t))
     (unless (or (not (eq eldoc-documentation-function 'hippie-eldoc-function))
                 (and (boundp 'ac-completing) ac-completing) ; suppress while autocomplete is enabled
@@ -745,16 +743,12 @@ return a string representing the prototype for the function under point"
       (when (or hap-debug-enabled
                 (not hap-eldoc-current-prototypes)
                 (not (string-equal hap-current-sym hap-eldoc-current-symbol)))
-        (setq hap-eldoc-current-symbol hap-current-sym)
-        ;; (setq prototypes (hap-collect-prototypes hippie-goto-try-functions-list))
-        (setq prototypes (hap-sort-filter-entries
-                          (hap-collect-prototypes hippie-goto-try-functions-list)))
-        (unless (equal prototypes hap-eldoc-current-prototypes)
-          (setq hap-eldoc-current-prototypes prototypes)
-          (setq hap-eldoc-prototype-index 0)))
-      ;; (when hap-eldoc-current-prototypes
-        ;; (nth 3 (car hap-eldoc-current-prototypes))))))
-      (assert (eq pos (point)))
+        (let ((prototypes (hap-sort-filter-entries
+                           (hap-collect-prototypes hippie-goto-try-functions-list))))
+          (unless (equal prototypes hap-eldoc-current-prototypes)
+            (setq hap-eldoc-current-symbol hap-current-sym
+                  hap-eldoc-current-prototypes prototypes
+                  hap-eldoc-prototype-index 0))))
       (hap-get-current-message))))
 
 
