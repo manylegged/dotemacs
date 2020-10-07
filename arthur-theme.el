@@ -20,7 +20,7 @@
     ;; general
     (default ((t (nil))))
     (fringe ((t (:background "#0d0715"))))
-    (line-number ((t (:slant unspecified :foreground "#383838" :background unspecified))))
+    (line-number ((t (:slant unspecified :foreground "#606060" :background unspecified))))
     (mode-line ((t (:background "#aa0825" :foreground "black"))))
     (mode-line-inactive ((t (:background "#0d0715" :foreground "#555e6e"))))
     (mode-line-highlight ((t (:background "grey60" :foreground "black"))))
