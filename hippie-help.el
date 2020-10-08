@@ -58,7 +58,7 @@
 
 (defvar hap-eldoc-current-prototypes nil)
 (defvar hap-eldoc-prototype-index 0)
-(defvar hap-eldoc-last-symbol nil)
+(defvar hap-eldoc-current-symbol nil)
 (defvar hap-eldoc-in-progress nil)
 (defvar hap-current-sym nil)
 
@@ -67,7 +67,7 @@
 functions run as part of BODY will not change globals state"
   `(let ((tags-location-ring (make-ring 1))
          (xref--marker-ring (make-ring 1))
-         (mark-ring (make-ring 1))
+         (mark-ring nil)
          last-tag find-tag-history)
      ,@body))
 
@@ -132,7 +132,9 @@ functions run as part of BODY will not change globals state"
 
 (defun hap-symbol-at-point ()
   "same as `symbol-at-point', but properly handles C++ destructors"
-  (or hap-current-sym (hap-filter-symbol (thing-at-point 'c++-symbol))))
+  (or hap-current-sym (hap-filter-symbol
+                       (save-match-data
+                         (save-excursion (thing-at-point 'c++-symbol))))))
 
 (defun hap-tag-at-point ()
   "Return non-nil if point is contained in an etags tag."
@@ -259,7 +261,7 @@ Return in same format as `hap-find-prototype'."
   "return (SYMBOL . MARKER) for the symbol at point using `imenu',
 in the file returned by `ff-find-other-file'"
   (with-no-warnings
-    (let* ((oname (expand-file-name (let ((inhibit-message -t)
+    (let* ((oname (expand-file-name (let ((inhibit-message t)
                                           (message-log-max nil))
                                       (ff-other-file-name))))
            (obuf (and oname (hap-find-buffer oname)))
@@ -371,13 +373,14 @@ definition found using `hap-imenu-at-point-other-file'"
 (defun hap-pop-to-entry (entry)
   (hap-window-to-entry entry 'hap-pop-to-buffer))
 
-(defun hap-do-current-entry (x-to-buffer)
-  (and (hippie-eldoc-function)
-       hap-eldoc-current-prototypes
-       (let ((entry (hap-get-current-entry)))
-         (hap-window-to-entry entry x-to-buffer)
-         (setq hap-eldoc-current-prototypes nil)
-         entry)))
+(defun hap-do-eldoc-entry (x-to-buffer)
+  (when (hippie-eldoc-function)
+    (let ((entry (hap-get-current-entry)))
+      (when entry
+        (hap-window-to-entry entry x-to-buffer)
+        (setq hap-eldoc-current-prototypes nil
+              hap-eldoc-current-symbol nil)
+        entry))))
 
 (defun hap-test ()
   (interactive)
@@ -399,7 +402,7 @@ You can customize the way this works by changing
 `hippie-goto-try-functions-list'."
   (interactive)
   (hap-save-location)
-  (when (or (hap-do-current-entry 'switch-to-buffer)
+  (when (or (hap-do-eldoc-entry 'switch-to-buffer)
             (hap-do-it hippie-goto-try-functions-list))
     (run-hooks 'xref-after-jump-hook)))
 
@@ -411,7 +414,7 @@ You can customize the way this works by changing
 `hippie-goto-try-functions-list'."
   (interactive "P")
   (hap-save-location)
-  (or (hap-do-current-entry 'hap-pop-to-buffer)
+  (or (hap-do-eldoc-entry 'hap-pop-to-buffer)
       (let (buf point)
         (save-excursion
           (when (hap-do-it hippie-goto-try-functions-list)
@@ -622,7 +625,7 @@ the default and don't actually prompt user"
     (error "Nothing found"))
   (with-help-window (help-buffer)
     (with-current-buffer (help-buffer)
-      (insert "Definitions for tag '" hap-eldoc-last-symbol "'\n")
+      (insert "Definitions for tag '" hap-eldoc-current-symbol "'\n")
       (setq hap-eldoc-current-prototypes (hap-sort-filter-entries hap-eldoc-current-prototypes t))
       (let ((lst (sort hap-eldoc-current-prototypes (lambda (x y)
                                                       (string-lessp (nth 1 y) (nth 1 x)))))
@@ -739,11 +742,11 @@ return a string representing the prototype for the function under point"
                 (not hap-current-sym))                      ; early exit if not looking at anything
       (when (or hap-debug-enabled
                 (not hap-eldoc-current-prototypes)
-                (not (string-equal hap-current-sym hap-eldoc-last-symbol)))
+                (not (string-equal hap-current-sym hap-eldoc-current-symbol)))
         (let ((prototypes (hap-sort-filter-entries
                            (hap-collect-prototypes hippie-goto-try-functions-list))))
           (unless (equal prototypes hap-eldoc-current-prototypes)
-            (setq hap-eldoc-last-symbol hap-current-sym
+            (setq hap-eldoc-current-symbol hap-current-sym
                   hap-eldoc-current-prototypes prototypes
                   hap-eldoc-prototype-index 0))))
       (hap-get-current-message))))
@@ -786,14 +789,14 @@ restore with `hap-set-all-buffers-point'"
 (defun hap-set-wincfg (wincfg)
   "Restore current buffer and point for buffers previously saved
 with `hap-get-all-buffers-point'"
-  (let ((curbuf (car (nth 3 wincfg)))
-        (markers (cdr (nth 3 wincfg))))
+  (let ((curbuf (car (nth 2 wincfg)))
+        (markers (cdr (nth 2 wincfg))))
     (dolist (marker markers)
       (set-buffer (marker-buffer marker))
       (goto-char marker))
     (set-buffer curbuf))
-  (set-window-configuration (nth 1 wincfg))
-  ;; (set-window-point (nth 2 wincfg))
+  (set-window-configuration (nth 0 wincfg))
+  ;; (set-window-point (nth 1 wincfg))
   )
 
 

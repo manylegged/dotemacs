@@ -8,7 +8,7 @@
 (defun toggle-debug ()
   (interactive)
   (setq debug-on-error (not debug-on-error))
-  (setq debug-on-signal debug-on-error)
+  ;; (setq debug-on-signal debug-on-error)
   (setq debug-on-quit debug-on-error)
   (message "debug-on-error %sabled" (if debug-on-error "en" "dis")))
 

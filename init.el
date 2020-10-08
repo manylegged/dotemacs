@@ -728,7 +728,8 @@
   (setq idle-highlight-in-visible-buffers-exceptions
         (append idle-highlight-in-visible-buffers-exceptions
                 (list "if" "else" "while" "for" "do" "struct" "public" "private" "virtual"
-                      "return" "inline" "const" "override" "static"
+                      "return" "inline" "const" "override" "static" "template" "class"
+                      "typedef" "using" "const" "mutable" "namespace"
                       "switch" "case" "break" "continue" "void" "this" "true" "false")))
   )
 (add-hook 'c-mode-common-hook 'my-c-common-hook)
