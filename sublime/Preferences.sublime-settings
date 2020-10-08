@@ -1,0 +1,12 @@
+{
+	"color_scheme": "Packages/Theme - Cyanide/Cyanide - Mint - Contrasted Semi.tmTheme",
+	"font_face": "PragmataPro Liga",
+	"font_size": 11,
+	"ignored_packages":
+	[
+		"Vintage"
+	],
+	"indent_to_bracket": true,
+	"theme": "Cyanide - Mint.sublime-theme",
+	"translate_tabs_to_spaces": true
+}

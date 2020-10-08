@@ -1,6 +1,6 @@
 ;; -*- mode: emacs-lisp -*-
 ;; Arthur Danskin <arthurdanskin@gmail.com>
-;; .emacs for GNU emacs 24.3
+;; .emacs for GNU emacs 24.3 - 27.1
 
 (eval-when-compile
   (require 'grep)

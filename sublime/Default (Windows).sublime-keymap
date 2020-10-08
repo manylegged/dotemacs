@@ -1,0 +1,4 @@
+[
+    { "keys": ["ctrl+tab"], "command": "sbp_pane_cmd", "args": {"cmd": "move", "direction": "next"}},
+    { "keys": ["tab"], "command": "reindent" },
+]

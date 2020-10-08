@@ -2,9 +2,6 @@
 ;; otherwise go in my .emacs but isn't really configuration and just
 ;; clogs things up. 
 
-;; (eval-when-compile
-  ;; (require 'cl))
-
 (autoload 'hexcolor-mode "hexcolor" "fontify color names in their color" t)
 (autoload 'facecolor-mode "hexcolor" "fontify face names in their color" t)
 
