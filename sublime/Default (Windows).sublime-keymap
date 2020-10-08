@@ -1,4 +1,9 @@
 [
     { "keys": ["ctrl+tab"], "command": "sbp_pane_cmd", "args": {"cmd": "move", "direction": "next"}},
-    { "keys": ["tab"], "command": "reindent" },
+    //{ "keys": ["tab"], "command": "reindent" },
+    { "keys": ["f9"], "command": "reindent", "args": {"single_line": false} },
+    { "keys": ["alt+."], "command": "goto_definition" },
+    { "keys": ["alt+shift+8"], "command": "jump_back" },
+    { "keys": ["ctrl+j"], "command": "insert", "args": {"characters": "\n" } },
+    { "keys": ["ctrl+c", "ctrl+a"], "command": "alignment"}
 ]
