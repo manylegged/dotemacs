@@ -1,9 +1,26 @@
 [
-    { "keys": ["ctrl+tab"], "command": "sbp_pane_cmd", "args": {"cmd": "move", "direction": "next"}},
+    //{ "keys": ["ctrl+tab"], "command": "sbp_pane_cmd", "args": {"cmd": "move", "direction": "next"}},
     //{ "keys": ["tab"], "command": "reindent" },
-    { "keys": ["f9"], "command": "reindent", "args": {"single_line": false} },
+    { "keys": ["f9"], "command": "reindent", "args": {"single_line": true} },
     { "keys": ["alt+."], "command": "goto_definition" },
     { "keys": ["alt+shift+8"], "command": "jump_back" },
     { "keys": ["ctrl+j"], "command": "insert", "args": {"characters": "\n" } },
-    { "keys": ["ctrl+c", "ctrl+a"], "command": "alignment"}
+    { "keys": ["ctrl+c", "ctrl+a"], "command": "alignment"},
+    { "keys": ["f8"], "command": "toggle_side_bar" },
+
+    { "keys": ["ctrl+s"], "command": "save" },
+    { "keys": ["ctrl+c"], "command": "copy" },
+    { "keys": ["ctrl+tab"], "command": "next_view_in_stack" },
+
+    { "keys": ["alt+1"], "command": "select_by_index", "args": { "index": 0 } },
+    { "keys": ["alt+2"], "command": "select_by_index", "args": { "index": 1 } },
+    { "keys": ["alt+3"], "command": "select_by_index", "args": { "index": 2 } },
+    { "keys": ["alt+4"], "command": "select_by_index", "args": { "index": 3 } },
+    { "keys": ["alt+5"], "command": "select_by_index", "args": { "index": 4 } },
+    { "keys": ["alt+6"], "command": "select_by_index", "args": { "index": 5 } },
+    { "keys": ["alt+7"], "command": "select_by_index", "args": { "index": 6 } },
+    { "keys": ["alt+8"], "command": "select_by_index", "args": { "index": 7 } },
+    { "keys": ["alt+9"], "command": "select_by_index", "args": { "index": 8 } },
+    { "keys": ["alt+0"], "command": "select_by_index", "args": { "index": 9 } },
+
 ]
