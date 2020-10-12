@@ -5,8 +5,12 @@
 	],
 	"installed_packages":
 	[
+		"A File Icon",
+		"Color Highlighter",
 		"Emacs Pro Essentials",
-		"Theme - Cyanide",
+		"Package Control",
+		"SFTP",
+		"Theme - City Lights",
 		"Theme - Spacegray"
 	]
 }
