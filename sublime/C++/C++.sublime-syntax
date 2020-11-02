@@ -460,6 +460,10 @@ contexts:
         - include: identifiers
         - match: ''
           pop: true
+    - match: '\b(using)\s+({{identifier}})\s+=.*;'
+      captures:
+        1: keyword.control.c++
+        2: entity.name.type.c++
     - match: '\b(namespace)\s+(?=({{path_lookahead}})?(?!\s*[;,]))'
       scope: meta.namespace.c++
       captures:
@@ -1987,15 +1991,20 @@ contexts:
               scope: punctuation.definition.string.end.c++
               pop: true
     - include: preprocessor-practical-workarounds
-    - match: (?=((^{{macro_identifier}}))\s*\(.*$)
+    #- match: (?:static\s*)?(?=((^{{macro_identifier}}))\s*\(.*$)
+    - match: (?=((^{{macro_identifier}}))\s*\(.*;.*$)
       push:
         - meta_scope: meta.assumed-macro.c++
-        - match: '{{macro_identifier}}'
-          scope: variable.function.c++
-        - match: '\(\s*(.*),\s*(.*),\s*(.*)\);'
+        #- match: '{{macro_identifier}}'
+        #  scope: variable.function.c++
+        - match: '\(\s*(.*),\s*(.*),\s*(.*)\)'
           captures:
             1: storage.type.c++
             2: entity.name.struct.c++
+            3: constant.numeric.c++
+            #3: meta.group.c++
+          pop: true
+        - match: '\(\s*(.*)\)'
           pop: true
     - match: ^\s+F\((.*),\s*(.*)\)\s*\\$
       captures:
