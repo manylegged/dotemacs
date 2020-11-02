@@ -28,7 +28,7 @@ variables:
   operator_keywords: 'and|and_eq|bitand|bitor|compl|not|not_eq|or|or_eq|xor|xor_eq|noexcept'
   control_keywords: 'break|case|catch|continue|default|do|else|for|goto|if|_Pragma|return|switch|throw|try|while'
   memory_operators: 'new|delete'
-  basic_types: 'asm|__asm__|auto|bool|_Bool|char|_Complex|double|float|_Imaginary|int|long|short|signed|unsigned|void'
+  basic_types: 'asm|__asm__|auto|bool|_Bool|char|_Complex|double|float|_Imaginary|int|long|short|signed|unsigned|void|uint|uint64|ushort|uchar'
   before_tag: 'struct|union|enum\s+class|enum\s+struct|enum|class'
   declspec: '__declspec\(\s*\w+(?:\([^)]+\))?\s*\)'
   storage_classes: 'static|export|extern|friend|explicit|virtual|register|thread_local'
@@ -1997,10 +1997,10 @@ contexts:
         - meta_scope: meta.assumed-macro.c++
         #- match: '{{macro_identifier}}'
         #  scope: variable.function.c++
-        - match: '\(\s*(.*),\s*(.*),\s*(.*)\)'
+        - match: '\(\s*([^,]*),\s*([^,]*),\s*(.*)\)'
           captures:
             1: storage.type.c++
-            2: entity.name.struct.c++
+            2: entity.name.struct.c++ constant.other.variable.mac-classic.c
             3: constant.numeric.c++
             #3: meta.group.c++
           pop: true
