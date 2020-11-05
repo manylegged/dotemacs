@@ -7,6 +7,7 @@
     { "keys": ["ctrl+-"], "command": "jump_back" },
     { "keys": ["ctrl+j"], "command": "insert", "args": {"characters": "\n" } },
     { "keys": ["ctrl+c", "ctrl+a"], "command": "alignment"},
+    { "keys": ["f5"], "command": "build", "args": {"select": true} },
     { "keys": ["f10"], "command": "toggle_side_bar" },
     { "keys": ["f8"], "command": "next_result" },
     { "keys": ["shift+f8"], "command": "prev_result" },
@@ -16,7 +17,7 @@
     { "keys": ["ctrl+x", "b"], "command": "sbp_switch_to_view"},
     { "keys": ["ctrl+alt+space"], "command": "expand_selection", "args": {"to": "brackets"} },
     { "keys": ["ctrl+shift+/"], "command": "redo" },
-    { "keys": ["f5"], "command": "revert" },
+    //{ "keys": ["f5"], "command": "revert" },
 
     { "keys": ["ctrl+s"], "command": "save" },
     { "keys": ["ctrl+c"], "command": "copy" },
