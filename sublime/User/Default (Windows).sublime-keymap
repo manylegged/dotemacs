@@ -10,6 +10,8 @@
     { "keys": ["f5"], "command": "build", "args": {"select": true} },
     { "keys": ["f10"], "command": "toggle_side_bar" },
     { "keys": ["f8"], "command": "next_result" },
+    { "keys": ["alt+'"], "command": "next_result" },
+    { "keys": ["alt+shift+'"], "command": "prev_result" },
     { "keys": ["shift+f8"], "command": "prev_result" },
     { "keys": ["ctrl+alt+backspace"], "command": "join_lines" },
     //{ "keys": ["ctrl+u"], "command": "slurp_find_string" },
@@ -31,6 +33,12 @@
     { "keys": ["ctrl+shift+z"], "command": "redo" },
     { "keys": ["ctrl+u"], "command": "soft_undo" },
     { "keys": ["ctrl+shift+u"], "command": "soft_redo" },
+
+    { "keys": ["ctrl+f"], "command": "show_panel", "args": {"panel": "find", "reverse": false}, "context":
+        [
+            { "key": "selection_empty", "operator": "equal", "operand": false, "match_all": true }
+        ]},
+    { "keys": ["ctrl+alt+f"], "command": "show_panel", "args": {"panel": "find", "reverse": false} },
 
     { "keys": ["ctrl+shift+l"], "command": "expand_selection", "args": {"to": "line"} },
     { "keys": ["ctrl+d"], "command": "find_under_expand" },

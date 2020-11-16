@@ -1,6 +1,6 @@
 #!/bin/sh
 
-git $1
+#git $1
 
 if [ "$1" = "pull" ]; then
     cp -v User/* /cygdrive/c/Users/$USER/AppData/Roaming/Sublime\ Text\ 3/Packages/User/
