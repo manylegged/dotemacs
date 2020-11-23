@@ -29,16 +29,17 @@
     { "keys": ["ctrl+shift+j"], "command": "expand_selection", "args": {"to": "indentation"} },
     { "keys": ["ctrl+shift+a"], "command": "expand_selection", "args": {"to": "tag"} },
     { "keys": ["ctrl+shift+i"], "command": "show_panel", "args": {"panel": "incremental_find", "reverse": true} },
-    { "keys": ["ctrl+o"], "command": "prompt_open_file" },
+    { "keys": ["ctrl+o"], "command": "show_overlay", "args": {"overlay": "goto", "show_files": true} },
+    { "keys": ["ctrl+shift+o"], "command": "prompt_open_file" },
     { "keys": ["ctrl+shift+z"], "command": "redo" },
-    { "keys": ["ctrl+u"], "command": "soft_undo" },
-    { "keys": ["ctrl+shift+u"], "command": "soft_redo" },
+    //{ "keys": ["ctrl+u"], "command": "soft_undo" },
+    //{ "keys": ["ctrl+shift+u"], "command": "soft_redo" },
 
     { "keys": ["ctrl+f"], "command": "show_panel", "args": {"panel": "find", "reverse": false}, "context":
         [
             { "key": "selection_empty", "operator": "equal", "operand": false, "match_all": true }
         ]},
-    { "keys": ["ctrl+alt+f"], "command": "show_panel", "args": {"panel": "find", "reverse": false} },
+    { "keys": ["ctrl+x", "ctrl+f"], "command": "show_panel", "args": {"panel": "find", "reverse": false} },
 
     { "keys": ["ctrl+shift+l"], "command": "expand_selection", "args": {"to": "line"} },
     { "keys": ["ctrl+d"], "command": "find_under_expand" },
