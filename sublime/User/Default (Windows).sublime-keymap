@@ -32,8 +32,14 @@
     { "keys": ["ctrl+o"], "command": "show_overlay", "args": {"overlay": "goto", "show_files": true} },
     { "keys": ["ctrl+shift+o"], "command": "prompt_open_file" },
     { "keys": ["ctrl+shift+z"], "command": "redo" },
-    //{ "keys": ["ctrl+u"], "command": "soft_undo" },
-    //{ "keys": ["ctrl+shift+u"], "command": "soft_redo" },
+    { "keys": ["ctrl+u"], "command": "soft_undo",  "context":
+        [
+            { "key": "selection_empty", "operator": "equal", "operand": false, "match_all": true },
+        ]},
+    { "keys": ["ctrl+shift+u"], "command": "soft_redo",  "context":
+        [
+            { "key": "selection_empty", "operator": "equal", "operand": false, "match_all": true },
+        ]},
 
     { "keys": ["ctrl+f"], "command": "show_panel", "args": {"panel": "find", "reverse": false}, "context":
         [
