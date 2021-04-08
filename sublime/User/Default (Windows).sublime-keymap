@@ -46,6 +46,7 @@
             { "key": "selection_empty", "operator": "equal", "operand": false, "match_all": true }
         ]},
     { "keys": ["ctrl+x", "ctrl+f"], "command": "show_panel", "args": {"panel": "find", "reverse": false} },
+    { "keys": ["f2"], "command": "show_panel", "args": {"panel": "find", "reverse": false}, },
 
     { "keys": ["ctrl+shift+l"], "command": "expand_selection", "args": {"to": "line"} },
     { "keys": ["ctrl+d"], "command": "find_under_expand" },

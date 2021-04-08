@@ -1,8 +1,9 @@
 {
-	"color_scheme": "Packages/Dayle Rees Color Schemes/sublime/turnip.tmTheme",
+	"color_scheme": "Packages/Dayle Rees Color Schemes/sublime/halflife.tmTheme",
 	"ensure_newline_at_eof_on_save": true,
 	"font_face": "PragmataPro",
 	"font_size": 10.5,
+	"highlight_line": true,
 	"ignored_packages":
 	[
 		"Vintage"
