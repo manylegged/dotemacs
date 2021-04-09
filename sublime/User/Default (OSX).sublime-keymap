@@ -10,6 +10,8 @@
     { "keys": ["f5"], "command": "build", "args": {"select": true} },
     { "keys": ["f10"], "command": "toggle_side_bar" },
     { "keys": ["f8"], "command": "next_result" },
+    { "keys": ["super+'"], "command": "next_result" },
+    { "keys": ["super+shift+'"], "command": "prev_result" },
     { "keys": ["alt+'"], "command": "next_result" },
     { "keys": ["alt+shift+'"], "command": "prev_result" },
     { "keys": ["shift+f8"], "command": "prev_result" },
@@ -36,7 +38,7 @@
         [
             { "key": "selection_empty", "operator": "equal", "operand": false, "match_all": true }
         ]},
-    { "keys": ["ctrl+alt+f"], "command": "show_panel", "args": {"panel": "find", "reverse": false} },
+    //{ "keys": ["ctrl+alt+f"], "command": "show_panel", "args": {"panel": "find", "reverse": false} },
 
     { "keys": ["ctrl+shift+l"], "command": "expand_selection", "args": {"to": "line"} },
     { "keys": ["ctrl+d"], "command": "find_under_expand" },
