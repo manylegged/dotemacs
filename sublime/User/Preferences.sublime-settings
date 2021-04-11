@@ -2,7 +2,7 @@
 	"color_scheme": "Packages/Dayle Rees Color Schemes/sublime/halflife.tmTheme",
 	"ensure_newline_at_eof_on_save": true,
 	"font_face": "PragmataPro",
-	"font_size": 10.5,
+	"font_size": 12.5,
 	"highlight_line": true,
 	"ignored_packages":
 	[
@@ -13,5 +13,6 @@
 	"show_line_endings": true,
 	"theme": "Adaptive.sublime-theme",
 	"translate_tabs_to_spaces": true,
-	"trim_trailing_white_space_on_save": true
+	"trim_trailing_white_space_on_save": true,
+	"scroll_past_end": true,
 }
