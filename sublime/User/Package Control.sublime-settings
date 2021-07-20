@@ -6,7 +6,6 @@
 	"installed_packages":
 	[
 		"A File Icon",
-		"AlignTab",
 		"Compressor",
 		"Dayle Rees Color Schemes",
 		"Emacs Pro Essentials",
@@ -15,7 +14,8 @@
 		"Package Control",
 		"PackageResourceViewer",
 		"SFTP",
-		"Show Character Code",
-		"Theme - City Lights",
+	],
+	"channels":
+	[
 	],
 }
