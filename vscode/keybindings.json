@@ -1,4 +1,4 @@
-// Place your key bindings in this file to override the defaultsauto[]
+// Place your key bindings in this file to override the defaults
 [
     {
         "key": "ctrl+r",
@@ -31,5 +31,13 @@
     {
         "key": "alt+-",
         "command": "workbench.action.navigateBack"
+    },
+    {
+        "key": "f7",
+        "command": "workbench.action.tasks.build"
+    },
+    {
+        "key": "ctrl+shift+b",
+        "command": "workbench.action.tasks.build"
     }
 ]
