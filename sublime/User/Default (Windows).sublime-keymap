@@ -3,11 +3,7 @@
     //{ "keys": ["tab"], "command": "reindent" },
     { "keys": ["f9"], "command": "reindent", "args": {"single_line": true} },
     { "keys": ["alt+."], "command": "goto_definition" },
-    { "keys": ["alt+,"], "command": "goto_reference" },
-    //{ "keys": ["ctrl+"], "command": "goto_reference" },
-    { "keys": ["ctrl+alt+."], "command": "goto_definition", "args": {"side_by_side": true, "clear_to_right": true} },
     { "keys": ["alt+shift+8"], "command": "jump_back" },
-    { "keys": ["alt+-"], "command": "jump_back" },
     { "keys": ["ctrl+-"], "command": "jump_back" },
     { "keys": ["ctrl+j"], "command": "insert", "args": {"characters": "\n" } },
     { "keys": ["ctrl+c", "ctrl+a"], "command": "alignment"},
@@ -24,8 +20,6 @@
     { "keys": ["ctrl+alt+space"], "command": "expand_selection", "args": {"to": "brackets"} },
     { "keys": ["ctrl+shift+/"], "command": "redo" },
     //{ "keys": ["f5"], "command": "revert" },
-
-    { "keys": ["ctrl+shift+n"], "command": "move", "args": {"by": "lines", "forward": true, "extend": true} },
 
     { "keys": ["ctrl+s"], "command": "save" },
     { "keys": ["ctrl+c"], "command": "copy" },

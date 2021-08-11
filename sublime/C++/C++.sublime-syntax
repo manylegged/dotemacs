@@ -2005,7 +2005,6 @@ contexts:
       captures: # F(NAME, 3) /* comment */ \
         1: entity.name.enum.c++
         2: constant.numeric.c++
-        #2: source.c++
         3: comment.block.c++
 
 
