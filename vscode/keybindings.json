@@ -1,0 +1,35 @@
+// Place your key bindings in this file to override the defaultsauto[]
+[
+    {
+        "key": "ctrl+r",
+        "command": "workbench.action.quickOpen",
+        "args": "@"
+    },
+    {
+        "key": "ctrl+o",
+        "command": "workbench.action.quickOpen",
+        "args": ""
+    },
+    {
+        "key": "ctrl+r",
+        "command": "workbench.action.openRecent",
+        "when": "false"
+    },
+    {
+        "key": "ctrl+shift+o",
+        "command": "workbench.action.files.openFile"
+    },
+    {
+        "key": "alt+.",
+        "command": "editor.action.revealDefinition",
+        "when": "editorHasDefinitionProvider && editorTextFocus && !isInEmbeddedEditor"
+    },
+    {
+        "key": "alt+shift+8",
+        "command": "workbench.action.navigateBack"
+    },
+    {
+        "key": "alt+-",
+        "command": "workbench.action.navigateBack"
+    }
+]
