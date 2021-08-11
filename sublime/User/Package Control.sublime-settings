@@ -15,4 +15,7 @@
 		"PackageResourceViewer",
 		"SFTP",
 	],
+	"channels":
+	[
+	],
 }
