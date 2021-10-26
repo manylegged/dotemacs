@@ -6,7 +6,6 @@
 	"installed_packages":
 	[
 		"A File Icon",
-		"Compressor",
 		"Dayle Rees Color Schemes",
 		"Emacs Pro Essentials",
 		"Mercurial",
@@ -14,8 +13,6 @@
 		"Package Control",
 		"PackageResourceViewer",
 		"SFTP",
-	],
-	"channels":
-	[
+		"Show Character Code",
 	],
 }
