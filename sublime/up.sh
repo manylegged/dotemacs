@@ -2,9 +2,9 @@
 
 #git $1
 if [ `uname` = "Darwin" ]; then
-	SPATH="$HOME/Library/Application Support/Sublime Text 3/Packages"
+	SPATH="$HOME/Library/Application Support/Sublime Text/Packages"
 else
-	SPATH="/cygdrive/c/Users/$USER/AppData/Roaming/Sublime Text 3/Packages"
+	SPATH="/cygdrive/c/Users/$USER/AppData/Roaming/Sublime Text/Packages"
 	VPATH="/cygdrive/c/Users/$USER/AppData/Roaming/Code/User"
 fi
 
