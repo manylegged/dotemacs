@@ -219,6 +219,6 @@ mode "resize" {
 #        status_command i3status
 #}
 
-exec_always --no-startup-id polybar &
+exec --no-startup-id polybar &
 
 # gaps inner 10
