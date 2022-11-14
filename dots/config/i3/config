@@ -70,9 +70,12 @@ bindsym $mod+Return exec i3-sensible-terminal
 
 # kill focused window
 bindsym $mod+Shift+q kill
+bindsym $alt+F4 kill
 
 # start dmenu (a program launcher)
-bindsym $mod+d exec --no-startup-id dmenu_run
+#bindsym $mod+d exec --no-startup-id dmenu_run -sb '#F0C675' -sf '#282A2E'
+bindsym $mod+d exec --no-startup-id ~/bin/dmenu_run_history -sb '#F0C675' -sf '#282A2E'
+bindsym $mod+r exec --no-startup-id ~/bin/dmenu_run_history -sb '#F0C675' -sf '#282A2E'
 # A more modern dmenu replacement is rofi:
 # bindcode $mod+40 exec "rofi -modi drun,run -show drun"
 # There also is i3-dmenu-desktop which only displays applications shipping a
@@ -103,10 +106,10 @@ bindsym $mod+Shift+Down move down
 bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
 
-bindsym $alt+Tab workspace back_and_forth
-bindsym $alt+Shift+Tab workspace back_and_forth
-#bindsym $alt+Tab workspace next_on_output
-#bindsym $alt+Shift+Tab workspace prev_on_output
+#bindsym $alt+Tab workspace back_and_forth
+#bindsym $alt+Shift+Tab workspace back_and_forth
+bindsym $alt+Tab workspace next_on_output
+bindsym $alt+Shift+Tab workspace prev_on_output
 
 bindsym $mod+Tab focus next
 bindsym $mod+Shift+Tab focus prev
@@ -206,7 +209,7 @@ mode "resize" {
         bindsym $mod+r mode "default"
 }
 
-bindsym $mod+r mode "resize"
+#bindsym $mod+r mode "resize"
 
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
