@@ -7,8 +7,8 @@ elif [ `uname` = "Linux" ]; then
 	SPATH="$HOME/.config/sublime-text/Packages"
 	VPATH="$HOME/.config/Code/User"
 else
-	SPATH="/cygdrive/c/Users/$USER/AppData/Roaming/Sublime Text/Packages"
-	VPATH="/cygdrive/c/Users/$USER/AppData/Roaming/Code/User"
+	SPATH="`cygpath $APPDATA`/Sublime Text/Packages"
+	VPATH="`cygpath $APPDATA`/Code/User"
 fi
 
 if [ "$1" = "pull" ]; then
@@ -16,6 +16,7 @@ if [ "$1" = "pull" ]; then
     cp -v User/* "$SPATH/User/"
     mkdir -p "$SPATH/C++/"
     cp -v C++/* "$SPATH/C++/"
+    mkdir -p "$VPATH"
     cp -v ../vscode/* "$VPATH/"
 elif [ "$1" = "push" ]; then
     cp -v "$SPATH/User/"* User/
