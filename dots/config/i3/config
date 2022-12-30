@@ -35,6 +35,12 @@ exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 # and nm-applet is a desktop environment-independent system tray GUI for it.
 exec --no-startup-id nm-applet
 
+# fade colors at night
+exec --no-startup-id redshift
+
+# compositor, fix screen tearing
+exec --no-startup-id picom
+
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10% && $refresh_i3status
@@ -45,11 +51,16 @@ bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOU
 #exec --no-startup-id feh --bg-scale
 exec --no-startup-id nitrogen --restore 
 
-default_border normal
+default_border normal 3
 default_floating_border normal
-hide_edge_borders smart
+#hide_edge_borders smart
+hide_edge_borders both
 workspace_auto_back_and_forth yes
-#for_window [all] title_window_icon yes
+
+#for_window [all] border normal 3
+
+# window icons are only updated when the title changes
+#for_window [all] title_window_icon padding 3px
 
 # class                 border  backgr. text    indicator child_border
 client.focused          #F0C675 #876f3e #282A2E #ffd675   #876f3e
@@ -57,6 +68,17 @@ client.focused_inactive #333333 #5f676a #ffffff #484e50   #5f676a
 client.unfocused        #333333 #222222 #888888 #292d2e   #222222
 client.urgent           #2f343a #900000 #ffffff #900000   #900000
 client.placeholder      #000000 #0c0c0c #ffffff #000000   #0c0c0c
+
+for_window [class="^Steam$" title="^Friends$"] floating enable
+for_window [class="^Steam$" title="Steam - News"] floating enable
+for_window [class="^Steam$" title=".* - Chat"] floating enable
+for_window [class="^Steam$" title="^Settings$"] floating enable
+for_window [class="^Steam$" title=".* - event started"] floating enable
+for_window [class="^Steam$" title=".* CD key"] floating enable
+for_window [class="^Steam$" title="^Steam - Self Updater$"] floating enable
+for_window [class="^Steam$" title="^Screenshot Uploader$"] floating enable
+for_window [class="^Steam$" title="^Steam Guard - Computer Authorization Required$"] floating enable
+for_window [title="^Steam Keyboard$"] floating enable
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
