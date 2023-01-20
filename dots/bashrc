@@ -6,6 +6,8 @@
 
 export PYTHONSTARTUP="$HOME/.python_init"
 export PYTHONIOENCODING="utf-8"
+export MANPAGER="less -R --use-color -Dd+r -Du+b"
+export LESS="-R "
 
 colors() {
 
@@ -38,10 +40,10 @@ colors() {
 # Change the window title of X terminals
 case ${TERM} in
 	xterm*|rxvt*|Eterm*|aterm|kterm|gnome*|interix|konsole*|*itty)
-		PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\007"'
+		PROMPT_COMMAND='echo -ne "\e]0;${PWD/#$HOME/\~} [${USER}@${HOSTNAME%%.*}]\a"'
 		;;
 	screen*)
-		PROMPT_COMMAND='echo -ne "\033_${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\033\\"'
+		PROMPT_COMMAND='echo -ne "\e_${PWD/#$HOME/\~}:${USER}@${HOSTNAME%%.*}\e\\"'
 		;;
 esac
 

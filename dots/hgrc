@@ -9,7 +9,7 @@ hgext.churn=
 purge=
 
 [ui]
-merge = kdiff3
+merge = meld
 
 [merge-tools]
 #emacs.args = -q --eval "(require 'ediff)" --eval "(setq ediff-window-setup-function 'ediff-setup-windows-plain)" --eval "(add-hook 'ediff-quit-hook 'save-buffers-kill-emacs)" --eval "(ediff-merge-with-ancestor \""$local"\" \""$other"\" \""$base"\" nil \""$output"\")"
