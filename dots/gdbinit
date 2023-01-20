@@ -1,3 +1,10 @@
+
+# don't prompt to download debug info
+set debuginfod enabled off
+
+# intel asm syntax
+set disassembly-flavor intel
+
 python
 
 # GDB dashboard - Modular visual interface for GDB in Python.
@@ -2336,3 +2343,10 @@ python Dashboard.start()
 # Local Variables:
 # mode: python
 # End:
+
+
+# dashboard -enabled off
+dashboard -layout breakpoints assembly source variables stack !threads
+dashboard assembly -style function False
+dashboard assembly -style highlight-line True
+
