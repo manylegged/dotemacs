@@ -1,15 +1,15 @@
 {
-	"color_scheme": "Packages/Dayle Rees Color Schemes/sublime/halflife.tmTheme",
+	"color_scheme": "Packages/Rainglow/rainglow/Halflife (rainglow).tmTheme",
 	"ensure_newline_at_eof_on_save": true,
 	"font_face": "PragmataPro Liga",
-	"font_size": 12,
+	"font_size": 11,
 	"highlight_line": true,
 	"ignored_packages":
 	[
 		"Vintage",
 	],
 	"indent_to_bracket": true,
-	"margin": 2,
+	"margin": 4,
 	"scroll_past_end": true,
 	"show_line_endings": true,
 	"theme": "Adaptive.sublime-theme",
@@ -17,4 +17,7 @@
 	"auto_complete_commit_on_tab": true,
 	"auto_complete_trailing_symbols": true,
 	"trim_trailing_white_space_on_save": true,
+	//"gutter": false
+	/*"margin": 4,*/
+	"fold_buttons": false,
 }

@@ -26,6 +26,17 @@
     { "keys": ["ctrl+shift+/"], "command": "redo" },
     //{ "keys": ["f5"], "command": "revert" },
 
+    { // rebind from alt+shift+8
+        "keys": ["alt+shift+7"],
+        "command": "set_layout",
+        "args":
+        {
+            "cols": [0.0, 1.0],
+            "rows": [0.0, 0.5, 1.0],
+            "cells": [[0, 0, 1, 1], [0, 1, 1, 2]]
+        }
+    },
+
     { "keys": ["ctrl+shift+n"], "command": "move", "args": {"by": "lines", "forward": true, "extend": true} },
 
     { "keys": ["ctrl+s"], "command": "save" },
@@ -54,6 +65,9 @@
     //     ]},
     { "keys": ["ctrl+x", "ctrl+f"], "command": "show_panel", "args": {"panel": "find", "reverse": false} },
     { "keys": ["f2"], "command": "show_panel", "args": {"panel": "find", "reverse": false}, },
+
+    { "keys": ["f1"], "command": "show_panel", "args": {"panel": "output.exec"} },
+    { "keys": ["ctrl+7"], "command": "show_panel", "args": {"panel": "output.exec"} },
 
     { "keys": ["ctrl+shift+l"], "command": "expand_selection", "args": {"to": "line"} },
     { "keys": ["ctrl+d"], "command": "find_under_expand" },
