@@ -2,7 +2,8 @@
 ---
 # http://www.sublimetext.com/docs/3/syntax.html
 name: C++
-comment: I don't think anyone uses .hp. .cp tends to be paired with .h. (I could be wrong. :) -- chris
+scope: source.c++
+
 file_extensions:
   - cpp
   - cc
@@ -17,8 +18,14 @@ file_extensions:
   - h++
   - inl
   - ipp
-first_line_match: '-\*- C\+\+ -\*-'
-scope: source.c++
+  - ixx
+  - cppm
+
+first_line_match: |-
+  (?xi:
+    ^ \s* // .*? -\*- .*? \b(c\+\+|cpp\b) .*? -\*-  # editorconfig
+  )
+
 variables:
   # number digits
   bin_digit: '[01'']'
@@ -33,7 +40,7 @@ variables:
   hex_exponent: '(?:[pP][-+]?{{dec_digit}}*)'
 
   # number suffixes
-  # note: nearly everything can be defined as suffix 
+  # note: nearly everything can be defined as suffix
   # a) see user literals
   #    https://en.cppreference.com/w/cpp/language/user_literal
   # b) see complex `operator` keyword
@@ -41,7 +48,7 @@ variables:
   bin_suffix: '[2-9a-zA-Z_][[:alnum:]_]*'
   oct_suffix: '[8-9g-zG-Z_][[:alnum:]_]*'
   dec_suffix: '[a-zA-Z_][[:alnum:]_]*'
-  hex_suffix: '[g-zG-Z_][[:alnum:]_]*'  
+  hex_suffix: '[g-zG-Z_][[:alnum:]_]*'
   float_suffix: '[fF]'
 
   identifier: \b[[:alpha:]_][[:alnum:]_]*\b # upper and lowercase
@@ -64,6 +71,7 @@ variables:
   other_keywords: 'typedef|nullptr|{{visibility_modifiers}}|static_assert|sizeof|using|typeid|alignof|alignas|namespace|template'
   modifiers: '{{storage_classes}}|{{type_qualifier}}|{{compiler_directive}}|{{constant_expression_specifiers}}'
   non_angle_brackets: '(?=<<|<=)'
+  module_identifier: '{{identifier}}(?:\.{{identifier}})*'
 
   regular: '[^(){}&;*^%=<>-]*'
   regular_plus: '[^(){}&;*^%=<>-]+'
@@ -76,6 +84,18 @@ variables:
 
   data_structures_forward_decl_lookahead: '(\s+{{macro_identifier}})*\s*(:\s*({{path_lookahead}}|{{visibility_modifiers}}|,|\s|<[^;]*>)+)?;'
   non_func_keywords: 'if|for|switch|while|decltype|sizeof|__declspec|__attribute__|typeid|alignof|alignas|static_assert'
+
+  format_spec: |-
+    (?x:
+      (?:.? [<>=^])?     # fill align
+      [ +-]?             # sign
+      \#?                # alternate form
+      # technically, octal and hexadecimal integers are also supported as 'width', but rarely used
+      \d*                # width
+      ,?                 # thousands separator
+      (?:\.\d+)?         # precision
+      [bcdeEfFgGnosxX%]? # type
+    )
 
 contexts:
   main:
@@ -107,7 +127,7 @@ contexts:
 
   unique-variables:
     - match: \bthis\b
-      scope: variable.language.c++ constant.language.c++
+      scope: variable.language.c++
     # common C++ instance var naming idiom -- fMemberName
     - match: '\b(f|m)[[:upper:]]\w*\b'
       scope: variable.other.readwrite.member.c++
@@ -155,6 +175,9 @@ contexts:
         - match: '\)\3"'
           scope: punctuation.definition.string.end.c++
           pop: true
+        - match: '\{\{|\}\}'
+          scope: constant.character.escape.c++
+        - include: formatting-syntax
 
   numbers:
     # https://en.cppreference.com/w/cpp/language/floating_literal
@@ -270,6 +293,7 @@ contexts:
           set: global-modifier
     - include: using-namespace
     - include: namespace
+    - include: module
     - include: keywords-angle-brackets
     - match: '(?={{path_lookahead}}\s*<)'
       push: global-modifier
@@ -322,6 +346,21 @@ contexts:
   statements:
     - include: preprocessor-statements
     - include: scope:source.c#label
+    - include: expressions
+
+  statements-enum:
+    - include: comments
+    - include: preprocessor-statements
+    - include: scope:source.c#label
+    - match: '{{identifier}}'
+      scope: entity.name.constant.c++
+      push: constant-value
+    - match: ','
+      scope: punctuation.separator.c++
+
+  constant-value:
+    - match: (?=[,;}])
+      pop: true
     - include: expressions
 
   expressions:
@@ -429,7 +468,68 @@ contexts:
 
   strings:
     - include: unique-strings
+    - match: '(L|u8|u|U)?(")'
+      captures:
+        1: storage.type.string.c++
+        2: punctuation.definition.string.begin.c++
+      push:
+        - meta_scope: string.quoted.double.c++
+        - match: '"'
+          scope: punctuation.definition.string.end.c++
+          pop: true
+        - include: scope:source.c#string_escaped_char
+        - match: |-
+            (?x)%
+              (\d+\$)?                                      # field (argument #)
+              [#0\- +']*                                    # flags
+              [,;:_]?                                       # separator character (AltiVec)
+              ((-?\d+)|\*(-?\d+\$)?)?                       # minimum field width
+              (\.((-?\d+)|\*(-?\d+\$)?)?)?                  # precision
+              (hh|h|ll|l|j|t|z|q|L|vh|vl|v|hv|hl)?          # length modifier
+              (\[[^\]]+\]|[am]s|[diouxXDOUeEfFgGaACcSspn%]) # conversion type
+          scope: constant.other.placeholder.c++
+        - match: '\{\{|\}\}'
+          scope: constant.character.escape.c++
+        - include: formatting-syntax
+    - match: '(LSR?)(\([a-zA-Z0-9_]*\))'
+      captures:
+        1: storage.type.string.c++
+        2: string.quoted.double.c++
     - include: scope:source.c#strings
+
+  formatting-syntax:
+    # https://docs.python.org/3.6/library/string.html#formatstrings
+    - match: |- # simple form
+        (?x)
+        (\{)
+          (?: [\w.\[\]]+)?             # field_name
+          (   ! [ars])?                # conversion
+          (   : (?:{{format_spec}}|    # format_spec OR
+                   [^}%]*%.[^}]*)      # any format-like string
+          )?
+        (\})
+      scope: constant.other.placeholder.c++
+      captures:
+        1: punctuation.definition.placeholder.begin.c++
+        2: storage.modifier.c++onversion.c++
+        3: constant.other.format-spec.c++
+        4: punctuation.definition.placeholder.end.c++
+    - match: \{(?=[^\}"']+\{[^"']*\}) # complex (nested) form
+      scope: punctuation.definition.placeholder.begin.c++
+      push:
+        - meta_scope: constant.other.placeholder.c++
+        - match: \}
+          scope: punctuation.definition.placeholder.end.c++
+          pop: true
+        - match: '[\w.\[\]]+'
+        - match: '![ars]'
+          scope: storage.modifier.conversion.c++
+        - match: ':'
+          push:
+            - meta_scope: meta.format-spec.c++ constant.other.format-spec.c++
+            - match: (?=\})
+              pop: true
+            - include: formatting-syntax
 
   ## C++-specific contexts
 
@@ -513,10 +613,10 @@ contexts:
       scope: keyword.operator.word.cast.c++
       push:
         - match: '>'
-          scope: punctuation.section.generic.end.c++
+          scope: punctuation.definition.generic.end.c++
           pop: true
         - match: '<'
-          scope: punctuation.section.generic.begin.c++
+          scope: punctuation.definition.generic.begin.c++
           push:
             - match: '(?=>)'
               pop: true
@@ -573,6 +673,116 @@ contexts:
                 - include: global
             - include: expressions
 
+  module-identifier:
+    # Special handling for trailing periods to prevent color changing while typing.
+    # Exit to catch invalid trailing period.
+    - match: '(?=\.\s*[\:;])'
+      pop: true
+    # Prevent color changing.
+    - match: \.
+      scope: entity.name.module.c++
+    # Upcoming partition.
+    - match: (?=\s*\:)
+      pop: true
+    # Forgotten semmi-colon, fully abort out to handle upcoming syntax.
+    - match: (?=\s*\S)
+      pop: 2
+    - match: '' #safety pop
+      pop: true
+
+  module-error-handling:
+    # Stray periods in the name are invalid.
+    # Only mark the first period as invalid, even though trailing periods are also invalid.
+    - match: '\B\.'
+      scope: invalid.illegal.unexpected-character.c++
+    # Stray period at end of module name.
+    - match: '(\.)(?=\s*\:)'
+      captures:
+        1: invalid.illegal.unexpected-character.c++
+    # Module partition - check for invalid partition names.
+    - match: (\:)\s*({{module_identifier}})(?:\s*(\:))?
+      captures:
+        1: punctuation.accessor.c++
+        2: entity.name.partition.other
+        3: invalid.illegal.unexpected-character.c++
+    # End of line, but also check for stray period.
+    - match: '(\.\s*)?(;)'
+      captures:
+        1: invalid.illegal.unexpected-character.c++
+        2: punctuation.terminator.c++
+      pop: true
+    - match: (?=\S|$) # safety pop
+      pop: true
+
+  module:
+    # The export keyword can go before most anything.
+    - match: '\b(export)\s+'
+      captures:
+        1: keyword.control.c++
+      push:
+        # export {...} block.
+        - match: '\}'
+          scope: meta.block.c++ punctuation.section.block.end.c++
+          pop: true
+        - match: '\{'
+          scope: punctuation.section.block.begin.c++
+          push:
+            - meta_scope: meta.block.c++
+            - match: '(?=\})'
+              pop: true
+            - include: preprocessor-global
+            - include: global
+        # If this is exporting a module declaration, pop so we can handle it.
+        - match: '(?=(module|import))'
+          pop: true
+        # Otherwise, set into a normal declaration.  We are exporting a function or something.
+        - match: ''
+          set: global-type
+
+    - match: '\b(import)\s+'
+      captures:
+        1: keyword.control.c++
+      push:
+        - meta_scope: meta.module.c++
+        # Module name.
+        - match: '{{module_identifier}}'
+          scope: entity.name.module.c++
+          push: module-identifier
+        # import "header";
+        - match: '"'
+          scope: punctuation.definition.string.begin.c++
+          push:
+            - meta_scope: meta.module.import.c++ string.quoted.double.import.c++
+            - match: '"'
+              scope: punctuation.definition.string.end.c++
+              pop: true
+        # import <header>;
+        - match: \<
+          scope: punctuation.definition.string.begin.c++
+          push:
+            - meta_scope: meta.module.import.c++ string.quoted.other.lt-gt.import.c++
+            - match: '>'
+              scope: punctuation.definition.string.end.c++
+              pop: true
+        - include: module-error-handling
+
+    - match: '\b(module)(\s+)?'
+      captures:
+        1: keyword.control.c++
+      push:
+        - meta_scope: meta.module.c++
+        # Module name.
+        - match: '{{module_identifier}}'
+          scope: entity.name.module.c++
+          push: module-identifier
+        # Module partition - check for invalid partition names.
+        - match: (\:)\s*(private)(?:\s*(\:))?
+          captures:
+            1: punctuation.accessor.c++
+            2: entity.name.partition.private
+            3: invalid.illegal.unexpected-character.c++
+        - include: module-error-handling
+
   template-common:
     # Exit the template scope if we hit some basic invalid characters. This
     # helps when a user is in the middle of typing their template types and
@@ -590,11 +800,11 @@ contexts:
         # \S lookahead in the case of comments.
         - include: comments
         - match: <
-          scope: punctuation.section.generic.begin.c++
+          scope: punctuation.definition.generic.begin.c++
           set:
             - meta_content_scope: meta.template.c++
             - match: '>'
-              scope: meta.template.c++ punctuation.section.generic.end.c++
+              scope: meta.template.c++ punctuation.definition.generic.end.c++
               pop: true
             - match: \.{3}
               scope: keyword.operator.variadic.c++
@@ -619,10 +829,10 @@ contexts:
           captures:
             1: punctuation.accessor.double-colon.c++
             2: variable.function.c++
-            3: punctuation.section.generic.begin.c++
+            3: punctuation.definition.generic.begin.c++
           push:
             - match: '>'
-              scope: punctuation.section.generic.end.c++
+              scope: punctuation.definition.generic.end.c++
               pop: true
             - include: expressions-minus-generic-type-function-call
         - match: (?:(::)\s*)?({{identifier}})\s*(\()
@@ -673,19 +883,19 @@ contexts:
       push:
         - include: identifiers
         - match: '<'
-          scope: punctuation.section.generic.begin.c++
+          scope: punctuation.definition.generic.begin.c++
           set:
             - match: '>'
-              scope: punctuation.section.generic.end.c++
+              scope: punctuation.definition.generic.end.c++
               pop: true
             - include: expressions-minus-generic-type-function-call
 
   angle-brackets:
     - match: '<(?!<)'
-      scope: punctuation.section.generic.begin.c++
+      scope: punctuation.definition.generic.begin.c++
       push:
         - match: '>'
-          scope: punctuation.section.generic.end.c++
+          scope: punctuation.definition.generic.end.c++
           pop: true
         - include: expressions-minus-generic-type-function-call
 
@@ -782,11 +992,11 @@ contexts:
       set:
         - meta_scope: meta.method-call.c++
         - match: <
-          scope: punctuation.section.generic.begin.c++
+          scope: punctuation.definition.generic.begin.c++
           set:
             - meta_content_scope: meta.method-call.c++
             - match: '>'
-              scope: punctuation.section.generic.end.c++
+              scope: punctuation.definition.generic.end.c++
               set:
                 - meta_content_scope: meta.method-call.c++
                 - include: comments
@@ -1263,7 +1473,7 @@ contexts:
         - match: '\}'
           scope: meta.enum.c++ meta.block.c++ punctuation.section.block.end.c++
           pop: true
-        - include: statements
+        - include: statements-enum
 
   data-structures-union-definition:
     - meta_scope: meta.union.c++
@@ -2174,4 +2384,3 @@ contexts:
         2: constant.numeric.c++
         #2: source.c++
         3: comment.block.c++
-

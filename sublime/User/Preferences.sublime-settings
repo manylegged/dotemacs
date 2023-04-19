@@ -1,5 +1,5 @@
 {
-	"color_scheme": "Packages/Rainglow/rainglow/Halflife (rainglow).tmTheme",
+	"color_scheme": "Packages/Rainglow/rainglow/Arstotzka (rainglow).tmTheme",
 	"ensure_newline_at_eof_on_save": true,
 	"font_face": "PragmataPro Liga",
 	"font_size": 11,
@@ -9,7 +9,7 @@
 		"Vintage",
 	],
 	"indent_to_bracket": true,
-	"margin": 4,
+	"margin": 2,
 	"scroll_past_end": true,
 	"show_line_endings": true,
 	"theme": "Adaptive.sublime-theme",

@@ -11,16 +11,18 @@ else
 	VPATH="`cygpath $APPDATA`/Code/User"
 fi
 
+PACKAGES="User C++ Rainglow"
+
 if [ "$1" = "pull" ]; then
-    mkdir -p "$SPATH/User/"
-    cp -v User/* "$SPATH/User/"
-    mkdir -p "$SPATH/C++/"
-    cp -v C++/* "$SPATH/C++/"
+	for pkg in $PACKAGES; do
+    	cp -vr $pkg "$SPATH/"
+	done
     mkdir -p "$VPATH"
     cp -v ../vscode/* "$VPATH/"
 elif [ "$1" = "push" ]; then
-    cp -v "$SPATH/User/"* User/
-    cp -v "$SPATH/C++/"* C++/
+	for pkg in $PACKAGES; do
+        cp -vr "$SPATH/$pkg" .
+	done
     cp -v $VPATH/*.json ../vscode/
 else
     echo "push or pull"
