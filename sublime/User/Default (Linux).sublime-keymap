@@ -26,6 +26,9 @@
     { "keys": ["ctrl+shift+/"], "command": "redo" },
     //{ "keys": ["f5"], "command": "revert" },
 
+    { "keys": ["ctrl++"], "command": "increase_font_size" },
+    { "keys": ["ctrl+shift+="], "command": "decrease_font_size" },
+
     { "keys": ["ctrl+shift+n"], "command": "move", "args": {"by": "lines", "forward": true, "extend": true} },
 
     { "keys": ["ctrl+s"], "command": "save" },
