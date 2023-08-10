@@ -491,10 +491,10 @@ contexts:
         - match: '\{\{|\}\}'
           scope: constant.character.escape.c++
         - include: formatting-syntax
-    - match: '(LSR?)(\([a-zA-Z0-9_]*\))'
-      captures:
-        1: storage.type.string.c++
-        2: string.quoted.double.c++
+    # - match: '(LS[RV]?)(\([a-zA-Z0-9_]+\))' # match LS(foo) lstrings
+    #   captures:
+    #     1: storage.type.string.c++
+    #     2: string.quoted.double.c++
     - include: scope:source.c#strings
 
   formatting-syntax:

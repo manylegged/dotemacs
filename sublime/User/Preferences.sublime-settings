@@ -1,8 +1,8 @@
 {
-	"color_scheme": "Packages/Rainglow/rainglow/Arstotzka (rainglow).tmTheme",
+	"color_scheme": "Packages/Rainglow/rainglow/Halflife (rainglow).tmTheme",
 	"ensure_newline_at_eof_on_save": true,
 	"font_face": "PragmataPro Liga",
-	"font_size": 11,
+	"font_size": 12,
 	"highlight_line": true,
 	"ignored_packages":
 	[
@@ -20,4 +20,9 @@
 	//"gutter": false
 	/*"margin": 4,*/
 	"fold_buttons": false,
+	"added_words":
+	[
+		"shader"
+	],
+	"block_caret": true,
 }

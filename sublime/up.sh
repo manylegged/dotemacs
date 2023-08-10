@@ -11,7 +11,7 @@ else
 	VPATH="`cygpath $APPDATA`/Code/User"
 fi
 
-PACKAGES="User C++ Rainglow"
+PACKAGES="User C++ Rainglow Clojure"
 
 if [ "$1" = "pull" ]; then
 	for pkg in $PACKAGES; do

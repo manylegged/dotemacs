@@ -106,11 +106,22 @@ Find more themes at : https://github.com/rainglow
             <key>name</key>
             <string>User-defined constant</string>
             <key>scope</key>
-            <string>constant.character, constant.other</string>
+            <string>constant.other</string>
             <key>settings</key>
             <dict>
                 <key>foreground</key>
                 <string>#7d8991</string>
+            </dict>
+        </dict>
+        <dict>
+            <key>name</key>
+            <string>User-defined constant</string>
+            <key>scope</key>
+            <string>constant.character</string>
+            <key>settings</key>
+            <dict>
+                <key>foreground</key>
+                <string>#fc913a</string>
             </dict>
         </dict>
         <dict>
