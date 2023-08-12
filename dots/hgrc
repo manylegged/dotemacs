@@ -1,0 +1,21 @@
+[extensions]
+#activity=/Users/arthur/Documents/HGActivity/activity/
+hgext.extdiff =
+hgext.bookmarks=
+#hggit=
+color=
+pager=
+hgext.churn=
+purge=
+
+[ui]
+merge = meld
+
+[merge-tools]
+#emacs.args = -q --eval "(require 'ediff)" --eval "(setq ediff-window-setup-function 'ediff-setup-windows-plain)" --eval "(add-hook 'ediff-quit-hook 'save-buffers-kill-emacs)" --eval "(ediff-merge-with-ancestor \""$local"\" \""$other"\" \""$base"\" nil \""$output"\")"
+#emacs.executable = /usr/bin/emacs
+
+[pager]
+pager = LESS='FRX' less
+quiet = True
+

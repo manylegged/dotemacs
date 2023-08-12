@@ -6,16 +6,14 @@
 	"installed_packages":
 	[
 		"A File Icon",
-		"Compressor",
-		"Dayle Rees Color Schemes",
+		"ANSIescape",
 		"Emacs Pro Essentials",
 		"Mercurial",
 		"OpenGL Shading Language (GLSL)",
 		"Package Control",
 		"PackageResourceViewer",
+		"Rainglow",
 		"SFTP",
-	],
-	"channels":
-	[
+		"Show Character Code",
 	],
 }

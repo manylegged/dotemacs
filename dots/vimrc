@@ -1,0 +1,8 @@
+"set number
+set vartabstop=
+set tabstop=4
+set shiftwidth=4
+set expandtab
+filetype plugin on
+filetype indent on
+syntax on

@@ -1,0 +1,6 @@
+setxkbmap -option
+setxkbmap -option ctrl:nocaps
+xset s blank
+#export TERMINAL=alacritty
+export EDITOR=subl
+#export QT_QPA_PLATFORMTHEME="qt5ct"

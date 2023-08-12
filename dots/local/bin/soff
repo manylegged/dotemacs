@@ -1,0 +1,11 @@
+#!/bin/sh
+
+while true; do
+    sleep 49s
+    if [[ -n $(pidof kodi.bin) ]]; then
+        xscreensaver-command -deactivate &>/dev/null
+    elif xscreensaver-command -time | grep -v non-blanked; then
+        xset dpms force off
+    fi
+done
+
