@@ -2,7 +2,7 @@
 
 #git $1
 if [ `uname` = "Darwin" ]; then
-	SPATH="$HOME/Library/Application Support/Sublime Text/Packages"
+	SPATH="$HOME/Library/Application Support/Sublime Text 3/Packages"
 elif [ `uname` = "Linux" ]; then
 	SPATH="$HOME/.config/sublime-text/Packages"
 	VPATH="$HOME/.config/Code/User"
@@ -14,15 +14,15 @@ fi
 PACKAGES="User C++ Rainglow Clojure"
 
 if [ "$1" = "pull" ]; then
-	for pkg in $PACKAGES; do
-    	cp -vr $pkg "$SPATH/"
-	done
+    for pkg in $PACKAGES; do
+    	cp -vr "$pkg" "$SPATH/"
+    done
     mkdir -p "$VPATH"
     cp -v ../vscode/* "$VPATH/"
 elif [ "$1" = "push" ]; then
-	for pkg in $PACKAGES; do
+    for pkg in $PACKAGES; do
         cp -vr "$SPATH/$pkg" .
-	done
+    done
     cp -v $VPATH/*.json ../vscode/
 else
     echo "push or pull"
