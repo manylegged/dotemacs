@@ -12,6 +12,7 @@
     { "keys": ["ctrl+j"], "command": "insert", "args": {"characters": "\n" } },
     { "keys": ["ctrl+c", "ctrl+a"], "command": "alignment"},
     { "keys": ["f5"], "command": "build", "args": {"select": true} },
+    { "keys": ["ctrl+shift+f7"], "command": "cancel_build" },
     { "keys": ["f10"], "command": "toggle_side_bar" },
     { "keys": ["f8"], "command": "next_result" },
     { "keys": ["alt+'"], "command": "next_result" },
