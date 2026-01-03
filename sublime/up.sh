@@ -14,6 +14,7 @@ fi
 PACKAGES="User C++ Rainglow Clojure"
 
 if [ "$1" = "pull" ]; then
+    mkdir -p "$SPATH"
     for pkg in $PACKAGES; do
     	cp -vr "$pkg" "$SPATH/"
     done
