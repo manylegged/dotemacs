@@ -1,5 +1,5 @@
 {
-	"color_scheme": "Packages/Rainglow/rainglow/Halflife (rainglow).tmTheme",
+	"color_scheme": "Packages/Rainglow/rainglow/Hyrule (rainglow).tmTheme",
 	"ensure_newline_at_eof_on_save": true,
 	"font_face": "PragmataPro Liga",
 	"font_size": 12,
@@ -16,13 +16,17 @@
 	"translate_tabs_to_spaces": true,
 	"auto_complete_commit_on_tab": true,
 	"auto_complete_trailing_symbols": true,
-	"trim_trailing_white_space_on_save": true,
+	"trim_trailing_white_space_on_save": "all",
+	// "trim_only_modified_white_space": false,
 	//"gutter": false
 	/*"margin": 4,*/
 	"fold_buttons": false,
 	"added_words":
 	[
-		"shader"
+		"shader",
+		"regolith",
 	],
 	"block_caret": true,
+	"index_files": true,
+	"show_encoding": true,
 }

@@ -16,18 +16,19 @@ first_line_match: |-
   )
 
 variables:
-  non_symbol_chars: \s,;\(\)\[\]{}\"`~@\^\\
+  non_symbol_chars: \s,;\(\)\[\]{}\"`~@\^\\[.]
   non_symbol_start_chars: '{{non_symbol_chars}}\d#'':'
-  non_number_chars: '{{non_symbol_chars}}#'''
+  non_number_chars: \s,;\(\)\[\]{}\"`~@\^\\
   non_char_chars: '{{non_symbol_chars}}#'''
   atom: '[^{{non_symbol_chars}}]+'
   symbol: (?:/|[^{{non_symbol_start_chars}}][^{{non_symbol_chars}}]*)
   # Slightly too permissive
   keyword: (:):?[^:{{non_symbol_chars}}][^{{non_symbol_chars}}]*
   constant: (?:nil|true|false)(?=[{{non_symbol_chars}}])
+
   # Helios lisp
-  control: (?:if|do|and|or|when|unless|for|while|continue|break|case|cond|var|return|yield|let|finally|catch|namespace|class|match|dotimes|else|fluid-let)(?=[{{non_symbol_chars}}])
-  builtin: (?:set|assert|assert_eq|error|push|pop|sort|nreverse|help|setcar|setcdr|macro|throw|print|dir|[+]=|[*]=|/=/-=|require|provide|incr)(?=[{{non_symbol_chars}}])
+  control: (?:if|do|and|or|when|unless|for|while|continue|break|case|cond|var|return|yield|let|finally|catch|namespace|class|match|else|try|fluid-let)(?=[{{non_symbol_chars}}])
+  builtin: (?:set|assert|assert_eq|error|push|pop|ref|sort|nreverse|nremove|help|throw|print|dprint|dir|next|[+][+]|--|[+]=|[*]=|/=/-=|[|]=|&=|require|provide|os|vm|compile)(?=[{{non_symbol_chars}}])
   evil_octal: '[-+]?0\d+N?(?=[{{non_symbol_chars}}])'
 
   # Similar to the number regexps in the Clojure reader.
@@ -63,6 +64,8 @@ contexts:
     - match: \[
       scope: punctuation.section.brackets.begin.clojure
       push:
+        - match: (?:else)(?=[{{non_symbol_chars}}])
+          scope: keyword.control.clojure
         - match: \]
           scope: punctuation.section.brackets.end.clojure
           pop: true
@@ -80,7 +83,7 @@ contexts:
     - match: '#'
       scope: keyword.operator.macro.clojure
       push: pop-dispatch-expr
-    - match: '''|`|~|@'
+    - match: '''|`|,|@'
       scope: keyword.operator.macro.clojure
       push: pop-expr
     - match: \\\S[^{{non_char_chars}}]*
@@ -158,7 +161,7 @@ contexts:
     - match: '#'
       scope: keyword.operator.macro.clojure
       set: pop-dispatch-expr
-    - match: '''|`|~|@'
+    - match: '''|`|,|@'
       scope: keyword.operator.macro.clojure
       set: pop-expr
     - match: '\\\S[^{{non_char_chars}}]*'
