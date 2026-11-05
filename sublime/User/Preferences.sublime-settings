@@ -1,5 +1,5 @@
 {
-	"color_scheme": "Packages/Rainglow/rainglow/Hyrule (rainglow).tmTheme",
+	"color_scheme": "Packages/Rainglow/rainglow/Halflife (rainglow).tmTheme",
 	"ensure_newline_at_eof_on_save": true,
 	"font_face": "PragmataPro Liga",
 	"font_size": 12,
@@ -29,4 +29,7 @@
 	"block_caret": true,
 	"index_files": true,
 	"show_encoding": true,
+	"drag_text": false,
+	"file_icon_theme": [
+	],
 }

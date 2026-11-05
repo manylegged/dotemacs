@@ -27,8 +27,8 @@ variables:
   constant: (?:nil|true|false)(?=[{{non_symbol_chars}}])
 
   # Helios lisp
-  control: (?:if|do|and|or|when|unless|for|while|continue|break|case|cond|var|return|yield|let|finally|catch|namespace|class|match|else|try|fluid-let)(?=[{{non_symbol_chars}}])
-  builtin: (?:set|assert|assert_eq|error|push|pop|ref|sort|nreverse|nremove|help|throw|print|dprint|dir|next|[+][+]|--|[+]=|[*]=|/=/-=|[|]=|&=|require|provide|os|vm|compile)(?=[{{non_symbol_chars}}])
+  control: (?:if|do|and|or|when|unless|for|while|until|continue|break|case|cond|var|return|yield|let|finally|catch|namespace|class|match|else|try|fluid-let)(?=[{{non_symbol_chars}}])
+  builtin: (?:set|toggle|assert|assert_eq|error|push|pop|ref|sort|nreverse|nremove|help|throw|print|dprint|echo|dir|next|[+][+]|--|[+]=|[*]=|/=/-=|[|]=|&=|require|provide|os|vm|compile)(?=[{{non_symbol_chars}}])
   evil_octal: '[-+]?0\d+N?(?=[{{non_symbol_chars}}])'
 
   # Similar to the number regexps in the Clojure reader.
